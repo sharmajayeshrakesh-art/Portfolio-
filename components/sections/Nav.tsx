@@ -42,12 +42,9 @@ export default function Nav() {
         </button>
 
         <nav
-          className={`hidden items-center gap-1 rounded-pill border px-2 py-1.5 backdrop-blur transition-all duration-500 md:flex ${
-            scrolled
-              ? "border-line-strong bg-surface/70 shadow-lux-sm"
-              : "border-transparent bg-transparent"
+          className={`hidden items-center gap-1 rounded-pill px-2 py-1.5 transition-all duration-500 md:flex ${
+            scrolled ? "glass" : "border border-transparent bg-transparent"
           }`}
-          style={scrolled ? { boxShadow: "var(--shadow-lux-sm)" } : undefined}
         >
           {LINKS.map((l) => (
             <button

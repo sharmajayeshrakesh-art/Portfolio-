@@ -13,7 +13,4 @@ node_modules/
 .DS_Store
 
 # local dev / QA harness (not part of the deliverable)
-/_shot.mjs
-/_debug.mjs
-/_qa.mjs
-/_export_shot.mjs
+/_*.mjs

@@ -54,9 +54,17 @@ export default function IdentityCard() {
       if (document.readyState === "complete") enter();
       window.addEventListener("page:ready", enter, { once: true });
 
-      if (reduce || !fine.matches) return;
+      if (reduce) return;
 
-      // Idle float (overridden while the pointer is on the card).
+      // Continuous float — a clear vertical bob plus a gentle idle tilt. The
+      // bob runs on every device; pointer parallax below is fine-pointer only.
+      gsap.to(el, {
+        y: "-=18",
+        duration: 2.8,
+        ease: "sine.inOut",
+        yoyo: true,
+        repeat: -1,
+      });
       const idle = gsap.to(el, {
         rotateY: "+=6",
         rotateX: "-=3",
@@ -65,6 +73,8 @@ export default function IdentityCard() {
         yoyo: true,
         repeat: -1,
       });
+
+      if (!fine.matches) return;
 
       const rotX = gsap.quickTo(el, "rotationX", {
         duration: 0.6,
@@ -149,7 +159,7 @@ export default function IdentityCard() {
 
       <div
         ref={card}
-        className="relative aspect-[5/7] w-[264px] rounded-[26px] sm:w-[320px] md:w-[380px]"
+        className="relative aspect-[5/7] w-[220px] rounded-[24px] sm:w-[250px] md:w-[290px]"
         style={{
           transformStyle: "preserve-3d",
           background:

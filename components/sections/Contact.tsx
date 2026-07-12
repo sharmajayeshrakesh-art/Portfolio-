@@ -49,6 +49,9 @@ export default function Contact() {
       />
 
       <Reveal className="mx-auto flex max-w-[1000px] flex-col items-center text-center" stagger={0.12}>
+        <span className="glass mb-8 inline-flex items-center rounded-pill px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-2">
+          Currently taking projects
+        </span>
         <h2 className="font-display text-[clamp(2.6rem,9vw,4.5rem)] font-semibold leading-[1.0] tracking-tight text-ink">
           Let&rsquo;s build something
           <br />

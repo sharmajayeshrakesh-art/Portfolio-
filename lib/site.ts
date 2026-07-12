@@ -90,3 +90,50 @@ export const projects: Project[] = [
     placeholder: true,
   },
 ];
+
+/** Types of websites we build together — drives the "What we build" section. */
+export type Service = {
+  key: string;
+  title: string;
+  line: string;
+  includes: string[];
+};
+
+export const services: Service[] = [
+  {
+    key: "landing",
+    title: "Landing pages",
+    line: "One page with one job: turn a visitor into a lead.",
+    includes: ["Conversion-first structure", "Motion that guides the eye", "Sub-second load"],
+  },
+  {
+    key: "brand",
+    title: "Brand & marketing sites",
+    line: "A multi-page presence that makes a company look bigger than it is.",
+    includes: ["Design system", "Editable content", "SEO foundations"],
+  },
+  {
+    key: "commerce",
+    title: "E-commerce",
+    line: "Storefronts that make the product feel worth the price.",
+    includes: ["Considered product pages", "Fast checkout", "Shopify or headless"],
+  },
+  {
+    key: "saas",
+    title: "SaaS product sites",
+    line: "Turn a dense product into a story a buyer actually finishes.",
+    includes: ["Feature narrative", "Pricing that converts", "Docs-ready"],
+  },
+  {
+    key: "portfolio",
+    title: "Portfolios",
+    line: "Show the work like it matters, because it does.",
+    includes: ["Explorable case studies", "Image-first galleries", "Editable content"],
+  },
+  {
+    key: "interactive",
+    title: "3D & interactive",
+    line: "When a site needs to feel like the future, not a template.",
+    includes: ["Real-time WebGL", "Scroll storytelling", "Custom motion systems"],
+  },
+];

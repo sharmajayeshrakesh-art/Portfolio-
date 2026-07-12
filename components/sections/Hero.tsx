@@ -50,24 +50,28 @@ export default function Hero() {
     else window.addEventListener("page:ready", play, { once: true });
     const fallback = window.setTimeout(play, 3200);
 
-    // Card -> page resolve: hero lifts and settles as the journey begins.
-    const st = ScrollTrigger.create({
-      trigger: root.current,
-      start: "top top",
-      end: "bottom top",
-      scrub: 1,
-      animation: gsap.to(".hero-stage", {
-        yPercent: -14,
-        rotateX: 8,
-        opacity: 0.6,
-        ease: "none",
-      }),
+    // Card -> page resolve: as the hero scrolls away, the copy lifts and fades
+    // while the card expands and dissolves — it "becomes" the site behind it.
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: root.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+      },
     });
+    tl.to(".hero-copy", { yPercent: -22, autoAlpha: 0, ease: "none" }, 0);
+    tl.to(
+      ".hero-card-wrap",
+      { scale: 1.4, autoAlpha: 0, ease: "power1.in", transformOrigin: "center" },
+      0
+    );
 
     return () => {
       window.removeEventListener("page:ready", play);
       window.clearTimeout(fallback);
-      st.kill();
+      tl.scrollTrigger?.kill();
+      tl.kill();
     };
   }, []);
 
@@ -81,7 +85,7 @@ export default function Hero() {
     >
       <div className="hero-stage mx-auto grid w-full max-w-[1400px] grid-cols-1 items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         {/* Copy */}
-        <div className="order-2 lg:order-1">
+        <div className="hero-copy order-2 lg:order-1">
           <p className="hero-fade mb-6 flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.24em] text-ink-3 opacity-0">
             <span className="inline-block h-px w-8 bg-accent" />
             {site.studioFull}
@@ -120,7 +124,7 @@ export default function Hero() {
         </div>
 
         {/* Identity card */}
-        <div className="order-1 flex justify-center lg:order-2 lg:justify-end">
+        <div className="hero-card-wrap order-1 flex justify-center lg:order-2 lg:justify-end">
           <IdentityCard />
         </div>
       </div>

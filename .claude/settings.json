@@ -14,5 +14,17 @@
         "API_KEY": "21st_sk_d8a632649b53397680b24398075c6f7aabb2c12ce63101a2843ba2a280c65a83"
       }
     }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ]
   }
 }

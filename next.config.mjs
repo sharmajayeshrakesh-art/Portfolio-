@@ -12,6 +12,8 @@ const nextConfig = {
   basePath: isPages ? `/${repo}` : "",
   assetPrefix: isPages ? `/${repo}/` : "",
   trailingSlash: true,
+  // Exposed to the client so plain <img> tags can prefix public assets.
+  env: { NEXT_PUBLIC_BASE_PATH: isPages ? `/${repo}` : "" },
 };
 
 export default nextConfig;

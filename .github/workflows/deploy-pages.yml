@@ -27,6 +27,7 @@ jobs:
       - name: Build static export
         env:
           PAGES: "1"
+          NEXT_PUBLIC_BASE_PATH: "/Portfolio-"
         run: npm run build
       - uses: actions/configure-pages@v5
         with:

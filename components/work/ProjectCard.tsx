@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "@/lib/gsap";
 import type { Project } from "@/lib/site";
+import { asset } from "@/lib/asset";
 import { ArrowUpRight } from "@phosphor-icons/react";
 
 /**
@@ -96,7 +97,7 @@ export default function ProjectCard({ project }: { project: Project }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={preview}
-            src={project.image}
+            src={asset(project.image)}
             alt={`${project.title}, ${project.category}`}
             className="absolute inset-x-0 top-0 h-[150%] w-full object-cover"
           />

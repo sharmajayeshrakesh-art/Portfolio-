@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { site } from "@/lib/site";
+import { asset } from "@/lib/asset";
 
 /**
  * Premium digital identity card. CSS 3D (perspective + preserve-3d), driven by
@@ -24,7 +25,7 @@ export default function IdentityCard() {
   useEffect(() => {
     const img = new Image();
     img.onload = () => setHasPortrait(true);
-    img.src = site.person.portrait;
+    img.src = asset(site.person.portrait);
   }, []);
 
   useGSAP(
@@ -196,7 +197,7 @@ export default function IdentityCard() {
             {hasPortrait ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
-                src={site.person.portrait}
+                src={asset(site.person.portrait)}
                 alt={`${site.person.name}, ${site.person.role}`}
                 className="h-full w-full object-cover opacity-95 grayscale-[0.35] contrast-[1.05]"
               />

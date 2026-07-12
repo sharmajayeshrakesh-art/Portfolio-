@@ -60,10 +60,15 @@ export default function Hero() {
         scrub: 1,
       },
     });
-    tl.to(".hero-copy", { yPercent: -22, autoAlpha: 0, ease: "none" }, 0);
+    tl.to(".hero-copy", { yPercent: -24, autoAlpha: 0, ease: "none", duration: 1 }, 0);
+    // The capsule parts: the glass case lifts up, the photo sinks down. Travel
+    // spans the whole scroll, but they fade out by ~half so they never linger
+    // over the nav.
+    tl.to(".id-case", { yPercent: -120, ease: "power1.in", duration: 1 }, 0);
+    tl.to(".id-photo", { yPercent: 120, ease: "power1.in", duration: 1 }, 0);
     tl.to(
-      ".hero-card-wrap",
-      { scale: 1.4, autoAlpha: 0, ease: "power1.in", transformOrigin: "center" },
+      [".id-case", ".id-photo"],
+      { autoAlpha: 0, ease: "power1.in", duration: 0.55 },
       0
     );
 

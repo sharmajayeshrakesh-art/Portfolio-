@@ -6,20 +6,20 @@ import { site } from "@/lib/site";
 import { asset } from "@/lib/asset";
 
 /**
- * Premium digital identity card. CSS 3D (perspective + preserve-3d), driven by
- * GSAP quickTo motion values — never React state. Pointer tilts the card,
- * moves a specular sheen, and shifts an iridescent holographic foil for a
- * metal/glass feel. Idle float when the pointer is away. 60fps, transform/
- * opacity only. Collapses to a static card under reduced motion / touch.
+ * Premium digital identity "capsule": a glassmorphism CASE with a B&W portrait
+ * mounted in the middle. Pointer tilts the whole capsule (CSS 3D via GSAP
+ * quickTo), a specular sheen tracks the cursor, and it floats at rest.
+ *
+ * The two layers are separable for the hero scroll transition: `.id-case`
+ * (the glass shell + identity chrome) and `.id-photo` (the portrait tile).
+ * The Hero parts them on scroll (case up, photo down) to reveal the site.
+ * 60fps, transform/opacity only; static under reduced motion / touch.
  */
 export default function IdentityCard() {
   const scene = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
   const sheen = useRef<HTMLDivElement>(null);
-  const foil = useRef<HTMLDivElement>(null);
   const glow = useRef<HTMLDivElement>(null);
-  // Start with the premium placeholder; swap in the real portrait only once
-  // we've confirmed /portrait.png loads (no broken-image flash).
   const [hasPortrait, setHasPortrait] = useState(false);
 
   useEffect(() => {
@@ -30,25 +30,15 @@ export default function IdentityCard() {
 
   useGSAP(
     () => {
-      const reduce = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
       const el = card.current!;
 
-      // Entrance — waits for the page loader hand-off.
       const enter = () => {
         gsap.fromTo(
           scene.current,
-          { opacity: 0, y: 40, rotateX: -18, scale: 0.94 },
-          {
-            opacity: 1,
-            y: 0,
-            rotateX: 0,
-            scale: 1,
-            duration: 1.4,
-            ease: "power3.out",
-          }
+          { opacity: 0, y: 40, rotateX: -16, scale: 0.94 },
+          { opacity: 1, y: 0, rotateX: 0, scale: 1, duration: 1.4, ease: "power3.out" }
         );
       };
       if (document.readyState === "complete") enter();
@@ -56,8 +46,7 @@ export default function IdentityCard() {
 
       if (reduce) return;
 
-      // Continuous float — a clear vertical bob plus a gentle idle tilt. The
-      // bob runs on every device; pointer parallax below is fine-pointer only.
+      // Continuous float on the whole capsule.
       gsap.to(el, {
         y: "-=18",
         duration: 2.8,
@@ -76,45 +65,22 @@ export default function IdentityCard() {
 
       if (!fine.matches) return;
 
-      const rotX = gsap.quickTo(el, "rotationX", {
-        duration: 0.6,
-        ease: "power3",
-      });
-      const rotY = gsap.quickTo(el, "rotationY", {
-        duration: 0.6,
-        ease: "power3",
-      });
-      const sheenX = gsap.quickTo(sheen.current, "xPercent", {
-        duration: 0.5,
-        ease: "power3",
-      });
-      const sheenY = gsap.quickTo(sheen.current, "yPercent", {
-        duration: 0.5,
-        ease: "power3",
-      });
-      const foilX = gsap.quickTo(foil.current, "xPercent", {
-        duration: 0.7,
-        ease: "power2",
-      });
-      const glowX = gsap.quickTo(glow.current, "xPercent", {
-        duration: 0.9,
-        ease: "power2",
-      });
-      const glowY = gsap.quickTo(glow.current, "yPercent", {
-        duration: 0.9,
-        ease: "power2",
-      });
+      const rotX = gsap.quickTo(el, "rotationX", { duration: 0.6, ease: "power3" });
+      const rotY = gsap.quickTo(el, "rotationY", { duration: 0.6, ease: "power3" });
+      const sheenX = gsap.quickTo(sheen.current, "xPercent", { duration: 0.5, ease: "power3" });
+      const sheenY = gsap.quickTo(sheen.current, "yPercent", { duration: 0.5, ease: "power3" });
+      const glowX = gsap.quickTo(glow.current, "xPercent", { duration: 0.9, ease: "power2" });
+      const glowY = gsap.quickTo(glow.current, "yPercent", { duration: 0.9, ease: "power2" });
 
       const onMove = (e: PointerEvent) => {
         const r = scene.current!.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width - 0.5; // -0.5..0.5
+        const px = (e.clientX - r.left) / r.width - 0.5;
         const py = (e.clientY - r.top) / r.height - 0.5;
         idle.pause();
-        rotY(px * 26);
-        rotX(-py * 26);
+        rotY(px * 24);
+        rotX(-py * 24);
         sheenX(px * 60);
         sheenY(py * 60);
-        foilX(px * 40);
         glowX(px * 30);
         glowY(py * 30);
       };
@@ -123,16 +89,14 @@ export default function IdentityCard() {
         rotY(0);
         sheenX(0);
         sheenY(0);
-        foilX(0);
         idle.play();
       };
-
-      const target = scene.current!;
-      target.addEventListener("pointermove", onMove);
-      target.addEventListener("pointerleave", onLeave);
+      const t = scene.current!;
+      t.addEventListener("pointermove", onMove);
+      t.addEventListener("pointerleave", onLeave);
       return () => {
-        target.removeEventListener("pointermove", onMove);
-        target.removeEventListener("pointerleave", onLeave);
+        t.removeEventListener("pointermove", onMove);
+        t.removeEventListener("pointerleave", onLeave);
         window.removeEventListener("page:ready", enter);
       };
     },
@@ -140,178 +104,125 @@ export default function IdentityCard() {
   );
 
   return (
-    <div
-      ref={scene}
-      className="relative"
-      style={{ perspective: "1400px" }}
-      data-cursor="Explore"
-    >
-      {/* Ambient mouse-reactive glow behind the card */}
+    <div ref={scene} className="relative" style={{ perspective: "1400px" }} data-cursor="Explore">
+      {/* Ambient glow behind — gives the glass something to refract */}
       <div
         ref={glow}
         aria-hidden
-        className="absolute -inset-24 -z-10 opacity-70 blur-3xl"
+        className="absolute -inset-24 -z-10 opacity-80 blur-3xl"
         style={{
           background:
-            "radial-gradient(closest-side, rgba(43,92,255,0.28), rgba(43,92,255,0) 70%)",
+            "radial-gradient(closest-side, rgba(43,92,255,0.4), rgba(43,92,255,0) 70%), radial-gradient(closest-side at 70% 80%, rgba(120,150,255,0.28), transparent 70%)",
         }}
       />
 
       <div
         ref={card}
-        className="relative aspect-[5/7] w-[220px] rounded-[24px] sm:w-[250px] md:w-[290px]"
-        style={{
-          transformStyle: "preserve-3d",
-          background:
-            "linear-gradient(155deg,#191d26 0%,#0d1016 46%,#0b0d12 100%)",
-          boxShadow: "var(--shadow-jewel)",
-        }}
+        className="relative aspect-[5/7] w-[230px] sm:w-[260px] md:w-[300px]"
+        style={{ transformStyle: "preserve-3d" }}
       >
-        {/* Chrome bevel frame */}
+        {/* CASE — the glassmorphism shell (separable layer) */}
         <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-[26px]"
-          style={{
-            padding: 1,
-            background:
-              "linear-gradient(150deg,rgba(255,255,255,0.5),rgba(255,255,255,0.04) 30%,rgba(255,255,255,0) 55%,rgba(255,255,255,0.14))",
-            WebkitMask:
-              "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-            WebkitMaskComposite: "xor",
-            maskComposite: "exclude",
-          }}
-        />
-
-        {/* Content */}
-        <div
-          className="relative flex h-full flex-col p-5"
-          style={{ transform: "translateZ(40px)" }}
+          className="id-case glass absolute inset-0 flex flex-col rounded-[26px] p-5"
+          style={{ borderRadius: "26px" }}
         >
-          {/* Top row */}
+          {/* top identity row */}
           <div className="flex items-start justify-between">
             <div className="flex flex-col">
-              <span className="font-display text-[13px] font-semibold uppercase tracking-[0.3em] text-white">
+              <span className="font-display text-[13px] font-semibold uppercase tracking-[0.28em] text-ink">
                 {site.studio}
               </span>
-              <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.22em] text-white/45">
+              <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-ink-3">
                 Digital Identity
               </span>
             </div>
-            <span className="font-mono text-[10px] tracking-[0.18em] text-accent-soft">
+            <span className="font-mono text-[10px] tracking-[0.16em] text-accent">
               {site.person.idNo}
             </span>
           </div>
 
-          {/* Portrait window */}
-          <div className="relative mt-4 flex-1 overflow-hidden rounded-[16px] border border-white/10 bg-[#0f1219]">
+          {/* spacer where the photo sits */}
+          <div className="flex-1" />
+
+          {/* bottom identity row */}
+          <div>
+            <div className="font-display text-lg font-semibold leading-tight text-ink">
+              {site.person.name}
+            </div>
+            <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.16em] text-ink-3">
+              {site.person.role}
+            </div>
+            <div className="mt-3 flex items-center justify-between">
+              <div
+                aria-hidden
+                className="h-5 w-8 rounded-[4px]"
+                style={{
+                  background:
+                    "linear-gradient(135deg,#e6e9ef,#a7aebc 45%,#f2f4f7 60%,#b6bcc8)",
+                  boxShadow: "inset 0 1px 1px rgba(255,255,255,0.7)",
+                }}
+              />
+              <div
+                aria-hidden
+                className="h-7 w-7 rounded-full"
+                style={{
+                  background:
+                    "conic-gradient(from 120deg,#2b5cff,#6a8bff,#b8c6ff,#2b5cff)",
+                  opacity: 0.9,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* specular sheen on the glass */}
+          <div
+            ref={sheen}
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-[26px]"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 35%,rgba(255,255,255,0.6),rgba(255,255,255,0) 55%)",
+              mixBlendMode: "overlay",
+            }}
+          />
+        </div>
+
+        {/* PHOTO — the portrait tile mounted in the middle (separable layer).
+            Positioned by inset (no centering transform) so the scroll-split can
+            animate it freely; depth comes from the inner translateZ layer. */}
+        <div
+          className="id-photo absolute left-[13%] right-[13%] top-[24%] h-[52%]"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <div
+            className="relative h-full w-full overflow-hidden rounded-[16px] border border-white/70"
+            style={{
+              transform: "translateZ(38px)",
+              boxShadow: "0 22px 44px -18px rgba(14,17,22,0.5)",
+            }}
+          >
             {hasPortrait ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={asset(site.person.portrait)}
                 alt={`${site.person.name}, ${site.person.role}`}
-                className="h-full w-full object-cover opacity-95 grayscale-[0.35] contrast-[1.05]"
+                className="h-full w-full object-cover"
               />
             ) : (
-              <PortraitPlaceholder />
+              <div className="flex h-full w-full items-center justify-center bg-grey-2">
+                <span className="font-display text-5xl font-semibold text-steel/40">
+                  {site.person.initials}
+                </span>
+              </div>
             )}
-
-            {/* Scanline / holographic sheen inside the window */}
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background:
-                  "repeating-linear-gradient(0deg,rgba(255,255,255,0.04) 0 2px,transparent 2px 4px)",
-                mixBlendMode: "overlay",
-                opacity: 0.4,
-              }}
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2"
-              style={{
-                background:
-                  "linear-gradient(to top,rgba(11,13,18,0.85),transparent)",
-              }}
-            />
-          </div>
-
-          {/* Identity line */}
-          <div className="mt-4" style={{ transform: "translateZ(30px)" }}>
-            <div className="font-display text-xl font-semibold leading-tight text-white">
-              {site.person.name}
-            </div>
-            <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-white/55">
-              {site.person.role}
-            </div>
-          </div>
-
-          {/* Chip + seal */}
-          <div
-            className="mt-4 flex items-center justify-between"
-            style={{ transform: "translateZ(30px)" }}
-          >
-            <div
-              aria-hidden
-              className="h-6 w-9 rounded-[5px]"
-              style={{
-                background:
-                  "linear-gradient(135deg,#d9dee6,#8b93a1 45%,#eef1f5 60%,#9aa2b0)",
-                boxShadow: "inset 0 1px 1px rgba(255,255,255,0.6)",
-              }}
-            />
-            <div
-              aria-hidden
-              className="h-8 w-8 rounded-full"
-              style={{
-                background:
-                  "conic-gradient(from 120deg,#2b5cff,#6a8bff,#b8c6ff,#2b5cff)",
-                filter: "saturate(1.1)",
-                opacity: 0.85,
-              }}
+              className="pointer-events-none absolute inset-0 rounded-[16px]"
+              style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)" }}
             />
           </div>
         </div>
-
-        {/* Iridescent holographic foil (moves with pointer) */}
-        <div
-          ref={foil}
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-[26px]"
-          style={{
-            background:
-              "linear-gradient(115deg,transparent 28%,rgba(150,185,255,0.10) 43%,rgba(255,255,255,0.22) 50%,rgba(130,165,255,0.10) 57%,transparent 72%)",
-            mixBlendMode: "screen",
-            transform: "translateZ(60px)",
-          }}
-        />
-
-        {/* Specular sheen (moves with pointer) */}
-        <div
-          ref={sheen}
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-[26px]"
-          style={{
-            background:
-              "radial-gradient(circle at 50% 40%,rgba(255,255,255,0.35),rgba(255,255,255,0) 55%)",
-            mixBlendMode: "screen",
-            transform: "translateZ(70px)",
-          }}
-        />
       </div>
-    </div>
-  );
-}
-
-function PortraitPlaceholder() {
-  return (
-    <div className="relative flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_50%_30%,#1b2130,#0c0f16)]">
-      <span className="font-display text-6xl font-semibold tracking-tight text-white/12">
-        {site.person.initials}
-      </span>
-      <span className="absolute bottom-3 left-0 right-0 text-center font-mono text-[8px] uppercase tracking-[0.2em] text-white/30">
-        Add /portrait.png
-      </span>
     </div>
   );
 }

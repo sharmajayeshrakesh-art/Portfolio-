@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+/* ============================================================
+   PORTFOLIO V2 — Cold-Luxury Design Tokens
+   One accent, one radius system, off-white base. Light locked.
+   ============================================================ */
+
+@theme {
+  /* Base / paper */
+  --color-paper: #fafafb;
+  --color-paper-2: #f4f5f7;
+  --color-mist: #eceef2;
+
+  /* Cool-grey surfaces */
+  --color-surface: #ffffff;
+  --color-surface-2: #f2f3f6;
+  --color-line: #e2e5ea;
+  --color-line-strong: #d3d7de;
+
+  /* Ink (cool near-black, never pure) */
+  --color-ink: #0e1116;
+  --color-ink-2: #3a3f47;
+  --color-ink-3: #6b7280;
+  --color-ink-4: #9aa1ab;
+
+  /* Jewel — the identity card dark ground */
+  --color-jewel: #0b0d12;
+  --color-jewel-2: #14171e;
+
+  /* Single accent — electric cobalt (<80% sat), locked page-wide */
+  --color-accent: #2b5cff;
+  --color-accent-soft: #6a8bff;
+  --color-accent-ink: #1841c9;
+
+  /* Radius system */
+  --radius-surface: 16px;
+  --radius-inset: 12px;
+  --radius-pill: 999px;
+
+  /* Fonts (wired via next/font in layout.tsx) */
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Motion */
+  --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --shadow-lux-sm: 0 1px 2px rgba(14, 17, 22, 0.04), 0 2px 8px rgba(14, 17, 22, 0.05);
+  --shadow-lux: 0 10px 30px -12px rgba(14, 17, 22, 0.14), 0 4px 12px rgba(14, 17, 22, 0.06);
+  --shadow-lux-lg: 0 40px 80px -32px rgba(14, 17, 22, 0.28), 0 12px 32px rgba(14, 17, 22, 0.10);
+  --shadow-jewel: 0 50px 120px -30px rgba(11, 13, 18, 0.55), 0 20px 50px -20px rgba(11, 13, 18, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: auto; /* Lenis owns scroll */
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-feature-settings: "ss01", "cv01";
+  overflow-x: hidden;
+}
+
+/* Hide native cursor on pointer-capable devices; custom cursor takes over.
+   Keeps default cursor on touch and where interaction needs it. */
+@media (hover: hover) and (pointer: fine) {
+  body[data-cursor="on"],
+  body[data-cursor="on"] * {
+    cursor: none;
+  }
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  color: var(--color-ink);
+}
+
+/* Utility: display type baseline */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Fine grain overlay lives on a fixed element (see GrainOverlay) */
+
+/* Reduced motion: collapse everything animated to static/instant. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

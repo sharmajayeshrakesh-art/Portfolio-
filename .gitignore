@@ -1,1 +1,19 @@
+# dependencies
 node_modules/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+*.log
+.DS_Store
+
+# local dev / QA harness (not part of the deliverable)
+/_shot.mjs
+/_debug.mjs
+/_qa.mjs
+/_export_shot.mjs

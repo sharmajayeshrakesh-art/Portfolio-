@@ -15,3 +15,4 @@ node_modules/
 # local dev / QA harness (not part of the deliverable)
 /_shot.mjs
 /_debug.mjs
+/_qa.mjs

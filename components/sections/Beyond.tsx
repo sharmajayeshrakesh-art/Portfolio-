@@ -19,16 +19,18 @@ export default function Beyond() {
       id="beyond"
       className="relative flex min-h-[100dvh] items-center overflow-hidden bg-jewel text-white"
     >
-      {/* Globe fills the space; copy floats over it */}
-      <div className="absolute inset-0">
+      {/* Globe fills the space; copy floats over it. Dimmed on mobile where
+          copy overlaps it, full brightness on desktop where they sit apart. */}
+      <div className="absolute inset-0 opacity-55 md:opacity-100">
         <HoloGlobe />
       </div>
+      {/* Legibility scrim: darkens the copy side (left) + vignettes edges */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(120% 90% at 50% 50%, transparent 40%, rgba(11,13,18,0.55) 100%)",
+            "linear-gradient(90deg, rgba(11,13,18,0.9) 0%, rgba(11,13,18,0.55) 42%, rgba(11,13,18,0) 72%), radial-gradient(120% 90% at 50% 50%, transparent 45%, rgba(11,13,18,0.5) 100%)",
         }}
       />
 

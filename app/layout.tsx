@@ -27,11 +27,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Studio — Websites worth paying for",
+  title: "Meridian · Websites worth paying for",
   description:
     "An independent studio designing and building premium websites. Craft you can feel in the first five seconds.",
   openGraph: {
-    title: "Studio — Websites worth paying for",
+    title: "Meridian · Websites worth paying for",
     description:
       "An independent studio designing and building premium websites.",
     type: "website",

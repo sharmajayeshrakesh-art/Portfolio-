@@ -73,7 +73,7 @@ export default function ProjectCard({ project }: { project: Project }) {
       ref={root}
       href={project.href}
       data-cursor="View Project"
-      className="group block w-[78vw] max-w-[560px] shrink-0 sm:w-[62vw] md:w-[46vw] lg:w-[40vw]"
+      className="group block w-[78vw] max-w-[560px] shrink-0 sm:w-[62vw] md:w-[46vw] lg:w-[40vw] motion-reduce:w-full motion-reduce:max-w-[680px]"
       style={{ perspective: "1200px" }}
     >
       <div
@@ -97,7 +97,7 @@ export default function ProjectCard({ project }: { project: Project }) {
           <img
             ref={preview}
             src={project.image}
-            alt={`${project.title} — ${project.category}`}
+            alt={`${project.title}, ${project.category}`}
             className="absolute inset-x-0 top-0 h-[150%] w-full object-cover"
           />
           {/* glass sheen (pointer-tracked, hidden until hover) */}

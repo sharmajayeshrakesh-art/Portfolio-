@@ -44,7 +44,7 @@ export default function Work() {
     <section id="work" ref={wrap} className="relative overflow-hidden bg-paper">
       <div
         ref={track}
-        className="flex flex-col gap-16 px-6 py-24 md:h-[100dvh] md:flex-row md:items-center md:gap-10 md:px-10 md:py-0 lg:px-16"
+        className="flex flex-col gap-16 px-6 py-24 md:px-10 lg:px-16 motion-safe:md:h-[100dvh] motion-safe:md:flex-row motion-safe:md:items-center motion-safe:md:gap-10 motion-safe:md:py-0"
       >
         {/* Intro panel */}
         <div className="flex shrink-0 flex-col justify-center md:mr-6 md:w-[34vw] md:pr-10">
@@ -62,7 +62,7 @@ export default function Work() {
             A few builds that show the range. Each one designed to make a
             visitor trust the people behind it.
           </p>
-          <p className="mt-6 hidden font-mono text-[11px] uppercase tracking-[0.18em] text-ink-4 md:block">
+          <p className="mt-6 hidden font-mono text-[11px] uppercase tracking-[0.18em] text-ink-4 motion-safe:md:block">
             Scroll to pan across
           </p>
         </div>

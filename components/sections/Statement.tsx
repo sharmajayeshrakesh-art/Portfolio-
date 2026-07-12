@@ -50,9 +50,6 @@ export default function Statement() {
       ref={root}
       className="relative mx-auto max-w-[1400px] px-6 py-32 md:px-10 md:py-48 lg:px-16"
     >
-      <p className="mb-10 font-mono text-[11px] uppercase tracking-[0.24em] text-accent">
-        What we do
-      </p>
       <h2 className="font-display text-3xl font-medium leading-[1.12] tracking-tight sm:text-4xl md:text-5xl lg:text-[3.6rem] lg:leading-[1.08]">
         {LINE.split(" ").map((w, i) => {
           const isAccent = ACCENT.has(w.toLowerCase());

@@ -46,7 +46,7 @@ const themes = [
   },
   {
     slug: "sable",
-    name: "Sable & Co.",
+    name: "Sable and Co.",
     kicker: "The boutique, online",
     bg: "#141414",
     bg2: "#0c0c0c",
@@ -59,6 +59,8 @@ const themes = [
 
 const rect = (x, y, w, h, fill, r = 0, o = 1) =>
   `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" opacity="${o}"/>`;
+const esc = (s) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 function svg(t) {
   const parts = [];
@@ -79,10 +81,10 @@ function svg(t) {
 
   // hero
   parts.push(
-    `<text x="90" y="470" font-size="150" font-weight="700" letter-spacing="-4" fill="${t.ink}">${t.name}</text>`
+    `<text x="90" y="470" font-size="150" font-weight="700" letter-spacing="-4" fill="${t.ink}">${esc(t.name)}</text>`
   );
   parts.push(
-    `<text x="94" y="560" font-size="42" fill="${t.sub}">${t.kicker}</text>`
+    `<text x="94" y="560" font-size="42" fill="${t.sub}">${esc(t.kicker)}</text>`
   );
   parts.push(rect(90, 640, 260, 74, t.accent, 37));
   parts.push(rect(380, 640, 200, 74, "none", 37));

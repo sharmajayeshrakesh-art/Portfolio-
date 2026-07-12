@@ -2,6 +2,10 @@ import Nav from "@/components/sections/Nav";
 import Hero from "@/components/sections/Hero";
 import Statement from "@/components/sections/Statement";
 import Work from "@/components/sections/Work";
+import Beyond from "@/components/sections/Beyond";
+import Craft from "@/components/sections/Craft";
+import Contact from "@/components/sections/Contact";
+import Footer from "@/components/sections/Footer";
 
 export default function Home() {
   return (
@@ -11,9 +15,11 @@ export default function Home() {
         <Hero />
         <Statement />
         <Work />
-        {/* Sections land here: Beyond Websites, Craft, Contact */}
-        <div className="h-[50vh]" aria-hidden />
+        <Beyond />
+        <Craft />
+        <Contact />
       </main>
+      <Footer />
     </>
   );
 }

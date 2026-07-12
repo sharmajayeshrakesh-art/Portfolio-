@@ -1,29 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "@/lib/gsap";
 
 /**
- * First-load choreography. A counter + brand mark on the jewel ground, then a
- * two-panel curtain lift that hands off to the hero. Fires `page:ready` +
- * sets window.__pageReady on complete so sections can begin. Plain useEffect
- * (no auto-reverting context) with a guard, so completion always fires.
- * Instant under reduced motion.
+ * First-load choreography — deliberately gsap-independent for reliability.
+ * A rAF-driven counter on the jewel ground, then a CSS curtain lift that hands
+ * off to the hero (dispatches `page:ready` + sets window.__pageReady). Instant
+ * under reduced motion. finish() is idempotent (safe under StrictMode).
  */
 export default function PageLoader() {
   const root = useRef<HTMLDivElement>(null);
-  const ran = useRef(false);
   const [count, setCount] = useState(0);
+  const [phase, setPhase] = useState<"count" | "lift" | "done">("count");
 
   useEffect(() => {
-    if (ran.current) return;
-    ran.current = true;
-
-    const el = root.current!;
+    let done = false;
     const finish = () => {
-      el.style.display = "none";
-      document.body.style.removeProperty("overflow");
+      if (done) return;
+      done = true;
       (window as unknown as { __pageReady?: boolean }).__pageReady = true;
+      document.body.style.removeProperty("overflow");
+      setPhase("done");
       window.dispatchEvent(new Event("page:ready"));
     };
 
@@ -35,41 +32,59 @@ export default function PageLoader() {
     }
 
     document.body.style.overflow = "hidden";
-    const counter = { v: 0 };
-    const tl = gsap.timeline({ onComplete: finish });
-    tl.to(counter, {
-      v: 100,
-      duration: 1.5,
-      ease: "power2.inOut",
-      onUpdate: () => setCount(Math.round(counter.v)),
-    })
-      .to(".loader-mark", { opacity: 0, y: -12, duration: 0.4 }, "-=0.2")
-      .to(
-        ".loader-panel",
-        {
-          scaleY: 0,
-          duration: 0.9,
-          ease: "power4.inOut",
-          stagger: 0.08,
-          transformOrigin: "top",
-        },
-        "-=0.1"
-      );
+    const DURATION = 1300;
+    let start: number | null = null;
+    let raf = 0;
 
-    // Safety net: never let a stalled tween strand the curtain.
-    const failsafe = window.setTimeout(finish, 5000);
-    return () => window.clearTimeout(failsafe);
+    const tick = (now: number) => {
+      if (start === null) start = now;
+      const t = Math.min(1, (now - start) / DURATION);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setCount(Math.round(eased * 100));
+      if (t < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setPhase("lift");
+        // Curtain lift duration, then hand off.
+        window.setTimeout(finish, 900);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+
+    // Safety net against any stall.
+    const failsafe = window.setTimeout(finish, 4000);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(failsafe);
+    };
   }, []);
+
+  if (phase === "done") return null;
 
   return (
     <div
       ref={root}
-      className="fixed inset-0 z-[100] flex items-center justify-center"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
       aria-hidden
     >
-      <div className="loader-panel absolute inset-0 bg-jewel" />
-      <div className="loader-panel absolute inset-0 bg-jewel-2" />
-      <div className="loader-mark relative z-10 flex flex-col items-center gap-6">
+      {/* Two curtain panels that lift on the "lift" phase */}
+      <div
+        className="absolute inset-0 bg-jewel transition-transform duration-[900ms] ease-[cubic-bezier(0.76,0,0.24,1)]"
+        style={{
+          transform: phase === "lift" ? "translateY(-100%)" : "translateY(0)",
+          transitionDelay: "80ms",
+        }}
+      />
+      <div
+        className="absolute inset-0 bg-jewel-2 transition-transform duration-[900ms] ease-[cubic-bezier(0.76,0,0.24,1)]"
+        style={{
+          transform: phase === "lift" ? "translateY(-100%)" : "translateY(0)",
+        }}
+      />
+      <div
+        className="relative z-10 flex flex-col items-center gap-6 transition-opacity duration-300"
+        style={{ opacity: phase === "lift" ? 0 : 1 }}
+      >
         <span className="font-display text-sm uppercase tracking-[0.42em] text-white/70">
           Studio
         </span>

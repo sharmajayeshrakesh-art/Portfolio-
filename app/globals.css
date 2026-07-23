@@ -46,6 +46,20 @@
   --font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
+  /* ---- Cafe Hari Rasa palette (dark + antique gold) ---- */
+  --color-cafe-black: #0d0d0d;
+  --color-cafe-ink: #141210;
+  --color-cafe-ink-2: #1c1813;
+  --color-gold: #c8a04d;
+  --color-gold-2: #d4af6a;
+  --color-gold-soft: #e6cf9a;
+  --color-cream: #f5ecd8;
+  --color-cream-dim: #cdbf9f;
+  --color-terracotta: #c56a3a;
+  --color-mustard: #d69e2e;
+  --font-cormorant: var(--font-cormorant-garamond), ui-serif, Georgia, serif;
+  --font-mukta: var(--font-mukta), ui-sans-serif, system-ui, sans-serif;
+
   /* Motion */
   --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -149,6 +163,33 @@ body {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
+}
+
+/* ============================================================
+   Cafe Hari Rasa — scoped theme for the /cafe route
+   ============================================================ */
+.cafe-root {
+  background: var(--color-cafe-black);
+  color: var(--color-cream);
+  font-family: var(--font-mukta);
+  -webkit-font-smoothing: antialiased;
+}
+.cafe-root ::selection {
+  background: rgba(200, 160, 77, 0.28);
+  color: var(--color-cream);
+}
+.font-cormorant {
+  font-family: var(--font-cormorant);
+}
+/* Warm film grain for the cafe (fixed, cheap) */
+.cafe-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Fine grain overlay lives on a fixed element (see GrainOverlay) */

@@ -25,16 +25,22 @@ export type Highlight = {
 
 export const highlights: Highlight[] = [
   {
+    name: "Ghee Masala Dosa",
+    price: "₹70",
+    desc: "The everyday classic, folded golden over soft masala with crisp, lacy edges.",
+    img: "/cafe/sig-ghee-masala.jpg",
+  },
+  {
     name: "Benne Masala Dosa",
     price: "₹130",
     desc: "Stone-ground batter roasted in white butter until it shatters, wrapped around spiced potato.",
     img: "/cafe/sig-benne-dosa.jpg",
   },
   {
-    name: "Ghee Masala Dosa",
-    price: "₹70",
-    desc: "The everyday classic, folded golden over soft masala with crisp, lacy edges.",
-    img: "/cafe/food-masala-dosa.jpg",
+    name: "Ghee Podi Idly",
+    price: "₹65",
+    desc: "Pillowy idly bathed in warm ghee and our fiery house podi. A South Indian classic.",
+    img: "/cafe/sig-podi-idli.jpg",
   },
   {
     name: "Neer Idly",
@@ -43,22 +49,16 @@ export const highlights: Highlight[] = [
     img: "/cafe/sig-neer-idly.jpg",
   },
   {
-    name: "Ghee Podi Idly",
-    price: "₹65",
-    desc: "Pillowy idly bathed in warm ghee and our fiery house podi.",
-    img: "/cafe/food-podi-idli.jpg",
+    name: "Medu Vada",
+    price: "₹50",
+    desc: "Crisp on the outside, fluffy within, served hot with sambar and chutney.",
+    img: "/cafe/sig-medu-vada.jpg",
   },
   {
-    name: "Medhu Vada & Filter Coffee",
-    price: "₹50 · ₹60",
-    desc: "A crisp, fluffy vada with decoction coffee pulled and frothed in a steel tumbler.",
-    img: "/cafe/food-vada-coffee.jpg",
-  },
-  {
-    name: "Dip Idly Sambar",
+    name: "Bisibelebath",
     price: "₹90",
-    desc: "Soft idly steeped in slow-simmered sambar with green and tomato chutney.",
-    img: "/cafe/food-idli.jpg",
+    desc: "Spiced rice slow-cooked with lentils, tamarind and ghee. Warm, hearty, soulful.",
+    img: "/cafe/sig-puliyogare.jpg",
   },
 ];
 

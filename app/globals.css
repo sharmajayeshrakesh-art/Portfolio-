@@ -192,6 +192,53 @@ body {
   background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* Demo attribution watermark — warm glass chip with a gilded serif name */
+.cafe-watermark {
+  background: linear-gradient(
+    135deg,
+    rgba(28, 24, 19, 0.62),
+    rgba(13, 13, 13, 0.42)
+  );
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(212, 175, 106, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(230, 207, 154, 0.16),
+    0 10px 30px -14px rgba(0, 0, 0, 0.7);
+  transition: border-color 0.4s ease, transform 0.4s ease;
+}
+.cafe-watermark:hover {
+  border-color: rgba(212, 175, 106, 0.55);
+  transform: translateY(-1px);
+}
+.cafe-watermark-name {
+  background: linear-gradient(
+    100deg,
+    var(--color-gold),
+    var(--color-gold-soft) 45%,
+    var(--color-gold-2)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.cafe-watermark-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--color-gold-2);
+  box-shadow: 0 0 8px rgba(212, 175, 106, 0.8);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .cafe-watermark {
+    background: rgba(20, 18, 15, 0.96);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 /* Fine grain overlay lives on a fixed element (see GrainOverlay) */
 
 /* Reduced motion: collapse everything animated to static/instant. */

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Watermark from "@/components/cafe/Watermark";
 
 export const metadata: Metadata = {
   title: "Cafe Hari Rasa · Pure Veg South Indian · FC Road, Pune",
@@ -12,5 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default function CafeLayout({ children }: { children: React.ReactNode }) {
-  return <div className="cafe-root cafe-grain min-h-screen">{children}</div>;
+  return (
+    <div className="cafe-root cafe-grain min-h-screen">
+      {children}
+      <Watermark />
+    </div>
+  );
 }

@@ -5,6 +5,9 @@ import {
   Geist_Mono,
   Cormorant_Garamond,
   Mukta,
+  Fraunces,
+  Parisienne,
+  Nunito_Sans,
 } from "next/font/google";
 import "./globals.css";
 
@@ -36,6 +39,27 @@ const mukta = Mukta({
   display: "swap",
 });
 
+// Aurum Beans fonts (warm, editorial, romantic)
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
+const parisienne = Parisienne({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-parisienne",
+  display: "swap",
+});
+const nunitoSans = Nunito_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "600", "700"],
+  variable: "--font-nunito",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Meridian · Websites worth paying for",
   description: "An independent studio designing and building premium websites.",
@@ -50,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable}`}
+        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable}`}
       >
         {children}
       </body>

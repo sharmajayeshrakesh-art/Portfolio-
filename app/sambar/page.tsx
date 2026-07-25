@@ -1,6 +1,7 @@
 import Nav from "@/components/sambar/Nav";
 import Hero from "@/components/sambar/Hero";
 import About from "@/components/sambar/About";
+import Roots from "@/components/sambar/Roots";
 import Menu from "@/components/sambar/Menu";
 import Gallery from "@/components/sambar/Gallery";
 import Branches from "@/components/sambar/Branches";
@@ -14,6 +15,7 @@ export default function SecretSambar() {
       <main>
         <Hero />
         <About />
+        <Roots />
         <Menu />
         <Gallery />
         <Branches />

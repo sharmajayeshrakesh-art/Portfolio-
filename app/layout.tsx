@@ -8,6 +8,7 @@ import {
   Fraunces,
   Parisienne,
   Nunito_Sans,
+  Playfair_Display,
 } from "next/font/google";
 import "./globals.css";
 
@@ -60,6 +61,15 @@ const nunitoSans = Nunito_Sans({
   display: "swap",
 });
 
+// Secret Sambar font (heritage high-contrast serif)
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Meridian · Websites worth paying for",
   description: "An independent studio designing and building premium websites.",
@@ -74,7 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable}`}
+        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable} ${playfair.variable}`}
       >
         {children}
       </body>

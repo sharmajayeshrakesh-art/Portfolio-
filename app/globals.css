@@ -76,6 +76,22 @@
   --font-parisienne: var(--font-parisienne), ui-serif, cursive;
   --font-nunito: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
 
+  /* ---- Secret Sambar palette (heritage: parchment + temple green + brick + gold) ---- */
+  --color-sambar-cream: #f6efdf;
+  --color-sambar-cream-2: #efe4cc;
+  --color-sambar-cream-3: #e7d9bb;
+  --color-sambar-green: #1a4d3a;
+  --color-sambar-green-2: #21684a;
+  --color-sambar-green-deep: #123528;
+  --color-sambar-brick: #9e4a2f;
+  --color-sambar-brick-2: #b85c3c;
+  --color-sambar-gold: #c8a04d;
+  --color-sambar-gold-2: #d8b968;
+  --color-sambar-gold-soft: #e6cf9a;
+  --color-sambar-ink: #2a2118;
+  --color-sambar-ink-soft: #6b5d49;
+  --font-playfair: var(--font-playfair), ui-serif, Georgia, serif;
+
   /* Motion */
   --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -371,6 +387,113 @@ body {
   }
   .aurum-watermark {
     background: rgba(22, 48, 42, 0.97);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ============================================================
+   Secret Sambar — scoped theme for the /sambar route
+   Warm heritage: parchment + temple green + brick + antique gold.
+   Distinct from the near-black cafe and the cozy-green cafe.
+   ============================================================ */
+.sambar-root {
+  background: var(--color-sambar-cream);
+  color: var(--color-sambar-ink);
+  font-family: var(--font-nunito);
+  -webkit-font-smoothing: antialiased;
+}
+.sambar-root ::selection {
+  background: rgba(158, 74, 47, 0.22);
+  color: var(--color-sambar-green-deep);
+}
+.font-playfair {
+  font-family: var(--font-playfair);
+}
+
+/* Warm parchment grain (fixed, cheap) */
+.sambar-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Gilded gradient text for headings/accents */
+.sambar-gold-text {
+  background: linear-gradient(
+    100deg,
+    var(--color-sambar-gold) 0%,
+    var(--color-sambar-gold-soft) 45%,
+    var(--color-sambar-gold-2) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Gentle drift for decorative botanical motifs (banana leaf / marigold) */
+.sambar-drift {
+  animation: sambarDrift var(--drift-dur, 9s) ease-in-out infinite;
+  animation-delay: var(--drift-delay, 0s);
+}
+@keyframes sambarDrift {
+  0%, 100% { transform: translateY(0) rotate(var(--drift-rot, 0deg)); }
+  50% { transform: translateY(-14px) rotate(calc(var(--drift-rot, 0deg) + 2deg)); }
+}
+
+/* Heritage card on cream */
+.sambar-card {
+  background: var(--color-sambar-cream);
+  border: 1px solid rgba(200, 160, 77, 0.3);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 26px 54px -32px rgba(26, 77, 58, 0.4);
+}
+.sambar-glass {
+  background: linear-gradient(
+    135deg,
+    rgba(246, 239, 223, 0.14),
+    rgba(246, 239, 223, 0.05)
+  );
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(216, 185, 104, 0.3);
+}
+
+/* Demo attribution watermark — gold on green */
+.sambar-watermark {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 77, 58, 0.74),
+    rgba(18, 53, 40, 0.52)
+  );
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(216, 185, 104, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(230, 207, 154, 0.18),
+    0 10px 30px -14px rgba(11, 25, 20, 0.6);
+  transition: border-color 0.4s ease, transform 0.4s ease;
+}
+.sambar-watermark:hover {
+  border-color: rgba(216, 185, 104, 0.72);
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .sambar-glass {
+    background: rgba(26, 77, 58, 0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .sambar-watermark {
+    background: rgba(18, 53, 40, 0.97);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }

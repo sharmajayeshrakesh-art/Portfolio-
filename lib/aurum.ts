@@ -18,6 +18,64 @@ export const aurum = {
     "Aurum Beans, Sant Tukaram Nagar, Pimpri Colony, Pune 411018",
 };
 
+/* ---- Reviews (real Google reviews) ---- */
+export type Review = {
+  name: string;
+  initial: string;
+  when: string;
+  quote?: string;
+  scores?: { food: number; service: number; atmosphere: number };
+  tint: string; // avatar background
+};
+
+export const reviewsSummary = {
+  score: "5.0",
+  count: 7,
+  // Opens the Aurum Beans listing on Google Maps (reviews tab)
+  url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    "Aurum Beans, Sant Tukaram Nagar, Pimpri Colony, Pune 411018"
+  )}`,
+};
+
+export const reviews: Review[] = [
+  {
+    name: "Kiran S",
+    initial: "K",
+    when: "a month ago",
+    quote:
+      "A wonderful cafe with delicious food, a cozy and welcoming ambience, and very reasonable prices. Every dish we tried was fresh and flavorful.",
+    tint: "#2f5346",
+  },
+  {
+    name: "Diksha Gadge",
+    initial: "D",
+    when: "2 months ago",
+    quote:
+      "The vibe is gorgeous and the food is even better — everything tastes so fresh.",
+    scores: { food: 5, service: 5, atmosphere: 5 },
+    tint: "#a06a2c",
+  },
+  {
+    name: "Bharat Enterprises",
+    initial: "B",
+    when: "2 months ago",
+    quote:
+      "Overall experience was really good. Appreciate it — please continue the same!",
+    tint: "#6b4bab",
+  },
+  {
+    name: "Trupti Avhad",
+    initial: "T",
+    when: "2 months ago",
+    quote: "All good — a lovely little place.",
+    scores: { food: 5, service: 5, atmosphere: 5 },
+    tint: "#1f6f8b",
+  },
+];
+
+/** Guests who left a 5★ rating without written text. */
+export const moreReviewers = ["Aditi Patil", "Rutuja Bhamare", "Rutu Ja"];
+
 /* ---- About feature row ---- */
 export type Feature = { title: string; blurb: string; icon: "coffee" | "food" | "sofa" | "hearts" };
 export const features: Feature[] = [

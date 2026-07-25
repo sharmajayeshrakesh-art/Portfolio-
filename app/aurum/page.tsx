@@ -3,6 +3,7 @@ import Hero from "@/components/aurum/Hero";
 import About from "@/components/aurum/About";
 import Menu from "@/components/aurum/Menu";
 import Gallery from "@/components/aurum/Gallery";
+import Reviews from "@/components/aurum/Reviews";
 import Visit from "@/components/aurum/Visit";
 import Footer from "@/components/aurum/Footer";
 
@@ -15,6 +16,7 @@ export default function AurumBeans() {
         <About />
         <Menu />
         <Gallery />
+        <Reviews />
         <Visit />
       </main>
       <Footer />

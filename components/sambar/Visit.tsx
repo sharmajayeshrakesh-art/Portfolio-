@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Phone, EnvelopeSimple, InstagramLogo, Leaf } from "@phosphor-icons/react";
+import { Clock, Phone, EnvelopeSimple, InstagramLogo, Leaf, Globe } from "@phosphor-icons/react";
 import { sambar } from "@/lib/sambar";
 import Reveal, { RevealItem } from "./Reveal";
 import { KolamDivider } from "./Motifs";
@@ -12,6 +12,7 @@ export default function Visit() {
     { icon: Clock, label: "Hours", value: sambar.timings },
     { icon: Phone, label: "Call", value: sambar.phoneDisplay, href: `tel:${sambar.phoneTel}` },
     { icon: EnvelopeSimple, label: "Email", value: sambar.email, href: `mailto:${sambar.email}` },
+    { icon: Globe, label: "Website", value: sambar.websiteLabel, href: sambar.website },
     { icon: InstagramLogo, label: "Follow", value: sambar.instagramHandle, href: sambar.instagram },
   ];
 

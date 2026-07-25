@@ -17,11 +17,11 @@ const jobs = [
   ["25c16238-1000071244.jpg", "hero-portrait.jpg", { left: 40, top: 0, width: 1000, height: 1436 }, 1000],
   // About — pillared heritage hall with hanging garland
   ["6786fed5-1000071238.jpg", "about-hall.jpg", { left: 0, top: 240, width: 1079, height: 900 }, 1300],
-  // Branch storefronts
-  ["39642115-1000071216.jpg", "branch-bavdhan.jpg", null, 1000],
-  ["a8025075-1000071214.jpg", "branch-pcmc.jpg", null, 1000],
-  ["48b14f07-1000071250.jpg", "branch-sbroad.jpg", { left: 0, top: 60, width: 1079, height: 700 }, 1000],
-  ["ae066461-1000071252.jpg", "branch-akurdi.jpg", { left: 0, top: 260, width: 1080, height: 760 }, 1000],
+  // Branch storefronts (real per-branch photos supplied by owner)
+  ["820a7b8e-1000071214.jpg", "branch-bavdhan.jpg", null, 1000],
+  ["5a1d0491-1000071224.jpg", "branch-pimple.jpg", { left: 0, top: 15, width: 1079, height: 690 }, 1000],
+  ["7e6d39bb-1000071242.jpg", "branch-sbroad.jpg", null, 1000],
+  ["f6ac7ffa-1000071252.jpg", "branch-akurdi.jpg", { left: 0, top: 560, width: 1080, height: 760 }, 1000],
   // Gallery
   ["5b5c11c5-1000071240.jpg", "gal-shrine.jpg", { left: 30, top: 360, width: 1010, height: 1160 }, 1000],
   ["440247f3-1000071254.jpg", "gal-thali.jpg", null, 1100],

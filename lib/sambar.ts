@@ -7,10 +7,12 @@ export const sambar = {
   kicker: "Trademark Registered · Pure Veg · Four Branches Across Pune",
   instagram: "https://instagram.com/secretsambar",
   instagramHandle: "@secretsambar",
-  email: "hello@secretsambar.in", // TODO: confirm with owner
-  phoneDisplay: "+91 00000 00000", // TODO: confirm with owner
-  phoneTel: "+910000000000",
-  timings: "8:00 AM – 11:00 PM · Open all week", // TODO: confirm with owner
+  website: "https://secretsambar.com",
+  websiteLabel: "secretsambar.com",
+  email: "secretsambar@gmail.com",
+  phoneDisplay: "091 4500 4080",
+  phoneTel: "+919145004080",
+  timings: "8:00 AM – 11:00 PM · Open all week", // TODO: confirm exact hours with owner
   prepNote: "Please anticipate a 15–20 minute wait as we prepare your meal fresh.",
   gstNote: "Full menu in-store · Prices subject to change · 5% GST applicable",
 };
@@ -182,33 +184,33 @@ export const branches: Branch[] = [
   {
     name: "Bavdhan",
     img: "/sambar/branch-bavdhan.jpg",
-    address: "Address coming soon · Bavdhan, Pune", // TODO: owner
-    phone: "+91 00000 00000",
+    address: "Bavdhan, Pune", // exact street address coming from owner
+    phone: "091 4500 4080",
     timings: "8:00 AM – 11:00 PM",
     mapsQuery: "Secret Sambar, Bavdhan, Pune",
   },
   {
-    name: "Pimpri-Chinchwad",
-    img: "/sambar/branch-pcmc.jpg",
-    address: "Address coming soon · Pimpri-Chinchwad, Pune", // TODO: owner
-    phone: "+91 00000 00000",
+    name: "Pimple Saudagar",
+    img: "/sambar/branch-pimple.jpg",
+    address: "Pimple Saudagar, Pune",
+    phone: "091 4500 4080",
     timings: "8:00 AM – 11:00 PM",
-    mapsQuery: "Secret Sambar, Pimpri-Chinchwad, Pune",
+    mapsQuery: "Secret Sambar, Pimple Saudagar, Pune",
   },
   {
     name: "SB Road",
     tag: "Newest",
     img: "/sambar/branch-sbroad.jpg",
-    address: "Address coming soon · Senapati Bapat Road, Pune", // TODO: owner
-    phone: "+91 00000 00000",
+    address: "Senapati Bapat Road (SB Road), Pune",
+    phone: "091 4500 4080",
     timings: "8:00 AM – 11:00 PM",
     mapsQuery: "Secret Sambar, Senapati Bapat Road, Pune",
   },
   {
     name: "Akurdi",
     img: "/sambar/branch-akurdi.jpg",
-    address: "Address coming soon · Akurdi, Pune", // TODO: owner
-    phone: "+91 00000 00000",
+    address: "Akurdi, Pune",
+    phone: "091 4500 4080",
     timings: "8:00 AM – 11:00 PM",
     mapsQuery: "Secret Sambar, Akurdi, Pune",
   },

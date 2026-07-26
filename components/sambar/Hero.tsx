@@ -14,10 +14,8 @@ export default function Hero() {
     target: ref,
     offset: ["start start", "end start"],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "16%"]);
-  const bgScale = useTransform(scrollYProgress, [0, 1], [1.08, 1.2]);
-  const midY = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
-  const fgY = useTransform(scrollYProgress, [0, 1], ["0%", "45%"]);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "14%"]);
+  const midY = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
 
   const rise = (delay: number) =>
     reduce
@@ -35,19 +33,20 @@ export default function Hero() {
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
     >
       {/* Parallax background (landscape on >=sm, portrait door on mobile) */}
-      <motion.div style={reduce ? undefined : { y: bgY, scale: bgScale }} className="absolute inset-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={asset("/sambar/hero.jpg")}
-          alt="The marigold-garland heritage entrance of Secret Sambar"
-          className="hidden h-full w-full object-cover sm:block"
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={asset("/sambar/hero-portrait.jpg")}
-          alt="The marigold-garland heritage entrance of Secret Sambar"
-          className="h-full w-full object-cover sm:hidden"
-        />
+      <motion.div
+        style={reduce ? undefined : { y: bgY, willChange: "transform" }}
+        className="absolute inset-0 scale-110"
+      >
+        <picture>
+          <source media="(min-width: 640px)" srcSet={asset("/sambar/hero.jpg")} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={asset("/sambar/hero-portrait.jpg")}
+            alt="The marigold-garland heritage entrance of Secret Sambar"
+            className="h-full w-full object-cover"
+            fetchPriority="high"
+          />
+        </picture>
       </motion.div>
 
       {/* Warm legibility overlays */}
@@ -55,7 +54,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-gradient-to-b from-sambar-green-deep/70 via-sambar-green-deep/25 to-sambar-green-deep" />
 
       {/* Drifting botanical motifs (foreground depth) */}
-      <motion.div style={reduce ? undefined : { y: fgY }} className="pointer-events-none absolute inset-0">
+      <div className="pointer-events-none absolute inset-0">
         <BananaLeaf
           className="sambar-drift absolute -left-6 top-10 h-56 w-24 text-sambar-green-2/50 sm:h-72"
           style={{ "--drift-dur": "11s" } as React.CSSProperties}
@@ -72,10 +71,10 @@ export default function Hero() {
           className="sambar-drift absolute right-8 bottom-24 h-10 w-10 text-sambar-gold/70 sm:right-24"
           style={{ "--drift-dur": "9.5s", "--drift-delay": "1s" } as React.CSSProperties}
         />
-      </motion.div>
+      </div>
 
       {/* Foreground content */}
-      <motion.div style={reduce ? undefined : { y: midY }} className="relative z-10 mx-auto max-w-3xl px-6 pt-24 text-center">
+      <motion.div style={reduce ? undefined : { y: midY, willChange: "transform" }} className="relative z-10 mx-auto max-w-3xl px-6 pt-24 text-center">
         {/* Kathakali mask emblem framed like a temple niche */}
         <motion.div {...rise(0.05)} className="mx-auto mb-6 w-fit">
           <div className="relative mx-auto h-40 w-28 overflow-hidden rounded-t-full rounded-b-2xl border-2 border-sambar-gold/70 bg-sambar-green-deep shadow-[0_20px_50px_-20px_rgba(0,0,0,0.8)] sm:h-48 sm:w-32">

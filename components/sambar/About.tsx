@@ -30,6 +30,8 @@ export default function About() {
                 <img
                   src={asset("/sambar/about-hall.jpg")}
                   alt="The pillared, garland-draped heritage hall at Secret Sambar"
+                  loading="lazy"
+                  decoding="async"
                   className="h-[380px] w-full object-cover transition-transform duration-700 hover:scale-[1.04] sm:h-[480px]"
                 />
               </div>

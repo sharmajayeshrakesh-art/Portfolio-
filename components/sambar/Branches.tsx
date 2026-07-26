@@ -34,6 +34,8 @@ export default function Branches() {
                   <img
                     src={asset(b.img)}
                     alt={`Secret Sambar ${b.name} branch`}
+                    loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-sambar-green-deep/70 to-transparent" />

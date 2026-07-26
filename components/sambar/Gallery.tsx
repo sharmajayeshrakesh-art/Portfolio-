@@ -32,6 +32,8 @@ export default function Gallery() {
               <img
                 src={asset(g.src)}
                 alt={g.label}
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-sambar-green-deep/75 via-transparent to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />

@@ -28,6 +28,8 @@ export default function Roots() {
                 <img
                   src={asset("/sambar/heritage.jpg")}
                   alt="An illustration of South Indian temple gopurams, classical figures, lotus and deer"
+                  loading="lazy"
+                  decoding="async"
                   className="h-auto w-full"
                 />
               </div>

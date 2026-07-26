@@ -27,7 +27,7 @@ export default function Nav() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-sambar-green-deep/95 shadow-[0_10px_30px_-18px_rgba(11,25,20,0.8)] backdrop-blur-md"
+          ? "bg-sambar-green-deep shadow-[0_10px_30px_-18px_rgba(11,25,20,0.8)]"
           : "bg-transparent"
       }`}
     >
@@ -67,7 +67,7 @@ export default function Nav() {
       </nav>
 
       <div
-        className={`overflow-hidden border-t border-sambar-gold/15 bg-sambar-green-deep/98 backdrop-blur-md transition-[max-height] duration-500 lg:hidden ${
+        className={`overflow-hidden border-t border-sambar-gold/15 bg-sambar-green-deep transition-[max-height] duration-500 lg:hidden ${
           open ? "max-h-96" : "max-h-0"
         }`}
       >

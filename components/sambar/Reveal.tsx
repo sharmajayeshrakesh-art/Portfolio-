@@ -114,7 +114,9 @@ export function Parallax({
   const y = useTransform(scrollYProgress, [0, 1], [speed, -speed]);
   return (
     <div ref={ref} className={className}>
-      <motion.div style={reduce ? undefined : { y }}>{children}</motion.div>
+      <motion.div style={reduce ? undefined : { y, willChange: "transform" }}>
+        {children}
+      </motion.div>
     </div>
   );
 }

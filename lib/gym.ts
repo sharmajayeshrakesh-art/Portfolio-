@@ -101,15 +101,15 @@ export const facilities: Facility[] = [
   { title: "Card / UPI / Google Pay", icon: "card" },
 ];
 
-/* Gallery */
-export type GalleryImg = { src: string; label: string; span?: "tall" | "wide" };
+/* Gallery — a curated, uniform grid (all cleanly framed) */
+export type GalleryImg = { src: string; label: string };
 export const gallery: GalleryImg[] = [
-  { src: "/gym/g-dumbbells.jpg", label: "The free-weights floor", span: "wide" },
-  { src: "/gym/g-squat.jpg", label: "Power & squat racks", span: "tall" },
-  { src: "/gym/g-reception.jpg", label: "The reception wall" },
+  { src: "/gym/g-dumbbells.jpg", label: "The free-weights floor" },
+  { src: "/gym/g-cable.jpg", label: "Cable & functional zone" },
   { src: "/gym/g-machines.jpg", label: "Resistance machines" },
-  { src: "/gym/g-cable.jpg", label: "Cable & functional zone", span: "wide" },
-  { src: "/gym/g-turf.jpg", label: "Turf & strength area" },
+  { src: "/gym/g-squat.jpg", label: "Power & squat racks" },
+  { src: "/gym/g-reception.jpg", label: "The reception wall" },
+  { src: "/gym/g-bench.jpg", label: "Strength corner" },
 ];
 
 /* Reviews (real Google reviews) */

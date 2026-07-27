@@ -21,11 +21,16 @@ const jobs = [
   ["744c0fed-1000071476.jpg", "g-bench.jpg", null, 1000], // portrait
 ];
 
+// Unified cinematic grade so the amateur phone shots read as one cohesive,
+// premium, moody set (darker, punchier contrast, slightly desaturated).
+const grade = (img) =>
+  img.modulate({ brightness: 0.95, saturation: 0.82 }).linear(1.14, -18).gamma(1.02);
+
 for (const [src, out, region, maxW] of jobs) {
   let img = sharp(`${SRC}/${src}`);
   if (region) img = img.extract(region);
   if (maxW) img = img.resize({ width: maxW, withoutEnlargement: true });
-  await img.jpeg({ quality: 82, mozjpeg: true }).toFile(`public/gym/${out}`);
+  await grade(img).jpeg({ quality: 82, mozjpeg: true }).toFile(`public/gym/${out}`);
   console.log("wrote public/gym/" + out);
 }
 

@@ -11,14 +11,14 @@ export default function Transformation() {
       {/* background image + overlay */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={asset("/gym/g-reception.jpg")}
+        src={asset("/gym/g-turf.jpg")}
         alt=""
         aria-hidden
         loading="lazy"
         decoding="async"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-k2-black/85" />
+      <div className="absolute inset-0 bg-k2-black/88" />
       <div
         className="absolute inset-0 opacity-70"
         style={{ background: "radial-gradient(120% 90% at 80% 30%, rgba(224,30,38,0.3), transparent 55%)" }}

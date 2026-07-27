@@ -56,11 +56,10 @@ export default function Hero() {
 
         <motion.h1
           {...slam(0.22)}
-          className="font-anton text-[17vw] uppercase leading-[0.86] text-white sm:text-8xl md:text-[8.5rem]"
+          className="font-anton text-[15vw] uppercase leading-[0.98] text-white sm:text-8xl sm:leading-[0.92] md:text-[8.5rem]"
         >
-          Rain Outside,
-          <br />
-          <span className="k2-fire-text">Beast Inside</span>
+          <span className="block">Rain Outside,</span>
+          <span className="mt-1 block k2-fire-text sm:mt-2">Beast Inside</span>
         </motion.h1>
 
         <motion.p {...slam(0.42)} className="mt-6 max-w-xl font-nunito text-lg text-white/85">

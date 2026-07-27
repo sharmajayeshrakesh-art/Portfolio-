@@ -15,15 +15,13 @@ export default function Gallery() {
           </h2>
         </Reveal>
 
-        <div className="mt-12 grid auto-rows-[200px] grid-cols-2 gap-4 sm:auto-rows-[240px] lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
           {gallery.map((g, i) => (
             <Reveal
               key={g.src}
               delay={(i % 3) * 0.06}
               from={i % 2 ? "right" : "left"}
-              className={`group relative overflow-hidden rounded-lg ${
-                g.span === "wide" ? "col-span-2" : ""
-              } ${g.span === "tall" ? "row-span-2" : ""}`}
+              className="group relative aspect-[4/3] overflow-hidden rounded-lg"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

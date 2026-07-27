@@ -9,6 +9,7 @@ import {
   Parisienne,
   Nunito_Sans,
   Playfair_Display,
+  Anton,
 } from "next/font/google";
 import "./globals.css";
 
@@ -70,6 +71,14 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+// Key 2 Fitness display font (heavy condensed athletic)
+const anton = Anton({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-anton",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Meridian · Websites worth paying for",
   description: "An independent studio designing and building premium websites.",
@@ -84,7 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable} ${playfair.variable}`}
+        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable} ${playfair.variable} ${anton.variable}`}
       >
         {children}
       </body>

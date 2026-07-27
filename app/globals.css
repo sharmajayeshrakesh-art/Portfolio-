@@ -92,6 +92,19 @@
   --color-sambar-ink-soft: #6b5d49;
   --font-playfair: var(--font-playfair), ui-serif, Georgia, serif;
 
+  /* ---- Key 2 Fitness palette (dark charcoal + electric red + gold) ---- */
+  --color-k2-black: #0b0b0d;
+  --color-k2-charcoal: #141416;
+  --color-k2-charcoal-2: #1c1c20;
+  --color-k2-charcoal-3: #26262b;
+  --color-k2-red: #e01e26;
+  --color-k2-red-2: #ff2d35;
+  --color-k2-gold: #f5b800;
+  --color-k2-gold-2: #ffce3a;
+  --color-k2-smoke: #9a9aa4;
+  --color-k2-fog: #c9c9d0;
+  --font-anton: var(--font-anton), ui-sans-serif, system-ui, sans-serif;
+
   /* Motion */
   --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -493,6 +506,73 @@ body {
   }
   .sambar-watermark {
     background: rgba(18, 53, 40, 0.97);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ============================================================
+   Key 2 Fitness — scoped theme for the /gym route
+   Bold, dark, kinetic: charcoal + electric red + gold.
+   The energetic opposite of the three hospitality sites.
+   ============================================================ */
+.k2-root {
+  background: var(--color-k2-black);
+  color: #f4f4f6;
+  font-family: var(--font-nunito);
+  -webkit-font-smoothing: antialiased;
+}
+.k2-root ::selection {
+  background: rgba(224, 30, 38, 0.35);
+  color: #fff;
+}
+.font-anton {
+  font-family: var(--font-anton);
+  letter-spacing: 0.01em;
+}
+
+/* Gritty texture (fixed, no blend-mode -> stays on its own layer, no scroll repaint) */
+.k2-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.05;
+  will-change: transform;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Electric gradient text (red -> gold) for accents */
+.k2-fire-text {
+  background: linear-gradient(100deg, var(--color-k2-red) 0%, var(--color-k2-red-2) 40%, var(--color-k2-gold) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Red glow for primary CTAs */
+.k2-glow {
+  box-shadow: 0 0 0 0 rgba(224, 30, 38, 0.5), 0 12px 34px -10px rgba(224, 30, 38, 0.8);
+}
+.k2-glow-pulse {
+  animation: k2Pulse 2.6s ease-in-out infinite;
+}
+@keyframes k2Pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(224, 30, 38, 0.45), 0 12px 30px -12px rgba(224, 30, 38, 0.7); }
+  50% { box-shadow: 0 0 0 6px rgba(224, 30, 38, 0), 0 16px 40px -10px rgba(224, 30, 38, 0.95); }
+}
+
+/* Fixed WhatsApp button (always reachable — the conversion goal) */
+.k2-whatsapp {
+  background: #22c15e;
+  box-shadow: 0 12px 30px -8px rgba(34, 193, 94, 0.7);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .k2-glass {
+    background: rgba(20, 20, 22, 0.95);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }

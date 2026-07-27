@@ -570,6 +570,23 @@ body {
   box-shadow: 0 12px 30px -8px rgba(34, 193, 94, 0.7);
 }
 
+/* Ghost outline headline (big background text) */
+.k2-ghost {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.08);
+  text-stroke: 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Gentle float loop for hero badge chips */
+.k2-float {
+  animation: k2Float var(--float-dur, 5s) ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+@keyframes k2Float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+
 @media (prefers-reduced-transparency: reduce) {
   .k2-glass {
     background: rgba(20, 20, 22, 0.95);

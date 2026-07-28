@@ -10,6 +10,9 @@ import {
   Nunito_Sans,
   Playfair_Display,
   Anton,
+  Rajdhani,
+  Inter,
+  JetBrains_Mono,
 } from "next/font/google";
 import "./globals.css";
 
@@ -79,6 +82,21 @@ const anton = Anton({
   display: "swap",
 });
 
+// FITPRO fonts (precise / technical / LED-readout)
+const rajdhani = Rajdhani({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-rajdhani",
+  display: "swap",
+});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-jetbrains",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Meridian · Websites worth paying for",
   description: "An independent studio designing and building premium websites.",
@@ -93,7 +111,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable} ${playfair.variable} ${anton.variable}`}
+        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable} ${playfair.variable} ${anton.variable} ${rajdhani.variable} ${inter.variable} ${jetbrainsMono.variable}`}
       >
         {children}
       </body>

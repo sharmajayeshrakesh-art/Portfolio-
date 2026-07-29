@@ -28,6 +28,14 @@ export default function Intro() {
     if (conn && (conn.effectiveType === "2g" || conn.effectiveType === "slow-2g")) return;
 
     setShow(true);
+    // Lock scroll while the intro is up so a scroll during it can never leave
+    // the page in a half-scrolled state (a source of jank on mobile).
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onGesture = () => dismiss();
+    window.addEventListener("wheel", onGesture, { passive: true });
+    window.addEventListener("touchmove", onGesture, { passive: true });
+
     const skipT = setTimeout(() => setShowSkip(true), 400);
     const endT = setTimeout(() => dismiss(), 2200);
     const hardT = setTimeout(() => dismiss(), 3000); // hard cap
@@ -35,6 +43,9 @@ export default function Intro() {
       clearTimeout(skipT);
       clearTimeout(endT);
       clearTimeout(hardT);
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("wheel", onGesture);
+      window.removeEventListener("touchmove", onGesture);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduce]);
@@ -43,6 +54,7 @@ export default function Intro() {
     try {
       sessionStorage.setItem(KEY, "1");
     } catch {}
+    document.body.style.overflow = "";
     setShow(false);
   }
 

@@ -28,8 +28,11 @@ export default function CoverScreen() {
   const W = reduce ? {} : { scale: wordScale, y: wordY, opacity: wordOpacity };
 
   return (
-    <div ref={ref} className="relative" style={{ height: "180dvh" }} aria-hidden={false}>
-      <div className="pointer-events-none sticky top-0 flex h-[100dvh] items-center justify-center overflow-hidden bg-fp-black">
+    <div ref={ref} className="relative" style={{ height: "155svh" }} aria-hidden={false}>
+      <div
+        className="pointer-events-none sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden bg-fp-black"
+        style={{ willChange: "transform" }}
+      >
         {/* soft LED-blue light bleed */}
         <motion.div
           style={reduce ? undefined : { opacity: glowOpacity }}
@@ -42,7 +45,7 @@ export default function CoverScreen() {
         </motion.div>
 
         {/* Wordmark (behind subject) */}
-        <motion.div style={reduce ? undefined : W} className="absolute inset-x-0 top-[40%] z-10 text-center sm:top-[30%]">
+        <motion.div style={reduce ? undefined : W} className="absolute inset-x-0 top-[40%] z-10 text-center will-change-transform sm:top-[30%]">
           <h1 className="font-rajdhani text-[26vw] font-bold leading-none tracking-[0.06em] text-fp-warm sm:text-[20vw] lg:text-[16rem]">
             FITPRO
           </h1>
@@ -54,7 +57,7 @@ export default function CoverScreen() {
         {/* Subject (in front of wordmark) */}
         <motion.div
           style={reduce ? undefined : S}
-          className="absolute bottom-0 left-1/2 z-20 w-[168%] max-w-none -translate-x-1/2 sm:w-full sm:max-w-[1100px]"
+          className="absolute bottom-0 left-1/2 z-20 w-[168%] max-w-none -translate-x-1/2 will-change-transform sm:w-full sm:max-w-[1100px]"
         >
           <picture>
             <source srcSet={asset("/fitpro/splash/splash-subject.webp")} type="image/webp" />

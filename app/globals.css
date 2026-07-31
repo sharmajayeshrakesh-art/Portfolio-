@@ -122,8 +122,25 @@
   --font-inter: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-jetbrains: var(--font-jetbrains), ui-monospace, monospace;
 
-  /* Motion */
+  /* ---- Bistro Brew palette (bright, airy, daytime garden cafe) ---- */
+  --color-bb-cream: #fbf8f2;
+  --color-bb-white: #ffffff;
+  --color-bb-mint: #afcfa6;
+  --color-bb-mint-soft: #d6e6cf;
+  --color-bb-sage: #5e8a57;
+  --color-bb-cane: #c69a6d;
+  --color-bb-cane-light: #e3c9a6;
+  --color-bb-terracotta: #9c4a21;
+  --color-bb-terracotta-2: #7f3a19;
+  --color-bb-bulb: #ffd9a0;
+  --color-bb-ink: #2e2118;
+  --color-bb-muted: #7a6b5d;
+  --font-bricolage: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-karla: var(--font-karla), ui-sans-serif, system-ui, sans-serif;
+
+  /* Motion — one easing curve for the whole Bistro site */
   --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-lamp: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root {
@@ -693,6 +710,66 @@ body {
 @keyframes fpCue {
   0% { background-position: 0 -110%; }
   100% { background-position: 0 110%; }
+}
+
+/* ============================================================
+   Bistro Brew — scoped theme for the /bistro route
+   Bright, airy, daytime. Cream + mint + cane + terracotta.
+   Motion language: things descend and settle, like hanging lamps.
+   ============================================================ */
+.bb-root {
+  background: var(--color-bb-cream);
+  color: var(--color-bb-ink);
+  font-family: var(--font-karla);
+  -webkit-font-smoothing: antialiased;
+}
+.bb-root ::selection {
+  background: rgba(175, 207, 166, 0.5);
+  color: var(--color-bb-ink);
+}
+.font-bricolage { font-family: var(--font-bricolage); }
+.font-karla { font-family: var(--font-karla); }
+.font-mukta { font-family: var(--font-mukta); }
+
+/* Warm pool of light behind key elements */
+.bb-glow {
+  background: radial-gradient(circle, rgba(255, 217, 160, 0.55), transparent 65%);
+}
+
+/* Terracotta CTA (the only action colour) */
+.bb-cta {
+  background: var(--color-bb-terracotta);
+  color: #fff;
+  transition: background 0.3s var(--ease-lamp), transform 0.3s var(--ease-lamp);
+}
+.bb-cta:hover { background: var(--color-bb-terracotta-2); transform: translateY(-1px); }
+
+.bb-wa { background: #22c15e; color: #fff; }
+
+/* Arched image mask (dome/arch shapes as structure) */
+.bb-arch { border-radius: 999px 999px 18px 18px; }
+.bb-arch-lg { border-radius: 50% 50% 20px 20px / 30% 30% 20px 20px; }
+
+/* Woven cane dome (SVG-free): a half-ellipse with faint radial weave */
+.bb-dome {
+  border-radius: 100% 100% 8px 8px / 100% 100% 8px 8px;
+  background:
+    repeating-radial-gradient(circle at 50% 100%, rgba(126, 58, 25, 0.16) 0 2px, transparent 2px 7px),
+    linear-gradient(180deg, var(--color-bb-cane-light), var(--color-bb-cane));
+  box-shadow: inset 0 -3px 6px rgba(126, 58, 25, 0.15);
+}
+
+/* Warm bulb */
+.bb-bulb {
+  border-radius: 9999px;
+  background: radial-gradient(circle at 50% 40%, #fff6e2, var(--color-bb-bulb) 55%, #f0b968 100%);
+}
+
+/* Bulb bloom used in the intro */
+.bb-bloom { animation: bbBloom 0.4s var(--ease-lamp) both; }
+@keyframes bbBloom {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* Fine grain overlay lives on a fixed element (see GrainOverlay) */

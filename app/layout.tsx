@@ -13,6 +13,8 @@ import {
   Rajdhani,
   Inter,
   JetBrains_Mono,
+  Bricolage_Grotesque,
+  Karla,
 } from "next/font/google";
 import "./globals.css";
 
@@ -97,6 +99,20 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+// Bistro Brew fonts (friendly, contemporary, daytime)
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-bricolage",
+  display: "swap",
+});
+const karla = Karla({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-karla",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Meridian · Websites worth paying for",
   description: "An independent studio designing and building premium websites.",
@@ -111,7 +127,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable} ${playfair.variable} ${anton.variable} ${rajdhani.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+        className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable} ${playfair.variable} ${anton.variable} ${rajdhani.variable} ${inter.variable} ${jetbrainsMono.variable} ${bricolage.variable} ${karla.variable}`}
       >
         {children}
       </body>

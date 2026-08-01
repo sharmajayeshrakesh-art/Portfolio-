@@ -5,7 +5,6 @@ import { NavigationArrow, WhatsappLogo, MapPin } from "@phosphor-icons/react";
 import { asset } from "@/lib/asset";
 import { bistro } from "@/lib/bistrobrew";
 import Reveal from "./Reveal";
-import CaneLamps from "./CaneLamps";
 
 function useOpenLabel() {
   const [label, setLabel] = useState<string | null>(null);
@@ -24,10 +23,8 @@ export default function Hero() {
   const openLabel = useOpenLabel();
   const directions = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(bistro.mapsQuery)}`;
   return (
-    <section id="top" className="relative overflow-hidden pt-44 pb-16 sm:pt-52 sm:pb-20">
-      {/* The permanent cane lamps — the intro's lamps come to rest here */}
-      <CaneLamps />
-      <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-5 sm:px-8 lg:grid-cols-2">
+    <section id="top" className="relative overflow-hidden pt-24 pb-16 sm:pt-28 sm:pb-20">
+      <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 sm:px-8 lg:grid-cols-2">
         <div>
           <Reveal>
             <p className="inline-flex items-center gap-2 font-karla text-xs font-semibold uppercase tracking-[0.18em] text-bb-sage">

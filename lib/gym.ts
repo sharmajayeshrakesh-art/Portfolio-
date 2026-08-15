@@ -6,9 +6,9 @@ export const gym = {
   tagline: "RAIN OUTSIDE, BEAST INSIDE",
   subtagline: "Weight Loss is now Easy!",
   heroSub: "Build your best self at Bhugaon's most result-driven gym.",
-  phone: "7770064909",
-  phoneTel: "+917770064909",
-  whatsapp: "https://wa.me/917770064909",
+  phone: "7066559038",
+  phoneTel: "+917066559038",
+  whatsapp: "https://wa.me/917066559038",
   instagram: "https://instagram.com/key2fitnessgym",
   instagramHandle: "@key2fitnessgym",
   address:
@@ -38,31 +38,38 @@ export const why: Why[] = [
   { title: "Results Visible in 21 Days", blurb: "Show up, follow the plan, watch it work.", icon: "timer" },
 ];
 
-/* Membership plans */
+/* Independence Day offer (from the gym's 15th August flyer) */
+export const offer = {
+  title: "Independence Day Offer",
+  validTill: "Offer valid till 20th August only",
+  motto: "Be Free. Be Fit. Be Unstoppable.",
+  pledge:
+    "This Independence Day, take a pledge to get stronger, healthier & more confident.",
+};
+
+/* Membership plans (prices & taglines from the gym's flyer) */
 export type Plan = {
   months: string;
   price: string;
-  save: string;
+  note: string;
   tag?: string;
   popular?: boolean;
+  trial?: boolean;
 };
 export const plans: Plan[] = [
-  { months: "3 Months", price: "3,999", save: "2,000" },
-  { months: "6 Months", price: "5,999", save: "4,500", tag: "Most Popular", popular: true },
-  { months: "12 Months", price: "7,999", save: "7,000", tag: "Best Value" },
+  { months: "1 Week Trial", price: "499", note: "Experience the Key 2 Fitness difference", trial: true },
+  { months: "3 Months", price: "3,999", note: "Stay consistent, see results" },
+  { months: "6 Months", price: "5,999", note: "Build strength, build discipline", tag: "Most Popular", popular: true },
+  { months: "12 Months", price: "7,999", note: "Transform your body, transform your life", tag: "Best Value" },
 ];
 
-export const freebies = [
-  "Body Composition Analysis",
-  "Protein Shaker",
-  "Personalized Workout Plan",
-  "Group Classes (Zumba, HIIT, Yoga & more)",
-];
-export const planExtras = [
-  "2 free Personal Training sessions (6 & 12 month)",
-  "2 guest passes",
-  "Monthly progress audit",
-  "Diet plan updated every 15 days",
+/* Why join (from the flyer) */
+export const whyJoin = [
+  "Expert Trainers",
+  "Personalized Workout Plans",
+  "Nutrition Guidance",
+  "Premium Equipment",
+  "Positive Environment",
 ];
 
 /* Transformation angle */

@@ -126,6 +126,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        {/* Don't let browsers hold on to a stale HTML document between deploys.
+            (Hashed JS/CSS assets are already immutable-cached.) */}
+        <meta httpEquiv="Cache-Control" content="no-cache, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+      </head>
       <body
         className={`${spaceGrotesk.variable} ${geist.variable} ${geistMono.variable} ${cormorant.variable} ${mukta.variable} ${fraunces.variable} ${parisienne.variable} ${nunitoSans.variable} ${playfair.variable} ${anton.variable} ${rajdhani.variable} ${inter.variable} ${jetbrainsMono.variable} ${bricolage.variable} ${karla.variable}`}
       >

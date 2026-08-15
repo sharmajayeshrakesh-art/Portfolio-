@@ -1,5 +1,9 @@
+"use client";
+
 /* Shared Independence Day tricolor motifs for the Key 2 Fitness site.
    Kept subtle so they unify every section without overwhelming the brand. */
+
+import { useOfferLive } from "./useOfferLive";
 
 export function Chakra({ className = "" }: { className?: string }) {
   return (
@@ -37,11 +41,12 @@ export function Eyebrow({
   children: React.ReactNode;
   tone?: "red" | "gold";
 }) {
+  const live = useOfferLive();
   return (
     <p className={`inline-flex items-center gap-3 font-anton text-sm uppercase tracking-[0.3em] ${TONE[tone]}`}>
-      <TriTicks />
+      {live && <TriTicks />}
       <span>{children}</span>
-      <TriTicks className="-scale-x-100" />
+      {live && <TriTicks className="-scale-x-100" />}
     </p>
   );
 }

@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "@phosphor-icons/react";
 import { useReducedMotion } from "motion/react";
+import { useOfferLive } from "./useOfferLive";
 
 /* Small Ashoka Chakra used as a separator between marquee items */
 function Chakra({ className = "" }: { className?: string }) {
@@ -47,6 +48,8 @@ function Sequence() {
 
 export default function OfferBar() {
   const reduce = useReducedMotion();
+  const live = useOfferLive();
+  if (!live) return null;
   return (
     <a
       href="#plans"

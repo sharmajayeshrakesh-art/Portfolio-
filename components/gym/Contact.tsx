@@ -4,9 +4,11 @@ import { MapPin, Clock, Phone, InstagramLogo, WhatsappLogo } from "@phosphor-ico
 import { gym } from "@/lib/gym";
 import Reveal, { RevealItem } from "./Reveal";
 import { Eyebrow, Chakra } from "./Tiranga";
+import { useOfferLive } from "./useOfferLive";
 
 export default function Contact() {
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(gym.mapsQuery)}&output=embed`;
+  const live = useOfferLive();
 
   const rows = [
     { icon: MapPin, label: "Location", value: gym.address },
@@ -21,7 +23,9 @@ export default function Contact() {
         className="pointer-events-none absolute right-[-6%] top-[10%] h-[46vh] w-[46vh] rounded-full opacity-30"
         style={{ background: "radial-gradient(circle, rgba(245,184,0,0.28), transparent 70%)" }}
       />
-      <Chakra className="k2-chakra-spin pointer-events-none absolute -left-16 bottom-0 h-64 w-64 text-white opacity-[0.04]" />
+      {live && (
+        <Chakra className="k2-chakra-spin pointer-events-none absolute -left-16 bottom-0 h-64 w-64 text-white opacity-[0.04]" />
+      )}
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="text-center">
           <Eyebrow>Join The Beast</Eyebrow>

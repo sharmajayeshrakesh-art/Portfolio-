@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { List, X } from "@phosphor-icons/react";
 import { gym } from "@/lib/gym";
 import Logo from "./Logo";
+import { useOfferLive } from "./useOfferLive";
 
 const LINKS = [
   { label: "Plans", href: "#plans" },
@@ -16,6 +17,7 @@ const LINKS = [
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const live = useOfferLive();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -26,9 +28,9 @@ export default function Nav() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-9 z-50 transition-all duration-300 sm:top-10 ${
-        scrolled ? "bg-k2-black shadow-[0_10px_30px_-18px_#000]" : "bg-transparent"
-      }`}
+      className={`fixed inset-x-0 z-50 transition-all duration-300 ${
+        live ? "top-9 sm:top-10" : "top-0"
+      } ${scrolled ? "bg-k2-black shadow-[0_10px_30px_-18px_#000]" : "bg-transparent"}`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 sm:px-8">
         <a href="#top" aria-label="Key 2 Fitness home" className="shrink-0">

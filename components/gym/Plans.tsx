@@ -4,65 +4,65 @@ import { WhatsappLogo, Check } from "@phosphor-icons/react";
 import { plans, whyJoin, offer, gym } from "@/lib/gym";
 import Reveal, { RevealItem } from "./Reveal";
 import TiltCard from "./TiltCard";
-
-/* Ashoka Chakra — 24 spokes, drawn inline so it stays crisp at any size */
-function Chakra({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 100 100" className={className} aria-hidden focusable="false">
-      <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="3" />
-      <circle cx="50" cy="50" r="7" fill="currentColor" />
-      {Array.from({ length: 24 }).map((_, i) => (
-        <line
-          key={i}
-          x1="50"
-          y1="50"
-          x2="50"
-          y2="6"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          transform={`rotate(${i * 15} 50 50)`}
-        />
-      ))}
-    </svg>
-  );
-}
+import { Chakra } from "./Tiranga";
+import { useOfferLive } from "./useOfferLive";
 
 export default function Plans() {
+  const live = useOfferLive();
+  // The 1-week trial + festive framing are part of the 15 Aug promo.
+  // Once it ends the section reverts to the standing 3/6/12-month plans.
+  const shown = live ? plans : plans.filter((p) => !p.trial);
+  const gridCols = live ? "lg:grid-cols-4" : "lg:grid-cols-3";
+
   return (
-    <section id="plans" className="k2-inday relative overflow-hidden py-20 sm:py-28">
-      <div className="k2-tiranga-bar absolute inset-x-0 top-0" />
-      <div className="k2-tiranga-bar absolute inset-x-0 bottom-0" />
-      {/* giant chakra watermark drifting behind the content */}
-      <Chakra className="k2-chakra-spin pointer-events-none absolute -right-20 top-8 h-72 w-72 text-white opacity-[0.05] sm:h-96 sm:w-96" />
-      <Chakra className="k2-chakra-spin pointer-events-none absolute -left-24 bottom-4 hidden h-72 w-72 text-white opacity-[0.04] lg:block" />
+    <section
+      id="plans"
+      className={`relative overflow-hidden py-20 sm:py-28 ${live ? "k2-inday" : "bg-k2-black"}`}
+    >
+      {live && (
+        <>
+          <div className="k2-tiranga-bar absolute inset-x-0 top-0" />
+          <div className="k2-tiranga-bar absolute inset-x-0 bottom-0" />
+          <Chakra className="k2-chakra-spin pointer-events-none absolute -right-20 top-8 h-72 w-72 text-white opacity-[0.05] sm:h-96 sm:w-96" />
+          <Chakra className="k2-chakra-spin pointer-events-none absolute -left-24 bottom-4 hidden h-72 w-72 text-white opacity-[0.04] lg:block" />
+        </>
+      )}
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
-        {/* ---- Festive Independence Day banner ---- */}
-        <Reveal className="text-center">
-          <span className="k2-flag-badge k2-shimmer inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-anton text-xs uppercase tracking-[0.22em] text-k2-black shadow-lg">
-            Limited Time Offer
-          </span>
-
-          <h2 className="mt-6 font-anton text-5xl uppercase leading-[0.92] text-white sm:text-7xl">
-            <span className="k2-tiranga-text">15<sup className="text-3xl sm:text-5xl">th</sup> August</span>
-          </h2>
-          <p className="mt-3 font-anton text-2xl uppercase tracking-wide text-white sm:text-3xl">
-            Freedom to <span className="text-in-saffron">transform</span>
-          </p>
-          <p className="mx-auto mt-4 max-w-xl font-nunito text-k2-fog">{offer.pledge}</p>
-
-          {/* valid-till chip with a spinning chakra */}
-          <div className="mt-7 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.04] px-5 py-2.5">
-            <Chakra className="k2-chakra-spin h-6 w-6 text-in-chakra" />
-            <span className="font-anton text-sm uppercase tracking-[0.15em] text-white sm:text-base">
-              {offer.validTill}
+        {/* ---- Header: festive banner during the promo, plain heading after ---- */}
+        {live ? (
+          <Reveal className="text-center">
+            <span className="k2-flag-badge k2-shimmer inline-flex items-center gap-2 rounded-full px-4 py-1.5 font-anton text-xs uppercase tracking-[0.22em] text-k2-black shadow-lg">
+              Limited Time Offer
             </span>
-          </div>
-        </Reveal>
+            <h2 className="mt-6 font-anton text-5xl uppercase leading-[0.92] text-white sm:text-7xl">
+              <span className="k2-tiranga-text">
+                15<sup className="text-3xl sm:text-5xl">th</sup> August
+              </span>
+            </h2>
+            <p className="mt-3 font-anton text-2xl uppercase tracking-wide text-white sm:text-3xl">
+              Freedom to <span className="text-in-saffron">transform</span>
+            </p>
+            <p className="mx-auto mt-4 max-w-xl font-nunito text-k2-fog">{offer.pledge}</p>
+            <div className="mt-7 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.04] px-5 py-2.5">
+              <Chakra className="k2-chakra-spin h-6 w-6 text-in-chakra" />
+              <span className="font-anton text-sm uppercase tracking-[0.15em] text-white sm:text-base">
+                {offer.validTill}
+              </span>
+            </div>
+          </Reveal>
+        ) : (
+          <Reveal className="text-center">
+            <p className="font-anton text-sm uppercase tracking-[0.3em] text-k2-red">Membership</p>
+            <h2 className="mt-3 font-anton text-4xl uppercase leading-none text-white sm:text-6xl">
+              Pick your <span className="k2-fire-text">plan</span>
+            </h2>
+          </Reveal>
+        )}
 
         {/* ---- Plan cards ---- */}
-        <Reveal className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:items-stretch" stagger={0.1}>
-          {plans.map((p) => (
+        <Reveal className={`mt-14 grid gap-6 sm:grid-cols-2 lg:items-stretch ${gridCols}`} stagger={0.1}>
+          {shown.map((p) => (
             <RevealItem key={p.months} className="h-full">
               <TiltCard
                 className={`relative flex h-full flex-col rounded-xl border p-7 ${
@@ -122,13 +122,17 @@ export default function Plans() {
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {whyJoin.map((w) => (
               <div key={w} className="flex items-center gap-2.5 font-nunito text-sm text-k2-fog">
-                <Check size={18} weight="bold" className="shrink-0 text-in-green-2" />
+                <Check size={18} weight="bold" className={`shrink-0 ${live ? "text-in-green-2" : "text-k2-red"}`} />
                 {w}
               </div>
             ))}
           </div>
           <p className="mt-7 border-t border-white/10 pt-6 text-center font-anton text-lg uppercase tracking-wide sm:text-2xl">
-            <span className="k2-tiranga-text">{offer.motto}</span>
+            {live ? (
+              <span className="k2-tiranga-text">{offer.motto}</span>
+            ) : (
+              <span className="text-k2-gold">{offer.motto}</span>
+            )}
           </p>
         </Reveal>
 

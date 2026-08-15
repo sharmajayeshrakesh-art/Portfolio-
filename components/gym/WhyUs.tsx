@@ -4,6 +4,7 @@ import { Medal, Brain, ChartLineUp, UsersThree, Sparkle, Timer } from "@phosphor
 import { why, stats, type Why } from "@/lib/gym";
 import Reveal, { RevealItem } from "./Reveal";
 import CountUp from "./CountUp";
+import { Eyebrow } from "./Tiranga";
 
 const ICONS: Record<Why["icon"], typeof Medal> = {
   medal: Medal,
@@ -33,7 +34,7 @@ export default function WhyUs() {
         </Reveal>
 
         <Reveal className="mt-16 text-center" from="up">
-          <p className="font-anton text-sm uppercase tracking-[0.3em] text-k2-red">Why choose K2</p>
+          <Eyebrow>Why choose K2</Eyebrow>
           <h2 className="mt-3 font-anton text-4xl uppercase leading-none text-white sm:text-6xl">
             Built to get you <span className="k2-fire-text">results</span>
           </h2>

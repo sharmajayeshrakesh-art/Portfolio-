@@ -3,6 +3,7 @@
 import { Star, GoogleLogo, Quotes } from "@phosphor-icons/react";
 import { reviews, reviewsSummary } from "@/lib/gym";
 import Reveal, { RevealItem } from "./Reveal";
+import { Eyebrow } from "./Tiranga";
 
 function Stars({ size = 14 }: { size?: number }) {
   return (
@@ -19,7 +20,7 @@ export default function Reviews() {
     <section className="relative overflow-hidden bg-k2-charcoal py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="text-center">
-          <p className="font-anton text-sm uppercase tracking-[0.3em] text-k2-red">The Verdict</p>
+          <Eyebrow>The Verdict</Eyebrow>
           <h2 className="mt-3 font-anton text-4xl uppercase leading-none text-white sm:text-6xl">
             Rated <span className="k2-fire-text">5★</span> by 13+ members
           </h2>

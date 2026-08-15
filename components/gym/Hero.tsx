@@ -5,6 +5,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 import { ArrowRight, WhatsappLogo, Medal, Timer, Star } from "@phosphor-icons/react";
 import { asset } from "@/lib/asset";
 import { gym } from "@/lib/gym";
+import { Chakra } from "./Tiranga";
 
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
@@ -43,13 +44,26 @@ export default function Hero() {
       <span className="pointer-events-none absolute right-2 top-1/2 -z-0 hidden -translate-y-1/2 font-anton text-[36vw] leading-none k2-ghost lg:block">
         K2
       </span>
+      {/* Faint chakra watermark ties the hero to the 15 Aug theme */}
+      <Chakra className="k2-chakra-spin pointer-events-none absolute -left-24 bottom-[-6%] h-80 w-80 text-white opacity-[0.04] sm:h-[26rem] sm:w-[26rem]" />
 
       <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 px-5 pt-32 sm:px-8 sm:pt-36 lg:grid-cols-2">
         {/* Text */}
         <motion.div style={reduce ? undefined : { y: contentY, willChange: "transform" }}>
+          <motion.a
+            href="#plans"
+            {...slam(0.04)}
+            className="k2-shimmer mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 font-anton text-[11px] uppercase tracking-[0.16em] text-white"
+          >
+            <Chakra className="k2-chakra-spin h-4 w-4 text-in-chakra" />
+            <span>
+              <span className="text-in-saffron">Independence Day</span> Special ·{" "}
+              <span className="text-in-green-2">Till 20 Aug</span>
+            </span>
+          </motion.a>
           <motion.p
             {...slam(0.1)}
-            className="mb-4 inline-flex items-center gap-2 rounded-sm border border-k2-red/50 bg-k2-red/10 px-3 py-1.5 font-anton text-xs uppercase tracking-[0.2em] text-k2-gold"
+            className="mb-4 block w-fit rounded-sm border border-k2-red/50 bg-k2-red/10 px-3 py-1.5 font-anton text-xs uppercase tracking-[0.2em] text-k2-gold"
           >
             {gym.subtagline}
           </motion.p>

@@ -3,13 +3,14 @@
 import { asset } from "@/lib/asset";
 import { gallery } from "@/lib/gym";
 import Reveal from "./Reveal";
+import { Eyebrow } from "./Tiranga";
 
 export default function Gallery() {
   return (
     <section id="gallery" className="relative overflow-hidden bg-k2-black py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="text-center">
-          <p className="font-anton text-sm uppercase tracking-[0.3em] text-k2-red">The Floor</p>
+          <Eyebrow>The Floor</Eyebrow>
           <h2 className="mt-3 font-anton text-4xl uppercase leading-none text-white sm:text-6xl">
             Inside <span className="k2-fire-text">K2</span>
           </h2>

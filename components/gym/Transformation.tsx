@@ -4,6 +4,7 @@ import { asset } from "@/lib/asset";
 import { transformation, gym } from "@/lib/gym";
 import Reveal, { RevealItem } from "./Reveal";
 import { WhatsappLogo } from "@phosphor-icons/react";
+import { Eyebrow } from "./Tiranga";
 
 export default function Transformation() {
   return (
@@ -31,7 +32,7 @@ export default function Transformation() {
 
       <div className="relative mx-auto max-w-5xl px-5 text-center sm:px-8">
         <Reveal>
-          <p className="font-anton text-sm uppercase tracking-[0.3em] text-k2-gold">Results 100% guaranteed</p>
+          <Eyebrow tone="gold">Results 100% guaranteed</Eyebrow>
           <h2 className="mt-3 font-anton text-4xl uppercase leading-[0.95] text-white sm:text-6xl">
             Experience fitness
             <br />

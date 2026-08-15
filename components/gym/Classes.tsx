@@ -3,6 +3,7 @@
 import { Barbell, Lock, Drop, Car, Snowflake, CreditCard, Lightning } from "@phosphor-icons/react";
 import { classes, specialties, facilities, type Facility } from "@/lib/gym";
 import Reveal, { RevealItem } from "./Reveal";
+import { Eyebrow } from "./Tiranga";
 
 const FAC_ICONS: Record<Facility["icon"], typeof Barbell> = {
   barbell: Barbell,
@@ -18,7 +19,7 @@ export default function Classes() {
     <section id="classes" className="relative overflow-hidden bg-k2-charcoal py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="text-center">
-          <p className="font-anton text-sm uppercase tracking-[0.3em] text-k2-red">Classes & Services</p>
+          <Eyebrow>Classes &amp; Services</Eyebrow>
           <h2 className="mt-3 font-anton text-4xl uppercase leading-none text-white sm:text-6xl">
             Train your <span className="k2-fire-text">way</span>
           </h2>

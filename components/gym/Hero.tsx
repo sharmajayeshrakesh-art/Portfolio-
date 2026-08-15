@@ -44,7 +44,7 @@ export default function Hero() {
         K2
       </span>
 
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 px-5 pt-24 sm:px-8 lg:grid-cols-2">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 px-5 pt-32 sm:px-8 sm:pt-36 lg:grid-cols-2">
         {/* Text */}
         <motion.div style={reduce ? undefined : { y: contentY, willChange: "transform" }}>
           <motion.p

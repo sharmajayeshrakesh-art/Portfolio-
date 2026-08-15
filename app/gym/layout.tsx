@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import OfferBar from "@/components/gym/OfferBar";
 import Watermark from "@/components/gym/Watermark";
 import WhatsAppFab from "@/components/gym/WhatsAppFab";
 
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function GymLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="k2-root k2-grain min-h-screen">
+      <OfferBar />
       {children}
       <WhatsAppFab />
       <Watermark />

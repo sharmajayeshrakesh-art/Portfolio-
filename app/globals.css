@@ -706,6 +706,24 @@ body {
   .k2-shimmer::after { display: none; }
 }
 
+/* Top announcement bar — persistent Independence Day offer strip */
+.k2-offerbar {
+  background:
+    linear-gradient(90deg, rgba(255, 143, 31, 0.16), rgba(255, 255, 255, 0.06) 50%, rgba(26, 159, 60, 0.16)),
+    #0c0c11;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.k2-marquee {
+  animation: k2Marquee 28s linear infinite;
+}
+@keyframes k2Marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .k2-marquee { animation: none; }
+}
+
 /* ============================================================
    FITPRO — scoped theme for the /fitpro route
    Precise, electric, engineered. Black + lime + LED blue.

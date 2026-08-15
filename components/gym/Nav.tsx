@@ -26,7 +26,7 @@ export default function Nav() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+      className={`fixed inset-x-0 top-9 z-50 transition-all duration-300 sm:top-10 ${
         scrolled ? "bg-k2-black shadow-[0_10px_30px_-18px_#000]" : "bg-transparent"
       }`}
     >

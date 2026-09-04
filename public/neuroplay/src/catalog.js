@@ -7,11 +7,11 @@
  */
 
 export const DOMAINS = {
-  memory: { id: "memory", color: "#0E7C6B", icon: "brain" },
-  attention: { id: "attention", color: "#3A6EA5", icon: "target" },
-  language: { id: "language", color: "#C77D2E", icon: "chat" },
-  reasoning: { id: "reasoning", color: "#7A5AA6", icon: "puzzle" },
-  orientation: { id: "orientation", color: "#4E9A6B", icon: "calendar" },
+  memory: { id: "memory", color: "var(--d-memory)", icon: "brain" },
+  attention: { id: "attention", color: "var(--d-attention)", icon: "target" },
+  language: { id: "language", color: "var(--d-language)", icon: "chat" },
+  reasoning: { id: "reasoning", color: "var(--d-reasoning)", icon: "puzzle" },
+  orientation: { id: "orientation", color: "var(--d-orientation)", icon: "calendar" },
 };
 
 export const DOMAIN_ORDER = ["memory", "attention", "language", "reasoning", "orientation"];

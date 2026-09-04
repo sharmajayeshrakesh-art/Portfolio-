@@ -22,7 +22,9 @@ import { renderGame } from "./screens/games/runner.js";
 import { renderMemory } from "./screens/memory/memory.js";
 import { renderEmergency } from "./screens/memory/emergency.js";
 import { renderSettings } from "./screens/settings.js";
+import { renderTour } from "./screens/tour.js";
 import { showSplash } from "./screens/splash.js";
+import { applyStoredTheme } from "./theme.js";
 
 const root = document.getElementById("app");
 
@@ -38,6 +40,7 @@ const ROUTES = {
   memory: renderMemory,
   emergency: renderEmergency,
   settings: renderSettings,
+  tour: renderTour,
 };
 
 const ctx = {
@@ -86,9 +89,12 @@ async function boot() {
   const savedMode = await store.getSetting("mode", "elder");
   document.documentElement.dataset.mode = savedMode;
 
-  // apply saved display size (elder-facing refinement)
-  const size = await store.getSetting("displaySize", "comfortable");
-  if (size && size !== "comfortable") document.documentElement.dataset.size = size;
+  // Day / Night / Automatic
+  await applyStoredTheme();
+
+  // Display size — Balanced is the default; Large is opt-in.
+  const size = await store.getSetting("displaySize", "balanced");
+  if (size === "large") document.documentElement.dataset.size = "large";
   else delete document.documentElement.dataset.size;
 
   onLanguageChange(() => {
@@ -105,8 +111,9 @@ async function boot() {
   }
 
   const done = await store.getSetting("onboarded", false);
+  const toured = await store.getSetting("tourDone", false);
   await splash.done();
-  navigate(done ? "home" : "onboarding");
+  navigate(!done ? "onboarding" : !toured ? "tour" : "home");
 }
 
 window.addEventListener("DOMContentLoaded", boot);

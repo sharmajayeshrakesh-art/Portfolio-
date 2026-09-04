@@ -10,11 +10,12 @@ import { store } from "./store.js";
 import { currentLocale } from "./i18n.js";
 
 const synth = typeof speechSynthesis !== "undefined" ? speechSynthesis : null;
-let _enabled = true;
+// Voice starts OFF on a fresh install — the guided tour offers to turn it on.
+let _enabled = false;
 let _voices = [];
 
 export async function initTTS() {
-  _enabled = (await store.getSetting("ttsEnabled", true)) !== false;
+  _enabled = (await store.getSetting("ttsEnabled", false)) === true;
   if (!synth) return;
   const load = () => (_voices = synth.getVoices() || []);
   load();

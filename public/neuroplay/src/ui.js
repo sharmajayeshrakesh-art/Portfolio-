@@ -32,6 +32,29 @@ export function mount(root, node) {
   return node;
 }
 
+/**
+ * A segmented control. options: [{ val, label }]. Calls onchange(val).
+ * Shared by Settings and the guided tour so both behave identically.
+ */
+export function segmented(options, current, onchange) {
+  const seg = el("div.seg", { role: "group" });
+  const btns = [];
+  for (const o of options) {
+    const b = el("button", {
+      type: "button",
+      text: o.label,
+      "aria-pressed": String(o.val === current),
+      onclick: () => {
+        btns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        onchange(o.val);
+      },
+    });
+    btns.push(b);
+    seg.appendChild(b);
+  }
+  return seg;
+}
+
 /** Polite screen-reader / status announcer. */
 let _live;
 export function announce(msg) {

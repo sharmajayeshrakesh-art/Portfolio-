@@ -1,6 +1,6 @@
 /* NeuroPlay service worker — offline-first app shell.
    Bump CACHE when files change to roll the cache over. */
-const CACHE = "neuroplay-v2";
+const CACHE = "neuroplay-v3";
 
 const SHELL = [
   "./",
@@ -20,9 +20,11 @@ const SHELL = [
   "./src/icons.js",
   "./src/ui.js",
   "./src/charts.js",
+  "./src/theme.js",
   "./src/screens/chrome.js",
   "./src/screens/splash.js",
   "./src/screens/settings.js",
+  "./src/screens/tour.js",
   "./src/screens/onboarding.js",
   "./src/screens/home.js",
   "./src/screens/games-menu.js",

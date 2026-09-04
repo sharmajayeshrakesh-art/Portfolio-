@@ -16,7 +16,7 @@ export function renderGamesMenu(ctx) {
     const color = DOMAINS[g.domain].color;
     tiles.appendChild(
       el("button.tile", { onclick: () => ctx.navigate("game", { id }) }, [
-        el("div.tile-ic", { html: icon(g.icon, "icon-lg"), style: `background:${color}1a;color:${color}` }),
+        el("div.tile-ic", { html: icon(g.icon, "icon-lg"), style: `background:color-mix(in srgb, ${color} 15%, transparent);color:${color}` }),
         el("div.tile-title", { text: ctx.t(g.tKey) }),
         el("div.tile-sub", { text: ctx.t(g.tKey + "_desc") }),
       ])

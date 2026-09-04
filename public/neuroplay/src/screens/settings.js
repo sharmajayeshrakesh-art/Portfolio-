@@ -1,10 +1,11 @@
-/** settings.js — elder-facing preferences: display size, voice, language. */
+/** settings.js — elder-facing preferences: day/night, text size, voice, language. */
 
-import { el } from "../ui.js";
+import { el, segmented } from "../ui.js";
 import { icon } from "../icons.js";
 import { topBar } from "./chrome.js";
 import { LANGUAGES } from "../i18n.js";
 import { ttsEnabled, setTTS, speak } from "../tts.js";
+import { setTheme, themePref } from "../theme.js";
 
 export function renderSettings(ctx) {
   const scr = el("main");
@@ -17,37 +18,60 @@ export function renderSettings(ctx) {
   const body = el("div.screen.stack-lg");
   scr.appendChild(body);
 
-  // ---- Display size --------------------------------------------------
-  const sizeVal = () => document.documentElement.dataset.size || "comfortable";
-  const sizeSeg = segmented(
-    [
-      { val: "balanced", label: ctx.t("size_balanced") },
-      { val: "comfortable", label: ctx.t("size_comfortable") },
-    ],
-    sizeVal(),
-    async (v) => {
-      if (v === "comfortable") delete document.documentElement.dataset.size;
-      else document.documentElement.dataset.size = v;
-      await ctx.store.setSetting("displaySize", v);
-    }
-  );
-  body.appendChild(settingCard(ctx, "setting_text_size", "gear", sizeSeg));
+  // ---- Day & night ----------------------------------------------------
+  const themeSlot = el("div");
+  themePref().then((pref) => {
+    themeSlot.appendChild(
+      segmented(
+        [
+          { val: "day", label: ctx.t("theme_day") },
+          { val: "night", label: ctx.t("theme_night") },
+          { val: "auto", label: ctx.t("theme_auto") },
+        ],
+        pref,
+        (v) => setTheme(v)
+      )
+    );
+  });
+  body.appendChild(settingCard(ctx, "setting_theme", "moon", themeSlot));
 
-  // ---- Voice ---------------------------------------------------------
-  const voiceSeg = segmented(
-    [
-      { val: "on", label: ctx.t("voice_on") },
-      { val: "off", label: ctx.t("voice_off") },
-    ],
-    ttsEnabled() ? "on" : "off",
-    (v) => {
-      setTTS(v === "on");
-      if (v === "on") speak(ctx.t("setting_voice"), { force: true });
-    }
+  // ---- Text size ------------------------------------------------------
+  const sizeNow = document.documentElement.dataset.size === "large" ? "large" : "balanced";
+  body.appendChild(
+    settingCard(ctx, "setting_text_size", "textsize",
+      segmented(
+        [
+          { val: "balanced", label: ctx.t("size_balanced") },
+          { val: "large", label: ctx.t("size_comfortable") },
+        ],
+        sizeNow,
+        async (v) => {
+          if (v === "large") document.documentElement.dataset.size = "large";
+          else delete document.documentElement.dataset.size;
+          await ctx.store.setSetting("displaySize", v);
+        }
+      )
+    )
   );
-  body.appendChild(settingCard(ctx, "setting_voice", "volume", voiceSeg));
 
-  // ---- Language ------------------------------------------------------
+  // ---- Voice ----------------------------------------------------------
+  body.appendChild(
+    settingCard(ctx, "setting_voice", "volume",
+      segmented(
+        [
+          { val: "on", label: ctx.t("voice_on") },
+          { val: "off", label: ctx.t("voice_off") },
+        ],
+        ttsEnabled() ? "on" : "off",
+        (v) => {
+          setTTS(v === "on");
+          if (v === "on") speak(ctx.t("guide_voice_sample"), { force: true });
+        }
+      )
+    )
+  );
+
+  // ---- Language -------------------------------------------------------
   const langWrap = el("div.lang-grid");
   for (const l of LANGUAGES) {
     langWrap.appendChild(
@@ -62,13 +86,22 @@ export function renderSettings(ctx) {
       ])
     );
   }
-  const langCard = el("div.card.stack", {}, [
-    el("div.set-row", {}, [
-      el("div.set-label", {}, [el("span.set-ic", { html: icon("globe") }), el("span", { text: ctx.t("setting_language") })]),
-    ]),
-    langWrap,
-  ]);
-  body.appendChild(langCard);
+  body.appendChild(
+    el("div.card.stack", {}, [
+      el("div.set-row", {}, [
+        el("div.set-label", {}, [el("span.set-ic", { html: icon("globe") }), el("span", { text: ctx.t("setting_language") })]),
+      ]),
+      langWrap,
+    ])
+  );
+
+  // ---- Replay the guide ------------------------------------------------
+  body.appendChild(
+    el("button.btn.btn-ghost.btn-block", {
+      html: icon("sparkle") + `<span>${ctx.t("show_guide")}</span>`,
+      onclick: () => ctx.navigate("tour"),
+    })
+  );
 
   return scr;
 }
@@ -80,22 +113,4 @@ function settingCard(ctx, key, ic, control) {
       control,
     ]),
   ]);
-}
-
-function segmented(options, current, onchange) {
-  const seg = el("div.seg");
-  const btns = [];
-  for (const o of options) {
-    const b = el("button", {
-      text: o.label,
-      "aria-pressed": String(o.val === current),
-      onclick: () => {
-        btns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-        onchange(o.val);
-      },
-    });
-    btns.push(b);
-    seg.appendChild(b);
-  }
-  return seg;
 }

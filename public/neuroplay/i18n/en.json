@@ -161,5 +161,25 @@
   "voice_on": "On",
   "voice_off": "Off",
   "size_comfortable": "Large",
-  "size_balanced": "Balanced"
+  "size_balanced": "Balanced",
+
+  "setting_theme": "Day & night",
+  "theme_day": "Day",
+  "theme_night": "Night",
+  "theme_auto": "Automatic",
+
+  "guide_title": "A quick tour",
+  "guide_intro": "Let us set up NeuroPlay the way you like it. You can change all of this later.",
+  "guide_voice_title": "Voice help",
+  "guide_voice_body": "I can read every question out loud. Turn it on if you would like to hear me.",
+  "guide_voice_sample": "Voice help is on. I will read things out for you.",
+  "guide_theme_title": "Day and night",
+  "guide_theme_body": "A bright screen for daytime, a soft dark one for evening. Try them now.",
+  "guide_size_title": "Text size",
+  "guide_size_body": "Bigger letters, or a balanced layout that fits more on the screen.",
+  "guide_done_title": "You are ready",
+  "guide_done_body": "Tap the gear at the top to change these any time. The lock opens the caregiver area.",
+  "guide_skip": "Skip",
+  "guide_start": "Start using NeuroPlay",
+  "show_guide": "Show the guide again"
 }

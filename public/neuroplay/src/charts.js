@@ -29,19 +29,19 @@ export function reactionLineSVG(points, { baselineN = 3 } = {}) {
   for (let g = 0; g <= 4; g++) {
     const v = y0 + ((y1 - y0) * g) / 4;
     const yy = py(v).toFixed(1);
-    grid.push(`<line x1="${padL}" y1="${yy}" x2="${W - padR}" y2="${yy}" stroke="#e2dccf" stroke-width="1"/>`);
-    grid.push(`<text x="${padL - 8}" y="${(+yy + 5).toFixed(1)}" text-anchor="end" font-size="13" fill="#4a534d">${Math.round(v)}</text>`);
+    grid.push(`<line x1="${padL}" y1="${yy}" x2="${W - padR}" y2="${yy}" stroke="var(--line)" stroke-width="1"/>`);
+    grid.push(`<text x="${padL - 8}" y="${(+yy + 5).toFixed(1)}" text-anchor="end" font-size="13" fill="var(--ink-soft)">${Math.round(v)}</text>`);
   }
   const dots = points
-    .map((p, i) => `<circle cx="${px(i).toFixed(1)}" cy="${py(p.rt).toFixed(1)}" r="5" fill="#0e7c6b" stroke="#fff" stroke-width="2"/>`)
+    .map((p, i) => `<circle cx="${px(i).toFixed(1)}" cy="${py(p.rt).toFixed(1)}" r="5" fill="var(--d-memory)" stroke="var(--surface)" stroke-width="2"/>`)
     .join("");
 
   return `<svg viewBox="0 0 ${W} ${H}" class="chart-svg" role="img" aria-label="Reaction time trend chart">
     ${grid.join("")}
-    <line x1="${padL}" y1="${py(baseMed).toFixed(1)}" x2="${W - padR}" y2="${py(baseMed).toFixed(1)}" stroke="#c9781a" stroke-width="1.5" stroke-dasharray="6 5"/>
-    <text x="${W - padR}" y="${(py(baseMed) - 8).toFixed(1)}" text-anchor="end" font-size="12" font-weight="700" fill="#c9781a">baseline</text>
-    <path d="${area}" fill="#0e7c6b" opacity="0.10"/>
-    <path d="${line}" fill="none" stroke="#0e7c6b" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <line x1="${padL}" y1="${py(baseMed).toFixed(1)}" x2="${W - padR}" y2="${py(baseMed).toFixed(1)}" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="6 5"/>
+    <text x="${W - padR}" y="${(py(baseMed) - 8).toFixed(1)}" text-anchor="end" font-size="12" font-weight="700" fill="var(--warn)">baseline</text>
+    <path d="${area}" fill="var(--d-memory)" opacity="0.10"/>
+    <path d="${line}" fill="none" stroke="var(--d-memory)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
     ${dots}
   </svg>`;
 }

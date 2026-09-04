@@ -24,7 +24,7 @@ export function renderOnboarding(ctx) {
           style: l.ready ? "" : "opacity:.55",
           onclick: async () => {
             await ctx.setLang(l.code);
-            speak(l.native, { locale: l.locale, force: true });
+            speak(l.native, { locale: l.locale });
             mount(root, buildStep2());
           },
         }, [
@@ -74,10 +74,10 @@ export function renderOnboarding(ctx) {
   async function start(mode) {
     ctx.setMode(mode);
     await ctx.store.setSetting("onboarded", true);
-    if (mode === "elder") ctx.navigate("home");
+    if (mode === "elder") ctx.navigate("tour");
   }
 
   wrap.appendChild(step1());
-  speak(ctx.t("choose_language"), { force: true });
+  speak(ctx.t("choose_language"));
   return wrap;
 }

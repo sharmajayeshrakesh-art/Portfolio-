@@ -2,12 +2,11 @@
  *  Gentle, no shaming. Uses the real date via Intl so it is always current. */
 
 import { el } from "../../ui.js";
-import { currentLocale } from "../../i18n.js";
+import { fmtWeekday } from "../../i18n.js";
 import { speak } from "../../tts.js";
 
 export function startOrientation(g) {
   const { ctx, recorder, host } = g;
-  const loc = currentLocale();
   const now = new Date();
   const MAX = 5;
   let round = 0;
@@ -21,7 +20,7 @@ export function startOrientation(g) {
   stage.append(prompt, opts, feedback);
   host.appendChild(stage);
 
-  const weekdayName = (d) => new Intl.DateTimeFormat(loc, { weekday: "long" }).format(d);
+  const weekdayName = (d) => fmtWeekday(d);
   const questions = [buildDay, buildPart, buildSeason, buildDay, buildPart];
 
   function buildDay() {

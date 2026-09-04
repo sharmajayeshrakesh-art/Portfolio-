@@ -1,6 +1,6 @@
 /* NeuroPlay service worker — offline-first app shell.
    Bump CACHE when files change to roll the cache over. */
-const CACHE = "neuroplay-v4";
+const CACHE = "neuroplay-v5";
 
 const SHELL = [
   "./",
@@ -45,6 +45,8 @@ const SHELL = [
   "./src/screens/memory/emergency.js",
   "./i18n/en.json",
   "./i18n/hi.json",
+  "./i18n/as.json",
+  "./i18n/ne.json",
 ];
 
 self.addEventListener("install", (e) => {

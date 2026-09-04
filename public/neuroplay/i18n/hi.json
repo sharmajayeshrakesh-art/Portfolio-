@@ -1,7 +1,6 @@
 {
   "app_name": "न्यूरोप्ले",
   "app_tagline": "हर दिन थोड़ा खेलें",
-
   "continue": "आगे बढ़ें",
   "back": "पीछे",
   "next": "अगला",
@@ -15,7 +14,6 @@
   "skip": "छोड़ें",
   "loading": "लोड हो रहा है",
   "tap_to_hear": "सुनने के लिए दबाएँ",
-
   "choose_language": "अपनी भाषा चुनें",
   "welcome_title": "न्यूरोप्ले में आपका स्वागत है",
   "welcome_sub": "स्वस्थ दिमाग़ के लिए आसान खेल",
@@ -25,7 +23,6 @@
   "mode_caregiver": "मैं देखभाल करने वाला/वाली हूँ",
   "mode_caregiver_desc": "प्रगति और सेटिंग देखें",
   "get_started": "शुरू करें",
-
   "greeting_morning": "सुप्रभात",
   "greeting_afternoon": "नमस्कार",
   "greeting_evening": "शुभ संध्या",
@@ -39,13 +36,11 @@
   "season_monsoon": "बरसात",
   "season_winter": "सर्दी",
   "season_spring": "बसंत",
-
   "play_games": "खेल खेलें",
   "memory_help": "याददाश्त सहायक",
   "reminders": "याद दिलाना",
   "emergency": "परिवार को बुलाएँ",
   "start_playing": "खेलना शुरू करें",
-
   "games_title": "एक खेल चुनें",
   "game_face_name": "यह कौन है?",
   "game_face_name_desc": "अपने परिवार को याद रखें",
@@ -59,13 +54,11 @@
   "game_orientation_desc": "दिन, समय और मौसम",
   "game_number": "अंक",
   "game_number_desc": "गिनें और ढूँढें",
-
   "domain_memory": "याददाश्त",
   "domain_attention": "ध्यान",
   "domain_language": "भाषा",
   "domain_reasoning": "तर्क",
   "domain_orientation": "समय-बोध",
-
   "well_done": "बहुत बढ़िया",
   "good_try": "अच्छी कोशिश",
   "lets_continue": "आगे बढ़ें",
@@ -77,7 +70,6 @@
   "orient_q_part": "अभी दिन का कौन सा समय है?",
   "orient_q_season": "अभी कौन सा मौसम है?",
   "word_odd_prompt": "कौन सा अलग है?",
-
   "caregiver_title": "देखभालकर्ता",
   "enter_pin": "देखभालकर्ता पिन डालें",
   "pin_wrong": "गलत पिन, फिर कोशिश करें",
@@ -85,7 +77,6 @@
   "set_pin_desc": "4 अंकों का पिन इस डैशबोर्ड को सुरक्षित रखता है",
   "confirm_pin": "अपना पिन दोबारा डालें",
   "pin_mismatch": "पिन मेल नहीं खाए",
-
   "dashboard_title": "प्रगति डैशबोर्ड",
   "metric_sessions": "सत्र",
   "metric_trials": "कुल दौर",
@@ -97,16 +88,13 @@
   "today": "आज",
   "yesterday": "कल",
   "days_ago": "{n} दिन पहले",
-
   "reaction_trend_title": "प्रतिक्रिया समय का रुझान",
   "reaction_trend_sub": "कम यानी तेज़। समय के साथ बढ़ना धीमेपन का संकेत हो सकता है।",
   "trend_faster": "तेज़ हो रहा है",
   "trend_slower": "धीमा हो रहा है",
   "trend_steady": "स्थिर है",
-
   "domain_accuracy_title": "क्षमता अनुसार शुद्धता",
   "no_domain_data": "अभी कोई दौर दर्ज नहीं",
-
   "decline_title": "संज्ञानात्मक जाँच",
   "decline_stable": "कोई गिरावट नहीं मिली",
   "decline_stable_desc": "हाल का प्रदर्शन आधार-रेखा के अनुरूप है।",
@@ -117,10 +105,8 @@
   "reason_accuracy_drop": "शुद्धता आधार-रेखा से {value} अंक कम",
   "reason_domain_drop": "{domain} शुद्धता {value} अंक कम",
   "reason_abandonment": "हाल में {value}% दौर अधूरे छोड़े गए",
-
   "unit_ms": "मि.से.",
   "unit_sec": "से.",
-
   "content_title": "अपने अनुसार बनाएँ",
   "content_desc": "खेलों के लिए परिवार की तस्वीरें और यादें जोड़ें",
   "add_face": "परिवार का चेहरा जोड़ें",
@@ -129,7 +115,6 @@
   "person_name": "नाम",
   "relationship": "रिश्ता",
   "saved_ok": "सहेज लिया",
-
   "export_report": "डॉक्टर रिपोर्ट निकालें",
   "report_title": "संज्ञानात्मक गतिविधि सारांश",
   "generated_on": "{date} को बनाया गया",
@@ -138,7 +123,6 @@
   "report_period": "अवधि",
   "report_disclaimer": "न्यूरोप्ले खेल से डिवाइस पर ही बना एक जाँच-सहायक है। यह निदान नहीं करता। कृपया चिकित्सकीय आकलन के साथ मिलाकर देखें।",
   "print_report": "प्रिंट / PDF सहेजें",
-
   "demo_seed": "डेमो डेटा",
   "demo_seed_desc": "डैशबोर्ड देखने के लिए छह सप्ताह के नमूना सत्र लोड करें",
   "load_demo": "डेमो डेटा लोड करें",
@@ -146,14 +130,12 @@
   "clear_confirm": "सारे सत्र और सामग्री हटाएँ? यह वापस नहीं होगा।",
   "no_data_yet": "अभी कोई सत्र नहीं",
   "no_data_desc": "कुछ खेल खेलें, या डैशबोर्ड देखने के लिए डेमो डेटा लोड करें।",
-
   "faces_title": "मेरा परिवार",
   "reminders_title": "मेरी याद-दिहानियाँ",
   "emergency_title": "परिवार को बुलाएँ",
   "call_now": "अभी कॉल करें",
   "no_faces": "अभी कोई चेहरा नहीं जोड़ा",
   "no_reminders": "अभी कोई याद-दिहानी नहीं",
-
   "settings_title": "सेटिंग",
   "setting_language": "भाषा",
   "setting_voice": "आवाज़ निर्देश",
@@ -162,12 +144,10 @@
   "voice_off": "बंद",
   "size_comfortable": "बड़ा",
   "size_balanced": "संतुलित",
-
   "setting_theme": "दिन और रात",
   "theme_day": "दिन",
   "theme_night": "रात",
   "theme_auto": "स्वतः",
-
   "guide_title": "छोटा सा परिचय",
   "guide_intro": "आइए न्यूरोप्ले को आपकी पसंद के अनुसार तैयार करें। यह सब बाद में भी बदला जा सकता है।",
   "guide_voice_title": "आवाज़ सहायता",
@@ -182,7 +162,6 @@
   "guide_skip": "छोड़ें",
   "guide_start": "न्यूरोप्ले शुरू करें",
   "show_guide": "परिचय दोबारा देखें",
-
   "game_card_match": "जोड़ी मिलाएँ",
   "game_card_match_desc": "एक जैसे दो कार्ड ढूँढें",
   "game_money": "पैसे गिनें",
@@ -222,5 +201,38 @@
   "cg_level": "पहुँचा स्तर",
   "cg_streak": "मौजूदा सिलसिला",
   "cg_days": "खेले गए दिन",
-  "cg_points": "अर्जित अंक"
+  "cg_points": "अर्जित अंक",
+  "region_india": "व्यापक रूप से बोली जाने वाली",
+  "region_ne": "पूर्वोत्तर भारत",
+  "setting_voice_choice": "आवाज़",
+  "voice_speed": "बोलने की गति",
+  "speed_slow": "धीमी",
+  "speed_normal": "सामान्य",
+  "test_voice": "आवाज़ सुनें",
+  "voice_device_default": "सबसे अच्छी उपलब्ध",
+  "voice_tip": "आवाज़ें फ़ोन से ही आती हैं। ज़्यादा स्वाभाविक आवाज़ के लिए Google Text-to-Speech इंस्टॉल करें और अपनी भाषा की उच्च गुणवत्ता वाली आवाज़ डाउनलोड करें।",
+  "lang_not_ready": "अभी अनुवाद नहीं हुआ",
+  "weekdays": [
+    "रविवार",
+    "सोमवार",
+    "मंगलवार",
+    "बुधवार",
+    "गुरुवार",
+    "शुक्रवार",
+    "शनिवार"
+  ],
+  "months": [
+    "जनवरी",
+    "फ़रवरी",
+    "मार्च",
+    "अप्रैल",
+    "मई",
+    "जून",
+    "जुलाई",
+    "अगस्त",
+    "सितंबर",
+    "अक्तूबर",
+    "नवंबर",
+    "दिसंबर"
+  ]
 }

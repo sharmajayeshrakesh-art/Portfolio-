@@ -7,7 +7,7 @@ import { icon } from "../icons.js";
 import { topBar } from "./chrome.js";
 import { buildProgress } from "../progress.js";
 import { GAMES, GAME_ORDER, DOMAINS } from "../catalog.js";
-import { currentLocale } from "../i18n.js";
+import { fmtWeekdayNarrow } from "../i18n.js";
 import { speak } from "../tts.js";
 
 export function renderProgress(ctx) {
@@ -45,11 +45,10 @@ export function renderProgress(ctx) {
 
     // ---- Streak + 7-day strip -----------------------------------------
     const strip = el("div.week");
-    const fmt = new Intl.DateTimeFormat(currentLocale(), { weekday: "narrow" });
     for (const d of p.last7) {
       strip.appendChild(
         el("div.week-day" + (d.played ? ".on" : ""), {}, [
-          el("span.wd", { text: fmt.format(new Date(d.t)) }),
+          el("span.wd", { text: fmtWeekdayNarrow(new Date(d.t)) }),
           el("span.dot", { html: d.played ? icon("check") : "" }),
         ])
       );

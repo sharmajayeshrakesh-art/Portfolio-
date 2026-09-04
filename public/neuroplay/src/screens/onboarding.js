@@ -2,7 +2,7 @@
 
 import { el, mount } from "../ui.js";
 import { icon } from "../icons.js";
-import { LANGUAGES } from "../i18n.js";
+import { LANGUAGES, REGIONS } from "../i18n.js";
 import { speak } from "../tts.js";
 
 export function renderOnboarding(ctx) {
@@ -16,24 +16,33 @@ export function renderOnboarding(ctx) {
       el("h1.h1", { text: ctx.t("welcome_title") }),
       el("p.lead", { text: ctx.t("choose_language") }),
     ]));
-    const grid = el("div.lang-grid");
-    for (const l of LANGUAGES) {
-      grid.appendChild(
-        el("button.choice", {
-          disabled: !l.ready,
-          style: l.ready ? "" : "opacity:.55",
-          onclick: async () => {
-            await ctx.setLang(l.code);
-            speak(l.native, { locale: l.locale });
-            mount(root, buildStep2());
-          },
-        }, [
-          el("span.native", { text: l.native, lang: l.code }),
-          l.ready ? el("span.latin", { text: l.label }) : el("span.pill", { text: "soon" }),
-        ])
+    const groups = el("div.stack-lg");
+    for (const r of REGIONS) {
+      const langs = LANGUAGES.filter((l) => l.region === r.id);
+      if (!langs.length) continue;
+      const grid = el("div.lang-grid");
+      for (const l of langs) grid.appendChild(langButton(l));
+      groups.appendChild(
+        el("section.stack", {}, [el("div.eyebrow", { text: ctx.t(r.tKey) }), grid])
       );
     }
-    s.appendChild(grid);
+
+    function langButton(l) {
+      return el("button.choice", {
+        disabled: !l.ready,
+        style: l.ready ? "" : "opacity:.55",
+        onclick: async () => {
+          await ctx.setLang(l.code);
+          speak(l.native, { locale: l.locale });
+          mount(root, buildStep2());
+        },
+      }, [
+        el("span.native", { text: l.native, lang: l.code }),
+        l.ready ? el("span.latin", { text: l.label })
+                : el("span.pill", { text: ctx.t("lang_not_ready") }),
+      ]);
+    }
+    s.appendChild(groups);
     return s;
   }
 

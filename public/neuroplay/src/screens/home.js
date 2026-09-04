@@ -2,7 +2,7 @@
 
 import { el } from "../ui.js";
 import { icon } from "../icons.js";
-import { currentLocale } from "../i18n.js";
+import { fmtWeekday, fmtDayMonth } from "../i18n.js";
 import { speak } from "../tts.js";
 
 function greetingKey(h) {
@@ -25,9 +25,8 @@ function seasonKey(m) {
 
 export function renderHome(ctx) {
   const now = new Date();
-  const loc = currentLocale();
-  const weekday = new Intl.DateTimeFormat(loc, { weekday: "long" }).format(now);
-  const dateStr = new Intl.DateTimeFormat(loc, { day: "numeric", month: "long" }).format(now);
+  const weekday = fmtWeekday(now);
+  const dateStr = fmtDayMonth(now);
 
   const scr = el("main.screen.stack-lg");
 

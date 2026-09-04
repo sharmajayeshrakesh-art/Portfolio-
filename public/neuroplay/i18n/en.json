@@ -1,7 +1,6 @@
 {
   "app_name": "NeuroPlay",
   "app_tagline": "Play a little every day",
-
   "continue": "Continue",
   "back": "Back",
   "next": "Next",
@@ -15,7 +14,6 @@
   "skip": "Skip",
   "loading": "Loading",
   "tap_to_hear": "Tap to hear",
-
   "choose_language": "Choose your language",
   "welcome_title": "Welcome to NeuroPlay",
   "welcome_sub": "Gentle games for a healthy mind",
@@ -25,7 +23,6 @@
   "mode_caregiver": "I am the caregiver",
   "mode_caregiver_desc": "See progress and settings",
   "get_started": "Get started",
-
   "greeting_morning": "Good morning",
   "greeting_afternoon": "Good afternoon",
   "greeting_evening": "Good evening",
@@ -39,13 +36,11 @@
   "season_monsoon": "Monsoon",
   "season_winter": "Winter",
   "season_spring": "Spring",
-
   "play_games": "Play games",
   "memory_help": "Memory helper",
   "reminders": "Reminders",
   "emergency": "Call family",
   "start_playing": "Start playing",
-
   "games_title": "Choose a game",
   "game_face_name": "Who is this?",
   "game_face_name_desc": "Remember your family",
@@ -59,13 +54,11 @@
   "game_orientation_desc": "Day, time and season",
   "game_number": "Numbers",
   "game_number_desc": "Count and find",
-
   "domain_memory": "Memory",
   "domain_attention": "Attention",
   "domain_language": "Language",
   "domain_reasoning": "Reasoning",
   "domain_orientation": "Orientation",
-
   "well_done": "Well done",
   "good_try": "Good try",
   "lets_continue": "Let us continue",
@@ -77,7 +70,6 @@
   "orient_q_part": "What time of day is it?",
   "orient_q_season": "Which season is it now?",
   "word_odd_prompt": "Which one is different?",
-
   "caregiver_title": "Caregiver",
   "enter_pin": "Enter caregiver PIN",
   "pin_wrong": "Incorrect PIN, try again",
@@ -85,7 +77,6 @@
   "set_pin_desc": "A 4-digit PIN protects this dashboard",
   "confirm_pin": "Confirm your PIN",
   "pin_mismatch": "PINs did not match",
-
   "dashboard_title": "Progress dashboard",
   "metric_sessions": "Sessions",
   "metric_trials": "Total rounds",
@@ -97,16 +88,13 @@
   "today": "Today",
   "yesterday": "Yesterday",
   "days_ago": "{n} days ago",
-
   "reaction_trend_title": "Reaction time trend",
   "reaction_trend_sub": "Lower is faster. Rising over time can mean slowing.",
   "trend_faster": "Getting faster",
   "trend_slower": "Getting slower",
   "trend_steady": "Holding steady",
-
   "domain_accuracy_title": "Accuracy by ability",
   "no_domain_data": "No rounds recorded yet",
-
   "decline_title": "Cognitive screening",
   "decline_stable": "No decline detected",
   "decline_stable_desc": "Recent performance is in line with the baseline.",
@@ -117,10 +105,8 @@
   "reason_accuracy_drop": "Accuracy down {value} points from baseline",
   "reason_domain_drop": "{domain} accuracy down {value} points",
   "reason_abandonment": "{value}% of rounds left unfinished recently",
-
   "unit_ms": "ms",
   "unit_sec": "s",
-
   "content_title": "Personalise",
   "content_desc": "Add family photos and memories for the games",
   "add_face": "Add a family face",
@@ -129,7 +115,6 @@
   "person_name": "Name",
   "relationship": "Relationship",
   "saved_ok": "Saved",
-
   "export_report": "Export doctor report",
   "report_title": "Cognitive Activity Summary",
   "generated_on": "Generated on {date}",
@@ -138,7 +123,6 @@
   "report_period": "Period",
   "report_disclaimer": "NeuroPlay is a screening aid generated on-device from gameplay. It does not diagnose. Correlate with clinical assessment.",
   "print_report": "Print / Save as PDF",
-
   "demo_seed": "Demo data",
   "demo_seed_desc": "Load six weeks of sample sessions to preview the dashboard",
   "load_demo": "Load demo data",
@@ -146,14 +130,12 @@
   "clear_confirm": "Clear all sessions and content? This cannot be undone.",
   "no_data_yet": "No sessions yet",
   "no_data_desc": "Play a few games, or load demo data to see the dashboard.",
-
   "faces_title": "My family",
   "reminders_title": "My reminders",
   "emergency_title": "Call family",
   "call_now": "Call now",
   "no_faces": "No faces added yet",
   "no_reminders": "No reminders yet",
-
   "settings_title": "Settings",
   "setting_language": "Language",
   "setting_voice": "Voice prompts",
@@ -162,12 +144,10 @@
   "voice_off": "Off",
   "size_comfortable": "Large",
   "size_balanced": "Balanced",
-
   "setting_theme": "Day & night",
   "theme_day": "Day",
   "theme_night": "Night",
   "theme_auto": "Automatic",
-
   "guide_title": "A quick tour",
   "guide_intro": "Let us set up NeuroPlay the way you like it. You can change all of this later.",
   "guide_voice_title": "Voice help",
@@ -182,7 +162,6 @@
   "guide_skip": "Skip",
   "guide_start": "Start using NeuroPlay",
   "show_guide": "Show the guide again",
-
   "game_card_match": "Matching pairs",
   "game_card_match_desc": "Find the two that match",
   "game_money": "Count the money",
@@ -222,5 +201,15 @@
   "cg_level": "Level reached",
   "cg_streak": "Current run",
   "cg_days": "Days played",
-  "cg_points": "Points earned"
+  "cg_points": "Points earned",
+  "region_india": "Widely spoken",
+  "region_ne": "North East India",
+  "setting_voice_choice": "Voice",
+  "voice_speed": "Speaking speed",
+  "speed_slow": "Slow",
+  "speed_normal": "Normal",
+  "test_voice": "Test voice",
+  "voice_device_default": "Best available",
+  "voice_tip": "Voices come from the phone itself. For a warmer, more natural voice, install Google Text-to-Speech and download the high-quality voice for your language.",
+  "lang_not_ready": "Not translated yet"
 }

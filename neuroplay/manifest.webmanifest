@@ -1,0 +1,17 @@
+{
+  "name": "NeuroPlay",
+  "short_name": "NeuroPlay",
+  "description": "Offline cognitive games and memory support for elders, with quiet cognitive screening.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4efe7",
+  "theme_color": "#0e7c6b",
+  "lang": "en",
+  "categories": ["health", "medical", "education"],
+  "icons": [
+    { "src": "./assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./assets/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

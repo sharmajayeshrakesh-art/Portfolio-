@@ -105,8 +105,9 @@ export function playClip(text, { rate = 1, onend } = {}) {
   try {
     const a = new Audio(src);
     _audio = a;
-    // keep it natural: only slow down, never speed up past normal
-    a.playbackRate = rate < 0.95 ? 0.9 : 1;
+    // The recordings are already read at an unhurried pace, so "Slow" only
+    // eases off a little — any more and it drags, which is its own problem.
+    a.playbackRate = rate < 0.95 ? 0.92 : 1;
     const done = () => {
       if (mySeq !== _seq) return;      // superseded or cancelled
       _audio = null;

@@ -4,7 +4,8 @@ import { el, segmented } from "../ui.js";
 import { icon } from "../icons.js";
 import { topBar } from "./chrome.js";
 import { LANGUAGES, REGIONS } from "../i18n.js";
-import { ttsEnabled, setTTS, speak, listVoices, setVoice, currentVoiceURI, speechRate, setSpeechRate, voicebankSize } from "../tts.js";
+import { ttsEnabled, setTTS, speak, listVoices, setVoice, currentVoiceURI, speechRate,
+         setSpeechRate, voicebankSize, usingVoicebank, setUseVoicebank } from "../tts.js";
 import { setTheme, themePref } from "../theme.js";
 
 export function renderSettings(ctx) {
@@ -80,29 +81,37 @@ export function renderSettings(ctx) {
       el("div.set-label", {}, [el("span.set-ic", { html: icon("user") }), el("span", { text: ctx.t("setting_voice_choice") })]),
     ])
   );
-  // With a voicebank loaded, almost everything the app says is a recording;
-  // the device voice only covers the bits that vary. Say so, so the caregiver
-  // is not confused when changing it barely changes anything.
-  if (voicebankSize() > 0) {
-    voiceCard.appendChild(el("p.section-sub", { text: ctx.t("voice_recorded_note") }));
-  }
+  // The recordings are the top entry, not a hidden override. Picking a device
+  // voice instead switches them off — so the choice actually changes what you
+  // hear, which is the whole point of having the control.
+  const hasBank = voicebankSize() > 0;
+  const BANK = "__recorded__";
   const sel = el("select.select", { "aria-label": ctx.t("setting_voice_choice") });
   function fillVoices() {
     sel.innerHTML = "";
+    if (hasBank) sel.appendChild(el("option", { value: BANK, text: ctx.t("voice_recorded") }));
     sel.appendChild(el("option", { value: "", text: ctx.t("voice_device_default") }));
     for (const v of listVoices()) {
       sel.appendChild(el("option", { value: v.voiceURI, text: `${v.name} (${v.lang})` }));
     }
-    sel.value = currentVoiceURI() || "";
+    sel.value = hasBank && usingVoicebank() ? BANK : currentVoiceURI() || "";
   }
   fillVoices();
   // voice list often arrives asynchronously on first load
   if (typeof speechSynthesis !== "undefined") setTimeout(fillVoices, 400);
   sel.addEventListener("change", async () => {
-    await setVoice(sel.value || null);
+    const recorded = sel.value === BANK;
+    if (hasBank) await setUseVoicebank(recorded);
+    if (!recorded) await setVoice(sel.value || null);
+    note.hidden = !recorded;
     speak(ctx.t("guide_voice_sample"), { force: true });
   });
   voiceCard.appendChild(sel);
+  // Say why the device voice below barely changes anything while recordings
+  // are on, rather than leaving it to look broken.
+  const note = el("p.section-sub", { text: ctx.t("voice_recorded_note") });
+  note.hidden = !(hasBank && usingVoicebank());
+  voiceCard.appendChild(note);
   voiceCard.appendChild(
     el("div.set-row", {}, [
       el("span", { text: ctx.t("voice_speed"), style: "font-weight:700" }),

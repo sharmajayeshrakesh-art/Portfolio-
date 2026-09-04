@@ -1,6 +1,6 @@
 /* NeuroPlay service worker — offline-first app shell.
    Bump CACHE when files change to roll the cache over. */
-const CACHE = "neuroplay-v8";
+const CACHE = "neuroplay-v9";
 
 const SHELL = [
   "./",
@@ -74,21 +74,33 @@ async function audioUrls() {
   return urls;
 }
 
+/* Fill the voicebank a few files at a time. There are several hundred clips
+   and the phone this runs on is a cheap one — firing them all at once is how
+   you stall a 2GB Android. This runs after activation, so the app is usable
+   long before the audio finishes arriving. */
+async function cacheAudio() {
+  const urls = await audioUrls();
+  if (!urls.length) return;
+  const c = await caches.open(CACHE);
+  for (let i = 0; i < urls.length; i += 24) {
+    await Promise.allSettled(urls.slice(i, i + 24).map((u) => c.add(u)));
+  }
+}
+
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(async (c) => {
-        await Promise.allSettled(SHELL.map((u) => c.add(u)));
-        const extra = await audioUrls();
-        await Promise.allSettled(extra.map((u) => c.add(u)));
-      })
+      .then((c) => Promise.allSettled(SHELL.map((u) => c.add(u))))
       .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
+      .then(() => cacheAudio())
   );
 });
 

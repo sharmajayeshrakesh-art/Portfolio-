@@ -25,6 +25,7 @@ let _voices = [];
 let _voiceURI = null;      // explicit choice, if the user made one
 let _rate = 0.95;          // 0.85 = slow, 0.95 = natural
 let _gen = 0;              // bumped on cancel, so an old queue stops advancing
+let _useBank = true;       // play recordings when we have them
 
 /* Names that usually mark a modern neural/enhanced voice. */
 const GOOD = /(neural|natural|enhanced|premium|wavenet|journey|studio|siri|google)/i;
@@ -33,6 +34,7 @@ const POOR = /(espeak|pico|compact|eloquence|festival|robot)/i;
 
 export async function initTTS() {
   _enabled = (await store.getSetting("ttsEnabled", false)) === true;
+  _useBank = (await store.getSetting("useVoicebank", true)) !== false;
   await loadVoicebank(currentLang());
   _voiceURI = await store.getSetting("voiceURI", null);
   _rate = Number(await store.getSetting("speechRate", 0.95)) || 0.95;
@@ -53,6 +55,15 @@ export function speechRate() { return _rate; }
 export async function setSpeechRate(r) {
   _rate = Number(r) || 0.95;
   await store.setSetting("speechRate", _rate);
+}
+
+/* Recordings vs the phone's own engine. Choosing a device voice in Settings
+   turns the recordings off — otherwise the picker would appear to do nothing,
+   which is the exact confusion this whole feature set out to fix. */
+export function usingVoicebank() { return _useBank && clipCount() > 0; }
+export async function setUseVoicebank(on) {
+  _useBank = !!on;
+  await store.setSetting("useVoicebank", _useBank);
 }
 
 export async function setVoice(uri) {
@@ -155,7 +166,8 @@ export function speak(text, { locale, rate, force = false } = {}) {
   // asked for a different locale — previewing a language during setup, say —
   // stay on synthesis rather than play a recording in the wrong language.
   const bank = voicebankLang();
-  const usable = clipCount() > 0 && (!locale || String(locale).toLowerCase().startsWith(bank || "\u0000"));
+  const usable = _useBank && clipCount() > 0 &&
+    (!locale || String(locale).toLowerCase().startsWith(bank || "\u0000"));
 
   if (!usable) {
     // No recordings: queue every phrase at once. Queuing short utterances
@@ -170,15 +182,20 @@ export function speak(text, { locale, rate, force = false } = {}) {
   // With recordings in hand we walk the phrases one at a time, playing the
   // human voice where we have it and synthesising only the bits that vary
   // (a date, a count, a relative's name). Mixed, but never robotic throughout.
+  // Clips are trimmed of dead air, so without this they would run into each
+  // other. A short breath between phrases is what makes a queue of recordings
+  // sound like someone talking rather than a list being read out.
+  const BREATH = 190;
   let i = 0;
-  const next = () => {
+  const next = (pause) => {
     if (gen !== _gen || i >= parts.length) return;
+    if (pause) { setTimeout(() => { if (gen === _gen) next(0); }, BREATH); return; }
     const part = parts[i++];
-    if (playClip(part, { rate: r, onend: next })) return;
-    if (!synth) { next(); return; }
-    sayOne(part, lang, r, next);
+    if (playClip(part, { rate: r, onend: () => next(BREATH) })) return;
+    if (!synth) { next(0); return; }
+    sayOne(part, lang, r, () => next(0));
   };
-  next();
+  next(0);
 }
 
 export function cancel() {

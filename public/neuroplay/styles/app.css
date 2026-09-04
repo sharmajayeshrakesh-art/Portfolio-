@@ -78,20 +78,22 @@
 
 /* ---- NIGHT — "Dusk over Pune" ---------------------------------------- */
 :root[data-theme="night"] {
-  --bg: #171331;
-  --bg-2: #211a37;
-  --surface: #271f42;
-  --surface-2: #2e2550;
-  --ink: #f0eaf9;
-  --ink-soft: #a89fc6;
-  --line: #39305a;
-  --line-strong: #4b3f70;
+  /* Surfaces that are white in day go near-black here — neutral, not violet.
+     Colour is spent only on the hero gradient, buttons and accents. */
+  --bg: #0b0d12;
+  --bg-2: #171b22;
+  --surface: #14181f;
+  --surface-2: #1b2029;
+  --ink: #f1f4f8;
+  --ink-soft: #9aa5b2;
+  --line: #262c36;
+  --line-strong: #39414d;
 
   --primary: #a98ae8;
   --primary-strong: #c3aaf5;
-  --primary-tint: #2f2657;
+  --primary-tint: #1c1926;
   --accent: #f2a03d;
-  --accent-tint: #3b2a19;
+  --accent-tint: #2a1e0e;
 
   --hero-a: #3f2585;
   --hero-b: #7b3f9e;
@@ -103,11 +105,11 @@
   --cta-ink: #ffffff;
 
   --good: #4bc47e;
-  --good-tint: #17321f;
+  --good-tint: #10241a;
   --warn: #e8a33d;
-  --warn-tint: #33260f;
+  --warn-tint: #241a0c;
   --alert: #ef6a5a;
-  --alert-tint: #37191a;
+  --alert-tint: #2a1513;
 
   --d-memory: #a98ae8;
   --d-attention: #6fb4ec;

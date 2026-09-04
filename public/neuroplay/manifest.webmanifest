@@ -6,12 +6,26 @@
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f4efe7",
-  "theme_color": "#0e7c6b",
+  "background_color": "#f0e8dc",
+  "theme_color": "#7c4020",
   "lang": "en",
-  "categories": ["health", "medical", "education"],
+  "categories": [
+    "health",
+    "medical",
+    "education"
+  ],
   "icons": [
-    { "src": "./assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "./assets/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
   ]
 }

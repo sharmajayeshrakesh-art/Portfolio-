@@ -1,56 +1,59 @@
 /* =========================================================================
-   NeuroPlay design system — "Dusk over Pune".
-   One colour story in two moods: indigo lifting into an ember horizon.
-     DAY   (default)  pale lilac ground, violet primary, ember accent
-     NIGHT ("Dusk")   deep indigo ground, luminous violet, ember glow
+   NeuroPlay design system — "Sand and Clay" / "Warm Night".
+   One warm, earthen colour story in two moods:
+     DAY   "Sand and Clay"  sand paper ground, clay primary, sage accent
+     NIGHT "Warm Night"     warm brown-black ground, lit clay, soft sage
    Themes are chosen explicitly via html[data-theme="day"|"night"], resolved
    from the stored Day / Night / Automatic preference in theme.js.
+
+   Built for eyes that tire easily, and for a kiosk sitting on a table:
+     - no pure white and no pure black; both are what actually burn the eyes
+     - no gradients, no ambient glow, no coloured halos — flat, printed surfaces
+     - colour carries meaning only; everything else is paper and ink
+     - one texture (a faint paper grain) instead of any lighting effect
 
    Text size: Balanced is the default; Large is one tap away in Settings.
    Fonts are system-provided (Android ships Noto for every Indic script).
    ========================================================================= */
 
 :root {
-  /* ---- DAY ---------------------------------------------------------- */
-  --bg: #f7f3fa;
-  --bg-2: #ece3f1;
-  --surface: #ffffff;
-  --surface-2: #faf7fd;
-  --ink: #1d1730;
-  --ink-soft: #5d5478;
-  --line: #e5dcef;
-  --line-strong: #cdc1dd;
+  /* ---- DAY — "Sand and Clay" ---------------------------------------- */
+  --bg: #f0e8dc;            /* sand — a warm ground, never a white page */
+  --bg-2: #e6d9c7;
+  --surface: #fbf6ee;       /* warm paper; cards lift by being lighter, not brighter */
+  --surface-2: #f4ece0;
+  --ink: #2c241d;           /* warm near-black; pure black vibrates against sand */
+  --ink-soft: #6a5d50;
+  --line: #ded0bd;
+  --line-strong: #c6b49d;
 
-  --primary: #6b3fc4;
-  --primary-strong: #4f2b9c;
-  --primary-tint: #ece4fa;
-  --accent: #cf6a22;
-  --accent-tint: #fbe7d6;
+  --primary: #9a5530;       /* clay */
+  --primary-strong: #7c4020;
+  --primary-tint: #f1e0d2;
+  --accent: #4e6b53;        /* sage — the calm half of the pair */
+  --accent-tint: #dee7dc;
 
-  /* the fade: hero gradient + ambient glow */
-  --hero-a: #4f2b9c;
-  --hero-b: #7b3f9e;
-  --hero-c: #d9722a;
-  --glow: rgba(217, 114, 42, 0.22);
-  --glow-2: rgba(107, 63, 196, 0.16);
-  --cta-a: #7c4dd0;
-  --cta-b: #5a32a8;
-  --cta-ink: #ffffff;
+  /* Flat bands replace the old hero gradient. One solid colour, no halo. */
+  --band: #7c4020;          /* information: the deepest clay */
+  --band-ink: #fdf7f0;
+  --band-line: #6a3519;
+  --cta: #9a5530;           /* action: a step brighter, so it reads as the button */
+  --cta-ink: #fdf7f0;
 
   /* semantic */
-  --good: #2c7f4b;
-  --good-tint: #e2f2e7;
-  --warn: #a8661a;
-  --warn-tint: #fbecd7;
-  --alert: #bd3729;
-  --alert-tint: #fbe4e0;
+  --good: #3d6a44;
+  --good-tint: #dfeade;
+  --warn: #87610f;
+  --warn-tint: #f3e6c9;
+  --alert: #a33c2b;
+  --alert-tint: #f5ddd5;
 
   /* cognitive domains (dashboard + game tiles) */
-  --d-memory: #7c4dd0;
-  --d-attention: #3f7fd0;
-  --d-language: #cf6a22;
-  --d-reasoning: #b8508a;
-  --d-orientation: #2f8f7a;
+  --d-memory: #9a5530;
+  --d-attention: #46687f;
+  --d-language: #8a6415;
+  --d-reasoning: #855070;
+  --d-orientation: #3f7561;
 
   /* ---- Type scale — Balanced is the default ------------------------- */
   --fs-base: 18px;
@@ -66,62 +69,60 @@
   --radius-lg: 24px;
   --tap: 60px;
 
-  --shadow-sm: 0 1px 3px rgba(29, 23, 48, 0.06), 0 2px 8px rgba(29, 23, 48, 0.05);
-  --shadow: 0 6px 18px -8px rgba(29, 23, 48, 0.20), 0 2px 6px rgba(29, 23, 48, 0.07);
-  --shadow-lg: 0 24px 48px -20px rgba(79, 43, 156, 0.34);
-  --grain-blend: soft-light;
-  --grain-opacity: 0.55;
+  /* Shadows are neutral and shallow — depth, not a light source. */
+  --shadow-sm: 0 1px 2px rgba(44, 36, 29, 0.07);
+  --shadow: 0 2px 6px rgba(44, 36, 29, 0.09);
+  --shadow-lg: 0 6px 16px rgba(44, 36, 29, 0.12);
+  --grain-blend: multiply;
+  --grain-opacity: 0.30;
 
   --font: "Noto Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --ease: cubic-bezier(0.22, 0.9, 0.3, 1);
 }
 
-/* ---- NIGHT — "Dusk over Pune" ---------------------------------------- */
+/* ---- NIGHT — "Warm Night" -------------------------------------------- */
 :root[data-theme="night"] {
-  /* Surfaces that are white in day go near-black here — neutral, not violet.
-     Colour is spent only on the hero gradient, buttons and accents. */
-  --bg: #0b0d12;
-  --bg-2: #171b22;
-  --surface: #14181f;
-  --surface-2: #1b2029;
-  --ink: #f1f4f8;
-  --ink-soft: #9aa5b2;
-  --line: #262c36;
-  --line-strong: #39414d;
+  /* Warm brown-black rather than blue-black: easier to sit with at night,
+     and it keeps the same story as the day theme instead of a second one. */
+  --bg: #141009;
+  --bg-2: #1d1811;
+  --surface: #262019;       /* lifted off the ground, so a card reads as a card */
+  --surface-2: #302820;
+  --ink: #efe5d8;           /* warm off-white; pure white halos on dark */
+  --ink-soft: #ac9c8a;
+  --line: #3d3227;
+  --line-strong: #544537;
 
-  --primary: #a98ae8;
-  --primary-strong: #c3aaf5;
-  --primary-tint: #1c1926;
-  --accent: #f2a03d;
-  --accent-tint: #2a1e0e;
+  --primary: #dd9f6b;
+  --primary-strong: #f0bb8c;
+  --primary-tint: #3b2a1c;  /* tints are icon chips here — they must be visible */
+  --accent: #9dbb9a;
+  --accent-tint: #24302a;
 
-  --hero-a: #3f2585;
-  --hero-b: #7b3f9e;
-  --hero-c: #c8562f;
-  --glow: rgba(240, 160, 74, 0.30);
-  --glow-2: rgba(124, 77, 208, 0.28);
-  --cta-a: #7c4dd0;
-  --cta-b: #5a32a8;
-  --cta-ink: #ffffff;
+  --band: #533020;
+  --band-ink: #fbf1e6;
+  --band-line: #6a4029;
+  --cta: #8a4a26;
+  --cta-ink: #fdf5ec;
 
-  --good: #4bc47e;
-  --good-tint: #10241a;
-  --warn: #e8a33d;
-  --warn-tint: #241a0c;
-  --alert: #ef6a5a;
-  --alert-tint: #2a1513;
+  --good: #7cba86;
+  --good-tint: #1e3025;
+  --warn: #d5a458;
+  --warn-tint: #33280f;
+  --alert: #dd8271;
+  --alert-tint: #3a201c;
 
-  --d-memory: #a98ae8;
-  --d-attention: #6fb4ec;
-  --d-language: #f2a03d;
-  --d-reasoning: #e089b4;
-  --d-orientation: #5fd0ae;
+  --d-memory: #dd9f6b;
+  --d-attention: #8cb2cb;
+  --d-language: #d4b166;
+  --d-reasoning: #cb9ab7;
+  --d-orientation: #8bc5a6;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.28);
-  --shadow: 0 8px 22px -10px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 26px 54px -22px rgba(0, 0, 0, 0.75);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.55);
   --grain-blend: overlay;
-  --grain-opacity: 0.4;
+  --grain-opacity: 0.22;
 }
 
 /* ---- Text size: Large (opt-in) --------------------------------------- */
@@ -156,15 +157,12 @@ body {
   line-height: 1.5;
   color: var(--ink);
   background-color: var(--bg);
-  background-image:
-    radial-gradient(88% 52% at 82% -6%, var(--glow), transparent 62%),
-    radial-gradient(70% 45% at 8% 2%, var(--glow-2), transparent 64%);
-  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
 }
 
-/* Soft grain so surfaces feel printed rather than flat. */
+/* A faint paper grain — the only texture in the app, and the only thing
+   standing in for the depth that gradients and glows used to fake. */
 body::before {
   content: "";
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -228,14 +226,14 @@ img { max-width: 100%; display: block; }
 }
 .btn:active { transform: scale(0.97); }
 .btn-primary {
-  background-image: linear-gradient(180deg, var(--cta-a), var(--cta-b));
+  background: var(--cta);
   color: var(--cta-ink);
-  box-shadow: 0 14px 30px -14px var(--cta-b), inset 0 1px 0 rgba(255,255,255,0.16);
+  box-shadow: var(--shadow-sm);
 }
 .btn-primary:hover { filter: brightness(1.06); }
 .btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--line-strong); }
-.btn-accent { background: var(--accent); color: #fff; box-shadow: var(--shadow); }
-.btn-danger { background: var(--alert); color: #fff; }
+.btn-accent { background: var(--accent); color: var(--band-ink); box-shadow: var(--shadow-sm); }
+.btn-danger { background: var(--alert); color: var(--band-ink); }
 .btn-block { display: flex; width: 100%; }
 .btn-xl { min-height: 70px; font-size: var(--fs-xl); padding: 0 34px; }
 
@@ -267,23 +265,18 @@ img { max-width: 100%; display: block; }
 .tile.tile-accent .tile-ic { background: var(--accent-tint); color: var(--accent); }
 .tile.tile-alert .tile-ic { background: var(--alert-tint); color: var(--alert); }
 
-/* ---- Orientation card (home) — the signature fade ---------------------- */
+/* ---- Orientation card (home) — one flat band --------------------------- */
 .orient {
   position: relative; overflow: hidden;
-  background-image: linear-gradient(142deg, var(--hero-a), var(--hero-b) 55%, var(--hero-c));
-  color: #fff; border-radius: var(--radius-lg); padding: 24px;
-  box-shadow: 0 22px 46px -22px var(--hero-c), inset 0 1px 0 rgba(255,255,255,0.10);
-}
-.orient::after {
-  content: ""; position: absolute; inset: -40% -20% auto -20%; height: 90%;
-  background: radial-gradient(56% 100% at 74% 0%, rgba(255,255,255,0.20), transparent 70%);
-  pointer-events: none;
+  background: var(--band); color: var(--band-ink);
+  border: 1px solid var(--band-line);
+  border-radius: var(--radius-lg); padding: 24px;
 }
 .orient > * { position: relative; }
 .orient .day { font-size: var(--fs-2xl); font-weight: 800; line-height: 1.05; }
 .orient .sub { font-size: var(--fs-lg); opacity: 0.94; margin-top: 5px; }
 .orient .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
-.orient .chip { background: rgba(255,255,255,0.18); border-radius: 999px; padding: 7px 15px; font-size: var(--fs-sm); font-weight: 700; }
+.orient .chip { background: rgba(255,255,255,0.14); border-radius: 999px; padding: 7px 15px; font-size: var(--fs-sm); font-weight: 700; }
 
 /* ---- Language / choice grid -------------------------------------------- */
 .lang-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px; }
@@ -397,8 +390,7 @@ img { max-width: 100%; display: block; }
 .tour { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; padding-top: 14px; }
 .tour-ic {
   width: 96px; height: 96px; border-radius: 30px; display: grid; place-items: center;
-  color: #fff; background-image: linear-gradient(142deg, var(--hero-a), var(--hero-b) 60%, var(--hero-c));
-  box-shadow: 0 20px 40px -18px var(--hero-c);
+  color: var(--band-ink); background: var(--band); border: 1px solid var(--band-line);
 }
 .tour-ic svg { width: 46px; height: 46px; }
 .tour-body { font-size: var(--fs-lg); color: var(--ink-soft); max-width: 30ch; }
@@ -435,23 +427,18 @@ img { max-width: 100%; display: block; }
   @page { margin: 16mm; }
 }
 
-/* ---- Splash — always the dusk sky -------------------------------------- */
+/* ---- Splash — one plain screen, no light show -------------------------- */
 .splash {
   position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
-  background-color: #171331;
-  background-image:
-    radial-gradient(96% 60% at 74% 6%, rgba(240,160,74,0.34), transparent 62%),
-    radial-gradient(80% 55% at 12% 96%, rgba(124,77,208,0.42), transparent 66%),
-    linear-gradient(168deg, #1b1436, #2a1c3f 60%, #3a2140);
-  color: #fff; text-align: center;
+  background: var(--band); color: var(--band-ink); text-align: center;
   transition: opacity 0.6s var(--ease);
 }
 .splash.hide { opacity: 0; pointer-events: none; }
 .splash-inner { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 24px; }
 .splash-badge {
   width: 106px; height: 106px; border-radius: 30px; display: grid; place-items: center;
-  background: rgba(255,255,255,0.09);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16), 0 26px 60px -20px rgba(0,0,0,0.6);
+  background: rgba(255,255,255,0.08);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
   animation: splashPop 0.9s var(--ease) both;
 }
 .splash-badge svg { width: 58px; height: 58px; }
@@ -489,14 +476,8 @@ img { max-width: 100%; display: block; }
    Progress — effort-based encouragement (levels, lamps, streak)
    ========================================================================= */
 .level-card {
-  position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: 22px; color: #fff;
-  background-image: linear-gradient(142deg, var(--hero-a), var(--hero-b) 58%, var(--hero-c));
-  box-shadow: 0 22px 46px -22px var(--hero-c), inset 0 1px 0 rgba(255,255,255,0.10);
-}
-.level-card::after {
-  content: ""; position: absolute; inset: -45% -20% auto -20%; height: 92%;
-  background: radial-gradient(56% 100% at 74% 0%, rgba(255,255,255,0.20), transparent 70%);
-  pointer-events: none;
+  position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: 22px;
+  background: var(--band); color: var(--band-ink); border: 1px solid var(--band-line);
 }
 .level-card > * { position: relative; }
 .level-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
@@ -508,11 +489,11 @@ img { max-width: 100%; display: block; }
 
 .lamps { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 14px; }
 .lamp { width: 30px; height: 30px; display: grid; place-items: center; color: rgba(255,255,255,0.32); }
-.lamp.lit { color: #ffd9a0; filter: drop-shadow(0 0 7px rgba(255,196,120,0.75)); }
+.lamp.lit { color: #f0c48a; }   /* lit, not glowing */
 .lamp svg { width: 26px; height: 26px; }
 
 .level-bar { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.22); overflow: hidden; }
-.level-fill { height: 100%; border-radius: 999px; background: #fff; transition: width 0.9s var(--ease); }
+.level-fill { height: 100%; border-radius: 999px; background: var(--band-ink); transition: width 0.9s var(--ease); }
 .level-next { margin-top: 9px; font-size: var(--fs-sm); opacity: 0.9; font-weight: 600; }
 
 .week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 7px; }
@@ -524,7 +505,7 @@ img { max-width: 100%; display: block; }
 .week-day .dot { width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center; background: var(--surface); color: transparent; }
 .week-day .dot svg { width: 16px; height: 16px; }
 .week-day.on { background: var(--primary-tint); border-color: var(--primary); }
-.week-day.on .dot { background: var(--primary); color: #fff; }
+.week-day.on .dot { background: var(--primary); color: var(--surface); }
 .week-day.on .wd { color: var(--primary); }
 
 .game-row { display: flex; align-items: center; gap: 13px; padding: 13px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
@@ -551,13 +532,11 @@ img { max-width: 100%; display: block; }
 }
 .note {
   min-width: 86px; padding: 15px 16px; border-radius: 9px; font-size: clamp(19px, 5vw, 25px);
-  color: #14321f; background-image: linear-gradient(150deg, #cdead4, #a8d6b6);
-  border: 1px solid #79b592; box-shadow: var(--shadow-sm);
+  color: #17351f; background: #bfdcc6; border: 1px solid #7fae8d;
 }
 .coin {
   width: 62px; height: 62px; border-radius: 999px; font-size: clamp(17px, 4.4vw, 21px);
-  color: #4a3410; background-image: linear-gradient(150deg, #f4d79a, #d9ac5c);
-  border: 1px solid #b98f45; box-shadow: var(--shadow-sm);
+  color: #46310f; background: #e8cd8e; border: 1px solid #ba9248;
 }
 
 /* Native select used for the voice picker */

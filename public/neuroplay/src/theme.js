@@ -1,9 +1,10 @@
 /**
- * theme.js — Day / Night / Automatic.
+ * theme.js — Day ("Sand and Clay") / Night ("Warm Night") / Automatic.
  *
- * "Automatic" is dusk-aware: night from 6pm to 6am, which is the whole point
- * of the palette. Whatever the preference, we always stamp a concrete
- * data-theme on <html> so the CSS only ever deals with "day" or "night".
+ * "Automatic" switches at dusk: night from 6pm to 6am. Whatever the
+ * preference, we always stamp a concrete data-theme on <html> so the CSS only
+ * ever deals with "day" or "night", and we keep the browser/Android status
+ * bar colour in step so the app does not sit under a mismatched strip.
  */
 
 import { store } from "./store.js";
@@ -16,8 +17,14 @@ export function resolveTheme(pref) {
   return h >= 18 || h < 6 ? "night" : "day";
 }
 
+/* Status-bar colour per theme — the band colour each palette is built on. */
+const BAR = { day: "#7c4020", night: "#533020" };
+
 export function stamp(pref) {
-  document.documentElement.dataset.theme = resolveTheme(pref);
+  const theme = resolveTheme(pref);
+  document.documentElement.dataset.theme = theme;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", BAR[theme]);
 }
 
 export async function applyStoredTheme() {

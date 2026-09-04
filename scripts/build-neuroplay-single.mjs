@@ -59,7 +59,7 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-<meta name="theme-color" content="#4f2b9c" />
+<meta name="theme-color" content="#7c4020" />
 <title>NeuroPlay</title>
 <link rel="icon" href="${iconDataUri}" />
 <style>${css}</style>

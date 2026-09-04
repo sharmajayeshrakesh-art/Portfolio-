@@ -1,6 +1,6 @@
 /* NeuroPlay service worker — offline-first app shell.
    Bump CACHE when files change to roll the cache over. */
-const CACHE = "neuroplay-v7";
+const CACHE = "neuroplay-v8";
 
 const SHELL = [
   "./",

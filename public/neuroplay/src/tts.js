@@ -15,7 +15,8 @@
  */
 
 import { store } from "./store.js";
-import { currentLocale } from "./i18n.js";
+import { currentLocale, currentLang } from "./i18n.js";
+import { loadVoicebank, playClip, stopClip, clipCount, voicebankLang } from "./voicebank.js";
 
 const synth = typeof speechSynthesis !== "undefined" ? speechSynthesis : null;
 
@@ -23,6 +24,7 @@ let _enabled = false;
 let _voices = [];
 let _voiceURI = null;      // explicit choice, if the user made one
 let _rate = 0.95;          // 0.85 = slow, 0.95 = natural
+let _gen = 0;              // bumped on cancel, so an old queue stops advancing
 
 /* Names that usually mark a modern neural/enhanced voice. */
 const GOOD = /(neural|natural|enhanced|premium|wavenet|journey|studio|siri|google)/i;
@@ -31,6 +33,7 @@ const POOR = /(espeak|pico|compact|eloquence|festival|robot)/i;
 
 export async function initTTS() {
   _enabled = (await store.getSetting("ttsEnabled", false)) === true;
+  await loadVoicebank(currentLang());
   _voiceURI = await store.getSetting("voiceURI", null);
   _rate = Number(await store.getSetting("speechRate", 0.95)) || 0.95;
   if (!synth) return;
@@ -110,29 +113,76 @@ function phrases(text) {
     .filter(Boolean);
 }
 
+/** Re-point the voicebank after a language change. */
+export async function refreshVoicebank(lang) {
+  return loadVoicebank(lang || currentLang());
+}
+/** How many pre-recorded clips are available for the current language. */
+export function voicebankSize() { return clipCount(); }
+
+/** One synthesised phrase, calling `then` when the engine finishes with it. */
+function sayOne(part, lang, rate, then) {
+  try {
+    const voice = pickVoice(lang);
+    const u = new SpeechSynthesisUtterance(part);
+    // Use the VOICE's own language. Forcing a different lang here makes most
+    // engines quietly discard the chosen voice and fall back to the system
+    // default — which is why picking a voice appeared to do nothing.
+    if (voice) { u.voice = voice; u.lang = voice.lang; }
+    else u.lang = lang;
+    u.rate = rate;
+    u.pitch = 1;                            // natural; raising it sounds shrill
+    u.volume = 1;
+    if (then) { u.onend = then; u.onerror = then; }
+    synth.speak(u);
+  } catch {
+    then && then();
+  }
+}
+
 /** Speak a phrase in the current (or given) locale. Cancels prior speech. */
 export function speak(text, { locale, rate, force = false } = {}) {
-  if (!synth || !text) return;
+  if (!text) return;
   if (!_enabled && !force) return;
-  try {
-    synth.cancel();
-    const lang = locale || currentLocale();
-    const voice = pickVoice(lang);
-    const parts = phrases(text);
-    parts.forEach((part, i) => {
-      const u = new SpeechSynthesisUtterance(part);
-      u.lang = lang;
-      if (voice) u.voice = voice;
-      u.rate = rate || _rate;
-      u.pitch = 1;                          // natural; raising it sounds shrill
-      u.volume = 1;
-      // a touch slower on the opening phrase, so it is easy to catch
-      if (i === 0 && parts.length > 1) u.rate = (rate || _rate) * 0.97;
-      synth.speak(u);
-    });
-  } catch { /* speech unavailable — stay silent rather than break the UI */ }
+
+  cancel();
+  const gen = ++_gen;
+  const lang = locale || currentLocale();
+  const r = rate || _rate;
+  const parts = phrases(text);
+
+  // The voicebank holds recordings for ONE language at a time. If the caller
+  // asked for a different locale — previewing a language during setup, say —
+  // stay on synthesis rather than play a recording in the wrong language.
+  const bank = voicebankLang();
+  const usable = clipCount() > 0 && (!locale || String(locale).toLowerCase().startsWith(bank || "\u0000"));
+
+  if (!usable) {
+    // No recordings: queue every phrase at once. Queuing short utterances
+    // gives real pauses at full stops, which is most of what stops speech
+    // sounding like a machine reading a wall of text.
+    if (!synth) return;
+    try { parts.forEach((part, i) => sayOne(part, lang, i === 0 && parts.length > 1 ? r * 0.97 : r)); }
+    catch { /* speech unavailable — stay silent rather than break the UI */ }
+    return;
+  }
+
+  // With recordings in hand we walk the phrases one at a time, playing the
+  // human voice where we have it and synthesising only the bits that vary
+  // (a date, a count, a relative's name). Mixed, but never robotic throughout.
+  let i = 0;
+  const next = () => {
+    if (gen !== _gen || i >= parts.length) return;
+    const part = parts[i++];
+    if (playClip(part, { rate: r, onend: next })) return;
+    if (!synth) { next(); return; }
+    sayOne(part, lang, r, next);
+  };
+  next();
 }
 
 export function cancel() {
+  _gen++;                                   // abandon any queued phrases
+  stopClip();
   try { synth && synth.cancel(); } catch { /* no-op */ }
 }

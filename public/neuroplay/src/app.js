@@ -8,7 +8,7 @@
 
 import { store } from "./store.js";
 import { initI18n, setLanguage, currentLang, t, onLanguageChange } from "./i18n.js";
-import { initTTS, speak, cancel } from "./tts.js";
+import { initTTS, speak, cancel, refreshVoicebank } from "./tts.js";
 import { mount } from "./ui.js";
 
 import { renderOnboarding } from "./screens/onboarding.js";
@@ -109,7 +109,8 @@ async function boot() {
   if (size === "large") document.documentElement.dataset.size = "large";
   else delete document.documentElement.dataset.size;
 
-  onLanguageChange(() => {
+  onLanguageChange((code) => {
+    refreshVoicebank(code);
     const cur = (location.hash.replace("#/", "") || "home").split("/")[0];
     navigate(ROUTES[cur] ? cur : "home");
   });

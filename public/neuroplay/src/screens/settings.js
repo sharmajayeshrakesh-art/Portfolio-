@@ -4,7 +4,7 @@ import { el, segmented } from "../ui.js";
 import { icon } from "../icons.js";
 import { topBar } from "./chrome.js";
 import { LANGUAGES, REGIONS } from "../i18n.js";
-import { ttsEnabled, setTTS, speak, listVoices, setVoice, currentVoiceURI, speechRate, setSpeechRate } from "../tts.js";
+import { ttsEnabled, setTTS, speak, listVoices, setVoice, currentVoiceURI, speechRate, setSpeechRate, voicebankSize } from "../tts.js";
 import { setTheme, themePref } from "../theme.js";
 
 export function renderSettings(ctx) {
@@ -80,6 +80,12 @@ export function renderSettings(ctx) {
       el("div.set-label", {}, [el("span.set-ic", { html: icon("user") }), el("span", { text: ctx.t("setting_voice_choice") })]),
     ])
   );
+  // With a voicebank loaded, almost everything the app says is a recording;
+  // the device voice only covers the bits that vary. Say so, so the caregiver
+  // is not confused when changing it barely changes anything.
+  if (voicebankSize() > 0) {
+    voiceCard.appendChild(el("p.section-sub", { text: ctx.t("voice_recorded_note") }));
+  }
   const sel = el("select.select", { "aria-label": ctx.t("setting_voice_choice") });
   function fillVoices() {
     sel.innerHTML = "";

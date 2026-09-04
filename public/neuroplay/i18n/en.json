@@ -210,6 +210,7 @@
   "speed_normal": "Normal",
   "test_voice": "Test voice",
   "voice_device_default": "Best available",
+  "voice_recorded_note": "Recorded voice in use. The device voice below is only used for dates and numbers.",
   "voice_tip": "Voices come from the phone itself. For a warmer, more natural voice, install Google Text-to-Speech and download the high-quality voice for your language.",
   "lang_not_ready": "Not translated yet"
 }

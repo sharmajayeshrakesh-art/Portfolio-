@@ -64,6 +64,8 @@ ctx.isCaregiverUnlocked = () => _caregiverUnlocked;
 ctx.unlockCaregiver = () => { _caregiverUnlocked = true; };
 ctx.lockCaregiver = () => { _caregiverUnlocked = false; };
 
+let _route = null;
+
 function navigate(name, params = {}) {
   cancel(); // stop any in-progress speech on navigation
   const render = ROUTES[name] || ROUTES.home;
@@ -72,9 +74,17 @@ function navigate(name, params = {}) {
   if (gated.includes(name) && !_caregiverUnlocked) {
     return renderInto(ROUTES.pin, { next: name, params });
   }
+  _route = name;
   location.hash = "#/" + name;
   renderInto(render, params);
 }
+
+/* Follow hash changes, so a deep link like #/settings works on an already
+   open app and the Android back button steps back through screens. */
+window.addEventListener("hashchange", () => {
+  const name = (location.hash.replace("#/", "").split("/")[0] || "home").trim();
+  if (ROUTES[name] && name !== _route) navigate(name);
+});
 
 function renderInto(render, params) {
   const node = render(ctx, params || {});
@@ -118,7 +128,12 @@ async function boot() {
   const done = await store.getSetting("onboarded", false);
   const toured = await store.getSetting("tourDone", false);
   await splash.done();
-  navigate(!done ? "onboarding" : !toured ? "tour" : "home");
+
+  // Honour a deep link like #/settings once the user is set up — handy for
+  // demos and for sending someone straight to a particular screen.
+  const wanted = (location.hash.replace("#/", "").split("/")[0] || "").trim();
+  if (done && toured && ROUTES[wanted]) navigate(wanted);
+  else navigate(!done ? "onboarding" : !toured ? "tour" : "home");
 }
 
 window.addEventListener("DOMContentLoaded", boot);

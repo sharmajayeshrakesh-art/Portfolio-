@@ -5,6 +5,7 @@ import { icon } from "../icons.js";
 import { topBar } from "./chrome.js";
 import { GAME_ORDER, GAMES, DOMAINS } from "../catalog.js";
 import { speak } from "../tts.js";
+import { buildProgress } from "../progress.js";
 
 export function renderGamesMenu(ctx) {
   const scr = el("main");
@@ -15,8 +16,11 @@ export function renderGamesMenu(ctx) {
     const g = GAMES[id];
     const color = DOMAINS[g.domain].color;
     tiles.appendChild(
-      el("button.tile", { onclick: () => ctx.navigate("game", { id }) }, [
-        el("div.tile-ic", { html: icon(g.icon, "icon-lg"), style: `background:color-mix(in srgb, ${color} 15%, transparent);color:${color}` }),
+      el("button.tile", { onclick: () => ctx.navigate("game", { id }), dataset: { game: id } }, [
+        el("div.row.between", {}, [
+          el("div.tile-ic", { html: icon(g.icon, "icon-lg"), style: `background:color-mix(in srgb, ${color} 15%, transparent);color:${color}` }),
+          el("span.pill.lvl", { text: "" }),
+        ]),
         el("div.tile-title", { text: ctx.t(g.tKey) }),
         el("div.tile-sub", { text: ctx.t(g.tKey + "_desc") }),
       ])
@@ -24,6 +28,15 @@ export function renderGamesMenu(ctx) {
   }
   body.appendChild(tiles);
   scr.appendChild(body);
+
+  // badge each game with the highest level reached so far
+  buildProgress().then((p) => {
+    for (const [id, g] of Object.entries(p.perGame)) {
+      const pill = tiles.querySelector(`[data-game="${id}"] .lvl`);
+      if (pill) pill.textContent = ctx.t("level_label", { n: g.bestLevel });
+    }
+    tiles.querySelectorAll(".lvl").forEach((x) => { if (!x.textContent) x.remove(); });
+  });
   speak(ctx.t("games_title"));
   return scr;
 }

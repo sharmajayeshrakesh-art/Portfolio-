@@ -23,15 +23,19 @@ export const GAMES = {
   word_recall: { id: "word_recall", domain: "language", icon: "chat", tKey: "game_word_recall" },
   orientation: { id: "orientation", domain: "orientation", icon: "calendar", tKey: "game_orientation" },
   number_attention: { id: "number_attention", domain: "reasoning", icon: "puzzle", tKey: "game_number" },
+  card_match: { id: "card_match", domain: "memory", icon: "grid", tKey: "game_card_match" },
+  money: { id: "money", domain: "reasoning", icon: "coin", tKey: "game_money" },
 };
 
 export const GAME_ORDER = [
-  "face_name",
-  "memory_quiz",
+  "card_match",
   "pattern",
+  "money",
+  "number_attention",
   "word_recall",
   "orientation",
-  "number_attention",
+  "face_name",
+  "memory_quiz",
 ];
 
 export function gameDomain(gameId) {

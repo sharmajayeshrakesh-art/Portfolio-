@@ -32,6 +32,11 @@ const P = {
   textsize: '<path d="M3 18l4.6-11L12 18M4.4 14.6h6.4"/><path d="M14.5 18l2.9-7 2.9 7M15.4 15.8h4"/>',
   leaf: '<path d="M5 19C5 10 12 5 20 5c0 8-5 15-14 15a5 5 0 0 1-1-1z"/><path d="M5 19c3-4 7-7 11-8"/>',
   alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.5" stroke-linecap="round"/>',
+  lamp: '<path d="M7 14c0-2.5 2.2-4.5 5-4.5s5 2 5 4.5z"/><path d="M5.5 14h13a6.5 6.5 0 0 1-13 0z"/><path d="M12 9.5V7c0-1.2.9-2 2-2.4"/>',
+  flame: '<path d="M12 3s5 4.2 5 8.6a5 5 0 0 1-10 0C7 9.4 9 8 9 8s.3 2 1.5 2.6C11 8.6 12 6 12 3z"/>',
+  share: '<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="M8.2 10.8l7.6-4M8.2 13.2l7.6 4"/>',
+  coin: '<ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v10c0 1.7 3.1 3 7 3s7-1.3 7-3V7"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/>',
+  trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 5.5H5.5A2.5 2.5 0 0 0 8 9M16 5.5h2.5A2.5 2.5 0 0 1 16 9"/><path d="M10 13h4M9 20h6M12 13v7"/>',
   shield: '<path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6z"/>',
 };
 

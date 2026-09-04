@@ -23,6 +23,7 @@ import { renderMemory } from "./screens/memory/memory.js";
 import { renderEmergency } from "./screens/memory/emergency.js";
 import { renderSettings } from "./screens/settings.js";
 import { renderTour } from "./screens/tour.js";
+import { renderProgress } from "./screens/progress.js";
 import { showSplash } from "./screens/splash.js";
 import { applyStoredTheme } from "./theme.js";
 
@@ -41,6 +42,7 @@ const ROUTES = {
   emergency: renderEmergency,
   settings: renderSettings,
   tour: renderTour,
+  progress: renderProgress,
 };
 
 const ctx = {

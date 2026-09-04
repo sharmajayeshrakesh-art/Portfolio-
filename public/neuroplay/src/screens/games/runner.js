@@ -12,12 +12,16 @@ import { startPattern } from "./pattern.js";
 import { startNumber } from "./number.js";
 import { startWordRecall } from "./word-recall.js";
 import { startOrientation } from "./orientation.js";
+import { startCardMatch } from "./card-match.js";
+import { startMoney } from "./money.js";
 
 const IMPL = {
   pattern: startPattern,
   number_attention: startNumber,
   word_recall: startWordRecall,
   orientation: startOrientation,
+  card_match: startCardMatch,
+  money: startMoney,
 };
 
 export function renderGame(ctx, { id }) {

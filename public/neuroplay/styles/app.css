@@ -484,3 +484,78 @@ img { max-width: 100%; display: block; }
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   .splash-badge, .splash-name, .splash-tag, .splash-dots { opacity: 1 !important; }
 }
+
+/* =========================================================================
+   Progress — effort-based encouragement (levels, lamps, streak)
+   ========================================================================= */
+.level-card {
+  position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: 22px; color: #fff;
+  background-image: linear-gradient(142deg, var(--hero-a), var(--hero-b) 58%, var(--hero-c));
+  box-shadow: 0 22px 46px -22px var(--hero-c), inset 0 1px 0 rgba(255,255,255,0.10);
+}
+.level-card::after {
+  content: ""; position: absolute; inset: -45% -20% auto -20%; height: 92%;
+  background: radial-gradient(56% 100% at 74% 0%, rgba(255,255,255,0.20), transparent 70%);
+  pointer-events: none;
+}
+.level-card > * { position: relative; }
+.level-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.level-eyebrow { font-size: var(--fs-sm); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
+.level-name { font-size: var(--fs-xl); font-weight: 800; line-height: 1.1; }
+.level-points { text-align: right; line-height: 1.05; }
+.level-points strong { display: block; font-size: var(--fs-2xl); font-weight: 800; font-variant-numeric: tabular-nums; }
+.level-points span { font-size: var(--fs-sm); opacity: 0.85; font-weight: 700; }
+
+.lamps { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 14px; }
+.lamp { width: 30px; height: 30px; display: grid; place-items: center; color: rgba(255,255,255,0.32); }
+.lamp.lit { color: #ffd9a0; filter: drop-shadow(0 0 7px rgba(255,196,120,0.75)); }
+.lamp svg { width: 26px; height: 26px; }
+
+.level-bar { height: 12px; border-radius: 999px; background: rgba(255,255,255,0.22); overflow: hidden; }
+.level-fill { height: 100%; border-radius: 999px; background: #fff; transition: width 0.9s var(--ease); }
+.level-next { margin-top: 9px; font-size: var(--fs-sm); opacity: 0.9; font-weight: 600; }
+
+.week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 7px; }
+.week-day {
+  display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 9px 3px;
+  border-radius: 13px; background: var(--bg-2); border: 1px solid var(--line);
+}
+.week-day .wd { font-size: var(--fs-sm); font-weight: 800; color: var(--ink-soft); }
+.week-day .dot { width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center; background: var(--surface); color: transparent; }
+.week-day .dot svg { width: 16px; height: 16px; }
+.week-day.on { background: var(--primary-tint); border-color: var(--primary); }
+.week-day.on .dot { background: var(--primary); color: #fff; }
+.week-day.on .wd { color: var(--primary); }
+
+.game-row { display: flex; align-items: center; gap: 13px; padding: 13px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.game-row-ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; }
+
+/* ---- Matching pairs ---------------------------------------------------- */
+.match-grid { display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0,1fr)); gap: 11px; width: 100%; max-width: 380px; }
+.match-card {
+  aspect-ratio: 1; border-radius: var(--radius); cursor: pointer;
+  background: var(--surface); border: 2px solid var(--line-strong); color: var(--ink);
+  font-size: clamp(26px, 8vw, 40px); line-height: 1;
+  display: grid; place-items: center;
+  transition: transform 0.16s var(--ease), background 0.2s, border-color 0.2s;
+}
+.match-card:active { transform: scale(0.96); }
+.match-card.open { background: var(--primary-tint); border-color: var(--primary); }
+.match-card.done { background: var(--good-tint); border-color: var(--good); opacity: 0.75; }
+
+/* ---- Money ------------------------------------------------------------- */
+.purse { display: flex; flex-wrap: wrap; gap: 11px; justify-content: center; }
+.note, .coin {
+  font-weight: 800; font-variant-numeric: tabular-nums;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.note {
+  min-width: 86px; padding: 15px 16px; border-radius: 9px; font-size: clamp(19px, 5vw, 25px);
+  color: #14321f; background-image: linear-gradient(150deg, #cdead4, #a8d6b6);
+  border: 1px solid #79b592; box-shadow: var(--shadow-sm);
+}
+.coin {
+  width: 62px; height: 62px; border-radius: 999px; font-size: clamp(17px, 4.4vw, 21px);
+  color: #4a3410; background-image: linear-gradient(150deg, #f4d79a, #d9ac5c);
+  border: 1px solid #b98f45; box-shadow: var(--shadow-sm);
+}

@@ -76,8 +76,11 @@ export function renderHome(ctx) {
 
   // secondary tiles
   const tiles = el("div.tiles");
+  tiles.appendChild(actionTile(ctx, "progress_title", "trophy", () => ctx.navigate("progress")));
   tiles.appendChild(actionTile(ctx, "memory_help", "face", () => ctx.navigate("memory")));
-  tiles.appendChild(actionTile(ctx, "reminders", "bell", () => ctx.navigate("memory", { tab: "reminders" })));
+  const rem = actionTile(ctx, "reminders", "bell", () => ctx.navigate("memory", { tab: "reminders" }));
+  rem.classList.add("tile-wide");
+  tiles.appendChild(rem);
   const emg = actionTile(ctx, "emergency", "phone", () => ctx.navigate("emergency"));
   emg.classList.add("tile-alert");
   emg.classList.add("tile-wide");

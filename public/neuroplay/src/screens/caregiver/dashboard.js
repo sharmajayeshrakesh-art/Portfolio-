@@ -7,6 +7,7 @@ import { buildAnalytics } from "../../analytics.js";
 import { DOMAIN_ORDER, DOMAINS } from "../../catalog.js";
 import { reactionLineSVG } from "../../charts.js";
 import { seedDemoData } from "../../seed.js";
+import { buildProgress } from "../../progress.js";
 import { speak } from "../../tts.js";
 
 export function renderDashboard(ctx) {
@@ -43,6 +44,20 @@ export function renderDashboard(ctx) {
 
     // ---- decline screening card (most important) ------------------------
     body.appendChild(declineCard(ctx, a.decline));
+
+    // ---- what the family sees: effort, not score ------------------------
+    const engage = el("div.card.stack");
+    engage.appendChild(el("div.section-title", { text: ctx.t("engagement_title") }));
+    engage.appendChild(el("p.section-sub", { text: ctx.t("engagement_sub") }));
+    const eg = el("div.stat-grid");
+    engage.appendChild(eg);
+    body.appendChild(engage);
+    buildProgress().then((pr) => {
+      eg.appendChild(stat(ctx.t("cg_level"), `${pr.level} · ${ctx.t(pr.levelKey)}`, true));
+      eg.appendChild(stat(ctx.t("cg_streak"), ctx.t("streak_days", { n: pr.streak }), true));
+      eg.appendChild(stat(ctx.t("cg_days"), pr.daysPlayed));
+      eg.appendChild(stat(ctx.t("cg_points"), pr.points));
+    });
 
     // ---- reaction time trend --------------------------------------------
     body.appendChild(trendCard(ctx, a.reactionTrend));

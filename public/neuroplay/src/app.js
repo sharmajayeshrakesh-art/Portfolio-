@@ -107,10 +107,13 @@ async function boot() {
   // localise the splash for returning users, then reveal the first screen
   splash.setText(t("app_name"), t("app_tagline"));
 
-  // register service worker (offline) — doesn't block the splash
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register(new URL("../sw.js", import.meta.url), { scope: "./" }).catch(() => {});
-  }
+  // register service worker (offline) — doesn't block the splash.
+  // Skipped in the single-file build, which is already fully self-contained.
+  try {
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register(new URL("../sw.js", import.meta.url), { scope: "./" }).catch(() => {});
+    }
+  } catch { /* no service worker on file:// */ }
 
   const done = await store.getSetting("onboarded", false);
   const toured = await store.getSetting("tourDone", false);

@@ -29,6 +29,10 @@ const _listeners = new Set();
 
 async function load(code) {
   if (_cache[code]) return _cache[code];
+  // The offline single-file build embeds the dictionaries up front, because
+  // fetch() is blocked on file:// origins.
+  const pre = globalThis.__NP_I18N__ && globalThis.__NP_I18N__[code];
+  if (pre) { _cache[code] = pre; return pre; }
   const res = await fetch(new URL(`../i18n/${code}.json`, import.meta.url));
   if (!res.ok) throw new Error(`missing i18n ${code}`);
   const json = await res.json();

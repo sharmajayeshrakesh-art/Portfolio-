@@ -35,6 +35,10 @@ jobs:
         run: |
           npm run build:app
           cp dist/NeuroPlay.html out/neuroplay/NeuroPlay.html
+          # A zip as well: some browsers and phones refuse to "download" an
+          # .html file and open it instead, which defeats the point.
+          (cd out/neuroplay && zip -q NeuroPlay.zip NeuroPlay.html)
+          ls -lh out/neuroplay/NeuroPlay.html out/neuroplay/NeuroPlay.zip
 
       - uses: actions/configure-pages@v5
         with:

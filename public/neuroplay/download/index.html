@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#7c4020" />
+<title>Download NeuroPlay</title>
+<link rel="icon" href="../assets/icon.svg" />
+<style>
+  /* Same Sand and Clay palette as the app, kept local so this page stands
+     alone even if the app's stylesheet changes. */
+  :root {
+    --bg: #f0e8dc; --surface: #fbf6ee; --ink: #2c241d; --ink-soft: #6a5d50;
+    --line: #ded0bd; --line-strong: #c6b49d; --clay: #9a5530; --clay-deep: #7c4020;
+  }
+  :root:not([data-theme="light"]) { color-scheme: light; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141009; --surface: #262019; --ink: #efe5d8; --ink-soft: #ac9c8a;
+            --line: #3d3227; --line-strong: #544537; --clay: #dd9f6b; --clay-deep: #8a4a26; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 20px 64px; background: var(--bg); color: var(--ink);
+    font: 17px/1.55 "Noto Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 34rem; margin: 0 auto; }
+  .mark { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .mark img { width: 56px; height: 56px; border-radius: 18px; }
+  .mark b { font-size: 24px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 10px; }
+  p { margin: 0 0 16px; color: var(--ink-soft); }
+  p.lead { color: var(--ink); font-size: 19px; }
+  a.btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    min-height: 62px; padding: 0 24px; margin-bottom: 12px;
+    border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 19px;
+    background: var(--clay-deep); color: #fdf7f0; border: 2px solid transparent;
+  }
+  a.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    padding: 20px; margin: 26px 0;
+  }
+  .card h2 { font-size: 18px; margin: 0 0 10px; }
+  ol { margin: 0; padding-left: 1.25em; color: var(--ink-soft); }
+  li { margin-bottom: 8px; }
+  .note { font-size: 15px; }
+  code { background: var(--bg); padding: 2px 6px; border-radius: 6px; font-size: 15px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark">
+    <img src="../assets/icon.svg" alt="" />
+    <b>NeuroPlay</b>
+  </div>
+
+  <h1>Download NeuroPlay</h1>
+  <p class="lead">One file. No install, no account, no internet — everything, including the
+    voice, is inside it.</p>
+
+  <!-- `download` is honoured because the file is same-origin: the browser
+       saves it instead of rendering it, which is the whole point of this page. -->
+  <a class="btn" href="../NeuroPlay.html" download="NeuroPlay.html">Download NeuroPlay (5.7 MB)</a>
+  <a class="btn ghost" href="../NeuroPlay.zip" download>Download as ZIP</a>
+  <a class="btn ghost" href="../NeuroPlay.html">Or just open it now</a>
+
+  <div class="card">
+    <h2>After downloading</h2>
+    <ol>
+      <li><b>Laptop:</b> double-click <code>NeuroPlay.html</code>. It opens in your browser and
+        runs — you can turn the Wi-Fi off first and it will still work.</li>
+      <li><b>Android:</b> open it from Files. Chrome runs it the same way.</li>
+      <li><b>Presenting:</b> copy the one file onto a USB stick. Nothing else is needed on
+        the machine you present from.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>Or install it properly</h2>
+    <p class="note">The web version can be installed like a real app and works offline
+      after the first visit — which is how a family would actually use it.</p>
+    <a class="btn ghost" href="../">Open the installable version</a>
+    <p class="note">On Android: open that link in Chrome, then menu → <b>Add to Home screen</b>.
+      On iPhone: Share → <b>Add to Home Screen</b>.</p>
+  </div>
+
+  <p class="note">Everything NeuroPlay records stays on the device it runs on. There is no
+    server, no account, and no network call while the app is running.</p>
+</main>
+</body>
+</html>

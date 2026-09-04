@@ -124,6 +124,7 @@ img { max-width: 100%; display: block; }
   cursor: pointer; transition: transform 0.15s var(--ease), background 0.15s;
 }
 .topbar-btn:active { transform: scale(0.96); }
+.voice-btn.is-off { color: var(--ink-soft); background: var(--bg-2); border-style: dashed; }
 
 /* ---- Headings / text ---------------------------------------------------- */
 .h1 { font-size: var(--fs-2xl); font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; }
@@ -268,10 +269,14 @@ img { max-width: 100%; display: block; }
 .game-photo { width: 240px; height: 240px; border-radius: 28px; object-fit: cover; box-shadow: var(--shadow); background: var(--bg-2); }
 .opt-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; width: 100%; }
 .opt {
-  min-height: 84px; font-size: var(--fs-game); font-weight: 800;
+  min-height: 84px;
+  font-size: clamp(21px, 5.6vw, var(--fs-game));
+  font-weight: 800; line-height: 1.12;
+  overflow-wrap: anywhere; word-break: break-word; hyphens: auto;
+  display: flex; align-items: center; justify-content: center; text-align: center;
   background: var(--surface); border: 2px solid var(--line-strong); border-radius: var(--radius);
   color: var(--ink); cursor: pointer; transition: transform 0.12s var(--ease), background 0.2s, border-color 0.2s;
-  padding: 14px;
+  padding: 12px 14px;
 }
 .opt:active { transform: scale(0.97); }
 .opt.correct { background: var(--good-tint); border-color: var(--good); color: var(--good); }
@@ -334,3 +339,80 @@ img { max-width: 100%; display: block; }
   @page { margin: 16mm; }
 }
 
+
+/* =========================================================================
+   Humanising pass — warmth, refined proportions, branded splash.
+   ========================================================================= */
+
+/* Soft paper grain so surfaces feel printed, not flat/AI-generated.
+   Inline data-URI (no network), fixed layer, very low opacity. */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: 0.5; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+#app { position: relative; z-index: 1; }
+
+/* A warm hand-tuned accent underline used under key headings */
+.h1 .mark, .accent-underline {
+  background-image: linear-gradient(transparent 62%, var(--accent-tint) 62%);
+}
+
+/* --- Display size presets (elder-first default = comfortable) ------------
+   "Balanced" is a refined modular scale (ratio ~1.2) that looks more
+   composed while staying well above accessibility minimums. */
+:root[data-size="balanced"] {
+  --fs-base: 17px; --fs-sm: 15px; --fs-lg: 20px; --fs-xl: 25px;
+  --fs-2xl: 31px; --fs-3xl: 39px; --fs-game: 26px;
+  --tap: 58px; --radius: 16px; --radius-lg: 24px;
+}
+:root[data-size="balanced"] .screen { padding: 18px 18px calc(26px + env(safe-area-inset-bottom)); }
+:root[data-size="balanced"] .stack > * + * { margin-top: 14px; }
+:root[data-size="balanced"] .stack-lg > * + * { margin-top: 22px; }
+
+/* Caregiver density overrides win over the elder size setting. */
+[data-mode="caregiver"] { --fs-base: 16px; --fs-sm: 14px; --fs-lg: 19px; --fs-xl: 24px; --fs-2xl: 30px; --tap: 48px; }
+
+/* --- Settings rows ------------------------------------------------------- */
+.seg { display: inline-flex; background: var(--bg-2); border-radius: 999px; padding: 5px; gap: 4px; }
+.seg button {
+  min-height: 48px; padding: 0 18px; border: none; background: transparent; border-radius: 999px;
+  font: inherit; font-weight: 700; color: var(--ink-soft); cursor: pointer; transition: all 0.18s var(--ease);
+}
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--primary-strong); box-shadow: var(--shadow-sm); }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.set-row .set-label { display: flex; align-items: center; gap: 12px; font-weight: 700; }
+.set-row .set-ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--primary-tint); color: var(--primary-strong); }
+
+/* --- Splash / loading screen -------------------------------------------- */
+.splash {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
+  background:
+    radial-gradient(120% 90% at 50% 18%, #12907c 0%, var(--primary-strong) 58%, #0a4b41 100%);
+  color: #fff; text-align: center;
+  transition: opacity 0.6s var(--ease);
+}
+.splash.hide { opacity: 0; pointer-events: none; }
+.splash-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; }
+.splash-badge {
+  width: 108px; height: 108px; border-radius: 30px; display: grid; place-items: center;
+  background: rgba(255,255,255,0.10); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18), 0 24px 60px -20px rgba(0,0,0,0.5);
+  animation: splashPop 0.9s var(--ease) both;
+}
+.splash-badge svg { width: 60px; height: 60px; }
+.splash-badge .ring { transform-origin: center; animation: splashSpin 24s linear infinite; }
+@keyframes splashPop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.06); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes splashSpin { to { transform: rotate(360deg); } }
+.splash-name { font-size: clamp(34px, 10vw, 52px); font-weight: 800; letter-spacing: -0.01em; opacity: 0; animation: splashUp 0.7s var(--ease) 0.28s both; }
+.splash-tag { font-size: clamp(16px, 4.6vw, 21px); opacity: 0; color: rgba(255,255,255,0.9); animation: splashUp 0.7s var(--ease) 0.46s both; max-width: 22ch; }
+.splash-dots { display: flex; gap: 8px; margin-top: 8px; opacity: 0; animation: splashUp 0.6s var(--ease) 0.7s both; }
+.splash-dots i { width: 9px; height: 9px; border-radius: 999px; background: rgba(255,255,255,0.55); animation: splashBlink 1.2s ease-in-out infinite; }
+.splash-dots i:nth-child(2) { animation-delay: 0.18s; }
+.splash-dots i:nth-child(3) { animation-delay: 0.36s; }
+@keyframes splashUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes splashBlink { 0%,100% { opacity: 0.4; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .splash-badge, .splash-name, .splash-tag, .splash-dots { animation: none !important; opacity: 1 !important; }
+  .splash-badge .ring, .splash-dots i { animation: none !important; }
+}

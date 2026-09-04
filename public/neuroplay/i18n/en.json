@@ -159,5 +159,7 @@
   "setting_voice": "Voice prompts",
   "setting_text_size": "Text size",
   "voice_on": "On",
-  "voice_off": "Off"
+  "voice_off": "Off",
+  "size_comfortable": "Large",
+  "size_balanced": "Balanced"
 }

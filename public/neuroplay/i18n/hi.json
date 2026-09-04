@@ -159,5 +159,7 @@
   "setting_voice": "आवाज़ निर्देश",
   "setting_text_size": "अक्षर का आकार",
   "voice_on": "चालू",
-  "voice_off": "बंद"
+  "voice_off": "बंद",
+  "size_comfortable": "बड़ा",
+  "size_balanced": "संतुलित"
 }

@@ -38,11 +38,18 @@ export function renderHome(ctx) {
         el("span", { html: icon("sparkle", "icon-lg"), style: "color:var(--primary)" }),
         el("strong", { text: ctx.t("app_name"), style: "font-size:var(--fs-lg)" }),
       ]),
-      el("button.topbar-btn", {
-        onclick: () => ctx.navigate("pin"),
-        "aria-label": ctx.t("caregiver_title"),
-        html: icon("lock") + `<span>${ctx.t("caregiver_title")}</span>`,
-      }),
+      el("div.row", { style: "gap:10px" }, [
+        el("button.topbar-btn", {
+          onclick: () => ctx.navigate("settings"),
+          "aria-label": ctx.t("settings_title"),
+          html: icon("gear"),
+        }),
+        el("button.topbar-btn", {
+          onclick: () => ctx.navigate("pin"),
+          "aria-label": ctx.t("caregiver_title"),
+          html: icon("lock"),
+        }),
+      ]),
     ])
   );
 

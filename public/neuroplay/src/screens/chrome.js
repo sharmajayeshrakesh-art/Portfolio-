@@ -20,15 +20,21 @@ export function topBar(ctx, { title, onBack, hint, right } = {}) {
 
   if (right) bar.appendChild(right);
 
-  // voice toggle — reads the hint aloud, and long-context speaks the title
-  const voice = el("button.topbar-btn", {
-    "aria-label": ctx.t("tap_to_hear"),
-    html: icon("volume"),
-    onclick: () => {
-      const on = !ttsEnabled();
-      setTTS(on);
-      if (on) speak(hint || title || "", { force: true });
-    },
+  // voice toggle — clearly reflects on/off state so it never reads as broken
+  const voice = el("button.topbar-btn.voice-btn");
+  const paint = () => {
+    const on = ttsEnabled();
+    voice.innerHTML = icon(on ? "volume" : "volumeOff");
+    voice.setAttribute("aria-pressed", on ? "true" : "false");
+    voice.setAttribute("aria-label", on ? ctx.t("setting_voice") + ": " + ctx.t("voice_on") : ctx.t("setting_voice") + ": " + ctx.t("voice_off"));
+    voice.classList.toggle("is-off", !on);
+  };
+  paint();
+  voice.addEventListener("click", () => {
+    const on = !ttsEnabled();
+    setTTS(on);
+    paint();
+    if (on) speak(hint || title || "", { force: true });
   });
   bar.appendChild(voice);
   return bar;

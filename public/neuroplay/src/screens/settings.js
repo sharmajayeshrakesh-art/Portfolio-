@@ -7,6 +7,7 @@ import { LANGUAGES, REGIONS } from "../i18n.js";
 import { ttsEnabled, setTTS, speak, listVoices, setVoice, currentVoiceURI, speechRate,
          setSpeechRate, voicebankSize, usingVoicebank, setUseVoicebank } from "../tts.js";
 import { setTheme, themePref } from "../theme.js";
+import { calmSettings, setCalmSetting } from "../calm.js";
 
 export function renderSettings(ctx) {
   const scr = el("main");
@@ -133,6 +134,44 @@ export function renderSettings(ctx) {
   );
   voiceCard.appendChild(el("p.section-sub", { text: ctx.t("voice_tip") }));
   body.appendChild(voiceCard);
+
+  // ---- Quiet evening (sundowning) -------------------------------------
+  const calmCard = el("div.card.stack");
+  calmCard.appendChild(
+    el("div.set-label", {}, [
+      el("span.set-ic", { html: icon("leaf") }),
+      el("span", { text: ctx.t("calm_setting") }),
+    ])
+  );
+  calmCard.appendChild(el("p.section-sub", { text: ctx.t("calm_setting_desc") }));
+  calmSettings().then((cfg) => {
+    calmCard.appendChild(
+      el("div.set-row", {}, [
+        el("span", { text: ctx.t("calm_auto"), style: "font-weight:700" }),
+        segmented(
+          [{ val: "on", label: ctx.t("voice_on") }, { val: "off", label: ctx.t("voice_off") }],
+          cfg.auto ? "on" : "off",
+          (v) => setCalmSetting("calmAuto", v === "on")
+        ),
+      ])
+    );
+    const hours = el("div.row", { style: "gap:12px;flex-wrap:wrap" });
+    for (const [key, label, val] of [["calmStart", ctx.t("calm_from"), cfg.start], ["calmEnd", ctx.t("calm_to"), cfg.end]]) {
+      const input = el("input.select", {
+        type: "time", value: String(val).padStart(2, "0") + ":00",
+        "aria-label": label, style: "max-width:9.5em",
+      });
+      input.addEventListener("change", () => {
+        const h = Number(String(input.value).split(":")[0]);
+        if (!Number.isNaN(h)) setCalmSetting(key, h);
+      });
+      hours.appendChild(el("label.stack", { style: "gap:6px" }, [
+        el("span.section-sub", { text: label }), input,
+      ]));
+    }
+    calmCard.appendChild(hours);
+  });
+  body.appendChild(calmCard);
 
   // ---- Language -------------------------------------------------------
   const langCard = el("div.card.stack");

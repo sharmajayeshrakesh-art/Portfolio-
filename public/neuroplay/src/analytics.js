@@ -37,9 +37,49 @@ export async function buildAnalytics() {
     domainAccuracy: domainAccuracy(played),
     engagement: engagement(played),
     decline: declineRule(played),
+    timeOfDay: timeOfDay(played),
     lastPlayed: played.length ? played[played.length - 1].startedAt : null,
     rows: played,
   };
+}
+
+/**
+ * How the same person does at different hours.
+ *
+ * This is the evidence behind the sundowning window rather than a guess at it:
+ * if accuracy falls and abandonment climbs after four in the afternoon, the
+ * app can say so from this patient's own play, and the calm window can be
+ * moved to where their difficulty actually is. Buckets are wide because the
+ * data is thin — three parts of the day, not twenty-four hours.
+ */
+export function timeOfDay(rows) {
+  const parts = [
+    { id: "morning", from: 5, to: 12 },
+    { id: "afternoon", from: 12, to: 16 },
+    { id: "evening", from: 16, to: 24 },
+  ];
+  const out = parts.map((p) => ({ ...p, sessions: 0, trials: 0, correct: 0, abandoned: 0 }));
+  for (const r of rows) {
+    const h = new Date(r.startedAt).getHours();
+    const b = out.find((p) => h >= p.from && h < p.to) || out[2];
+    b.sessions += 1;
+    b.trials += r.summary.trials;
+    b.correct += r.summary.correct;
+    b.abandoned += Math.round(r.summary.abandonmentRate * r.summary.trials);
+  }
+  for (const b of out) {
+    b.accuracy = b.trials ? b.correct / b.trials : null;
+    b.abandonmentRate = b.trials ? b.abandoned / b.trials : null;
+  }
+  // Call it out only with enough play to mean anything, and only when the gap
+  // is wide enough that it is not noise.
+  const withData = out.filter((b) => b.trials >= 12 && b.accuracy != null);
+  let hardest = null;
+  if (withData.length >= 2) {
+    const sorted = [...withData].sort((a, b) => a.accuracy - b.accuracy);
+    if (sorted[sorted.length - 1].accuracy - sorted[0].accuracy >= 0.12) hardest = sorted[0].id;
+  }
+  return { parts: out, hardest };
 }
 
 /** Median correct-answer reaction time per session, in chronological order. */

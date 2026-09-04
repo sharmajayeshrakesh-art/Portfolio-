@@ -27,6 +27,11 @@ export function clear(node) {
 }
 
 export function mount(root, node) {
+  // Let the outgoing screen release anything it holds — a microphone, a timer,
+  // an audio graph. Screens listen for this on the node they return.
+  for (const child of Array.from(root.children)) {
+    child.dispatchEvent(new CustomEvent("np:teardown"));
+  }
   clear(root).appendChild(node);
   root.scrollTop = 0;
   return node;

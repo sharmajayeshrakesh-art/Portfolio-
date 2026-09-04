@@ -4,6 +4,7 @@ import { el } from "../ui.js";
 import { icon } from "../icons.js";
 import { fmtWeekday, fmtDayMonth } from "../i18n.js";
 import { speak } from "../tts.js";
+import { calmSettings, inWindow } from "../calm.js";
 
 function greetingKey(h) {
   if (h < 12) return "greeting_morning";
@@ -64,6 +65,23 @@ export function renderHome(ctx) {
     ])
   );
   scr.appendChild(orient);
+
+  // During the sundowning window the calm room is offered before anything
+  // else on the screen — by then a game is the wrong suggestion.
+  const calmSlot = el("div");
+  scr.appendChild(calmSlot);
+  calmSettings().then((cfg) => {
+    if (!inWindow(cfg)) return;
+    calmSlot.appendChild(
+      el("button.calm-card", {
+        onclick: () => ctx.navigate("calm"),
+        html:
+          `<span class="calm-card-ic">${icon("leaf", "icon-lg")}</span>` +
+          `<span class="calm-card-text"><strong>${ctx.t("calm_card_title")}</strong>` +
+          `<span>${ctx.t("calm_card_sub")}</span></span>`,
+      })
+    );
+  });
 
   // primary action
   scr.appendChild(

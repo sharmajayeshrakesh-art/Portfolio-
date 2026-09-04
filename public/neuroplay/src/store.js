@@ -13,10 +13,11 @@
  *   events     keyPath 'id'          one trial/interaction inside a game
  *   content    keyPath 'id'          caregiver uploads: faces, quiz items, reminders
  *   blobs      keyPath 'id'          photo/audio binary, referenced by content.blobId
+ *   voice      keyPath 'id'          family-voice recordings, keyed by phrase hash
  */
 
 const DB_NAME = "neuroplay";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let _dbPromise = null;
 
@@ -48,6 +49,11 @@ function openDB() {
       }
       if (!db.objectStoreNames.contains("blobs")) {
         db.createObjectStore("blobs", { keyPath: "id" });
+      }
+      // v2: a relative's own voice, one recording per phrase.
+      if (!db.objectStoreNames.contains("voice")) {
+        const v = db.createObjectStore("voice", { keyPath: "id" });
+        v.createIndex("byLang", "lang");
       }
       void e;
     };
@@ -155,13 +161,29 @@ export const store = {
     return URL.createObjectURL(row.blob);
   },
 
+  // ---- family voice recordings ----------------------------------------
+  // Keyed by the same phrase hash the bundled voicebank uses, so a recorded
+  // phrase simply takes precedence over the synthetic one.
+  saveVoiceClip(row) {
+    return this.put("voice", row);
+  },
+  voiceClip(id) {
+    return this.get("voice", id);
+  },
+  voiceClipsFor(lang) {
+    return this.getByIndex("voice", "byLang", lang);
+  },
+  deleteVoiceClip(id) {
+    return this.delete("voice", id);
+  },
+
   // ---- wholesale reset (used by demo re-seed) -------------------------
   async wipeGameData() {
     await this.clear("sessions");
     await this.clear("events");
   },
   async wipeEverything() {
-    for (const s of ["settings", "patient", "sessions", "events", "content", "blobs"])
+    for (const s of ["settings", "patient", "sessions", "events", "content", "blobs", "voice"])
       await this.clear(s);
   },
 };

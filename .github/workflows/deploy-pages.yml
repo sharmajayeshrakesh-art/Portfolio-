@@ -29,6 +29,13 @@ jobs:
           PAGES: "1"
           NEXT_PUBLIC_BASE_PATH: "/Portfolio-"
         run: npm run build
+      - name: Build the single-file offline app
+        # Published alongside the PWA so anyone can download one .html file and
+        # run NeuroPlay with no server and no internet — the demo/USB copy.
+        run: |
+          npm run build:app
+          cp dist/NeuroPlay.html out/neuroplay/NeuroPlay.html
+
       - uses: actions/configure-pages@v5
         with:
           enablement: true

@@ -65,16 +65,61 @@ export function renderDashboard(ctx) {
     // ---- domain accuracy ------------------------------------------------
     body.appendChild(domainCard(ctx, a.domainAccuracy));
 
+    // ---- when in the day it is hardest ----------------------------------
+    body.appendChild(timeOfDayCard(ctx, a.timeOfDay));
+
     // ---- caregiver actions ---------------------------------------------
     const actions = el("div.tiles");
     actions.appendChild(smallTile(ctx, "content_title", "photo", () => ctx.navigate("content")));
     actions.appendChild(smallTile(ctx, "export_report", "download", () => ctx.navigate("report")));
+    actions.appendChild(smallTile(ctx, "family_voice_title", "user", () => ctx.navigate("voicestudio")));
+    actions.appendChild(smallTile(ctx, "update_title", "share", () => ctx.navigate("update")));
     body.appendChild(actions);
 
     // ---- demo / data tools ---------------------------------------------
     body.appendChild(dataTools());
 
     if (a.decline.status === "alert") speak(ctx.t("decline_alert_title"));
+  }
+
+  /**
+   * Accuracy split across the day. This is the evidence for sundowning in THIS
+   * patient rather than a claim from the literature — and if the evening bar
+   * is the short one, the calm window is pointed at the right hours.
+   */
+  function timeOfDayCard(ctx2, tod) {
+    const c = el("div.card.stack");
+    c.appendChild(el("div.section-title", { text: ctx2.t("timeofday_title") }));
+    c.appendChild(el("p.section-sub", { text: ctx2.t("timeofday_sub") }));
+    const withData = tod.parts.filter((p2) => p2.trials > 0);
+    if (!withData.length) {
+      c.appendChild(el("p.muted", { text: ctx2.t("no_domain_data") }));
+      return c;
+    }
+    const rows = el("div.stack");
+    for (const p2 of tod.parts) {
+      const pct = p2.accuracy == null ? null : Math.round(p2.accuracy * 100);
+      const row = el("div.tod-row" + (tod.hardest === p2.id ? ".is-low" : ""));
+      row.appendChild(el("div.tod-label", { text: ctx2.t("daypart_" + p2.id) }));
+      const track = el("div.tod-track");
+      track.appendChild(el("i", { style: `width:${pct == null ? 0 : pct}%` }));
+      row.appendChild(track);
+      row.appendChild(el("div.tod-val", { text: pct == null ? "—" : pct + "%" }));
+      rows.appendChild(row);
+    }
+    c.appendChild(rows);
+    if (tod.hardest) {
+      c.appendChild(el("p.section-sub", { text: ctx2.t("timeofday_hardest", { part: ctx2.t("daypart_" + tod.hardest) }) }));
+      if (tod.hardest === "evening") {
+        c.appendChild(
+          el("button.btn.btn-ghost.btn-block", {
+            html: icon("leaf") + `<span>${ctx2.t("timeofday_calm_link")}</span>`,
+            onclick: () => ctx2.navigate("calm"),
+          })
+        );
+      }
+    }
+    return c;
   }
 
   function emptyState() {

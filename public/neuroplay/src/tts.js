@@ -17,6 +17,10 @@
 import { store } from "./store.js";
 import { currentLocale, currentLang } from "./i18n.js";
 import { loadVoicebank, playClip, stopClip, clipCount, voicebankLang } from "./voicebank.js";
+import {
+  initFamilyVoice, loadFamilyVoice, hasFamilyClip, playFamilyClip, stopFamilyClip,
+  familyVoiceCount, familyVoiceOn,
+} from "./familyvoice.js";
 
 const synth = typeof speechSynthesis !== "undefined" ? speechSynthesis : null;
 
@@ -36,6 +40,7 @@ export async function initTTS() {
   _enabled = (await store.getSetting("ttsEnabled", false)) === true;
   _useBank = (await store.getSetting("useVoicebank", true)) !== false;
   await loadVoicebank(currentLang());
+  await initFamilyVoice(currentLang());
   _voiceURI = await store.getSetting("voiceURI", null);
   _rate = Number(await store.getSetting("speechRate", 0.95)) || 0.95;
   if (!synth) return;
@@ -124,12 +129,16 @@ function phrases(text) {
     .filter(Boolean);
 }
 
-/** Re-point the voicebank after a language change. */
+/** Re-point both banks after a language change. */
 export async function refreshVoicebank(lang) {
-  return loadVoicebank(lang || currentLang());
+  const l = lang || currentLang();
+  await loadFamilyVoice(l);
+  return loadVoicebank(l);
 }
 /** How many pre-recorded clips are available for the current language. */
 export function voicebankSize() { return clipCount(); }
+/** How many phrases a relative has recorded in their own voice. */
+export function familyVoiceSize() { return familyVoiceCount(); }
 
 /** One synthesised phrase, calling `then` when the engine finishes with it. */
 function sayOne(part, lang, rate, then) {
@@ -166,8 +175,11 @@ export function speak(text, { locale, rate, force = false } = {}) {
   // asked for a different locale — previewing a language during setup, say —
   // stay on synthesis rather than play a recording in the wrong language.
   const bank = voicebankLang();
-  const usable = _useBank && clipCount() > 0 &&
-    (!locale || String(locale).toLowerCase().startsWith(bank || "\u0000"));
+  // Either bank only holds one language at a time. If the caller asked for a
+  // different locale — previewing a language during setup, say — stay on
+  // synthesis rather than play a recording in the wrong language.
+  const rightLang = !locale || String(locale).toLowerCase().startsWith(bank || "\u0000");
+  const usable = rightLang && ((_useBank && clipCount() > 0) || familyVoiceOn());
 
   if (!usable) {
     // No recordings: queue every phrase at once. Queuing short utterances
@@ -191,7 +203,11 @@ export function speak(text, { locale, rate, force = false } = {}) {
     if (gen !== _gen || i >= parts.length) return;
     if (pause) { setTimeout(() => { if (gen === _gen) next(0); }, BREATH); return; }
     const part = parts[i++];
-    if (playClip(part, { rate: r, onend: () => next(BREATH) })) return;
+    // A relative's own recording outranks everything: a familiar voice is
+    // understood when a synthetic one is not, and it settles rather than
+    // merely informs.
+    if (hasFamilyClip(part) && playFamilyClip(part, { onend: () => next(BREATH) })) return;
+    if (_useBank && playClip(part, { rate: r, onend: () => next(BREATH) })) return;
     if (!synth) { next(0); return; }
     sayOne(part, lang, r, () => next(0));
   };
@@ -200,6 +216,7 @@ export function speak(text, { locale, rate, force = false } = {}) {
 
 export function cancel() {
   _gen++;                                   // abandon any queued phrases
+  stopFamilyClip();
   stopClip();
   try { synth && synth.cancel(); } catch { /* no-op */ }
 }

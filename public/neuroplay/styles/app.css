@@ -546,3 +546,148 @@ img { max-width: 100%; display: block; }
   background: var(--surface); border: 2px solid var(--line-strong);
   border-radius: var(--radius-sm);
 }
+
+/* =========================================================================
+   Quiet time — sundowning support
+   The whole app dims inside the window; the quiet room goes further and
+   removes everything that is not one shape, one line, and one way out.
+   ========================================================================= */
+
+/* While the window is open, take the brightness down across the app. A screen
+   that stays at daytime contrast into the evening is itself a stimulant. */
+:root[data-calm="1"] {
+  --bg: #e7dccc;
+  --surface: #f3ebdf;
+  --surface-2: #ece1d2;
+  --band: #6d3a1e;
+  --cta: #8a4c2b;
+}
+:root[data-calm="1"][data-theme="night"] {
+  --bg: #100c08;
+  --surface: #1d1710;
+  --surface-2: #251d15;
+  --band: #472919;
+  --cta: #79411f;
+}
+:root[data-calm="1"] body { filter: saturate(0.88); }
+
+.calm-card {
+  display: flex; align-items: center; gap: 16px; width: 100%;
+  text-align: left; padding: 18px 20px; cursor: pointer;
+  background: var(--accent-tint); color: var(--ink);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-lg);
+}
+.calm-card-ic {
+  width: 54px; height: 54px; flex: none; border-radius: 18px; display: grid; place-items: center;
+  background: var(--surface); color: var(--accent);
+}
+.calm-card-text { display: flex; flex-direction: column; gap: 3px; }
+.calm-card-text strong { font-size: var(--fs-lg); }
+.calm-card-text span { color: var(--ink-soft); font-size: var(--fs-sm); }
+
+/* ---- the quiet room ---------------------------------------------------- */
+.calm {
+  position: relative; min-height: 100dvh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 26px; padding: 32px 24px;
+  background: var(--band); color: var(--band-ink); text-align: center;
+}
+.calm-sky { position: absolute; inset: 0; background: var(--band); }
+.calm > *:not(.calm-sky) { position: relative; z-index: 1; }
+
+.calm-face { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.calm-face img {
+  width: 116px; height: 116px; border-radius: 999px; object-fit: cover;
+  border: 3px solid rgba(255,255,255,0.30);
+}
+.calm-face-name { font-size: var(--fs-sm); opacity: 0.85; }
+
+/* The pacer. Longer out than in is what actually calms the nervous system,
+   so the two transitions are deliberately different lengths. */
+.calm-breath {
+  width: 190px; height: 190px; border-radius: 999px; display: grid; place-items: center;
+  border: 2px solid rgba(255,255,255,0.34); background: rgba(255,255,255,0.08);
+  transform: scale(0.72);
+  transition: transform var(--out, 6000ms) cubic-bezier(0.4, 0, 0.5, 1);
+}
+.calm-breath.inhale { transform: scale(1); transition-duration: var(--in, 4000ms); }
+.calm-breath.exhale { transform: scale(0.72); transition-duration: var(--out, 6000ms); }
+.calm-breath-word { font-size: var(--fs-lg); font-weight: 700; letter-spacing: 0.02em; }
+
+.calm-line {
+  font-size: var(--fs-xl); line-height: 1.45; max-width: 22ch; min-height: 3.2em;
+  opacity: 0; transition: opacity 0.9s var(--ease);
+}
+.calm-line.show { opacity: 1; }
+
+.calm-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; width: 100%; }
+.calm-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: var(--tap); padding: 0 22px; border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: var(--fs-base); font-weight: 700;
+  color: var(--band-ink); background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.24);
+}
+.calm-btn.calm-ok { background: rgba(255,255,255,0.92); color: #2c241d; border-color: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  .calm-breath { transition: none; }
+}
+
+/* =========================================================================
+   Family voice studio
+   ========================================================================= */
+.vb-bar { height: 12px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
+.vb-bar i { display: block; height: 100%; background: var(--primary); transition: width 0.5s var(--ease); }
+
+.vb-row { display: flex; flex-direction: column; gap: 14px; }
+.vb-row.is-done { border-color: var(--good); border-width: 2px; }
+.vb-phrase { font-size: var(--fs-lg); font-weight: 700; }
+.vb-state { font-size: var(--fs-sm); color: var(--ink-soft); margin-top: 3px; }
+.vb-row.is-done .vb-state { color: var(--good); }
+/* Record takes the room; play and delete stay square, so the row never wraps
+   into a second line of buttons on a narrow phone. */
+.vb-actions { display: flex; gap: 10px; align-items: stretch; }
+.vb-actions .btn { min-height: var(--tap); font-size: var(--fs-base); }
+.vb-actions .vb-rec { flex: 1; padding: 0 16px; }
+.vb-actions .btn-ghost { flex: none; width: var(--tap); padding: 0; }
+.vb-rec.is-live { background: var(--alert); animation: vbPulse 1.4s ease-in-out infinite; }
+@keyframes vbPulse { 50% { opacity: 0.72; } }
+@media (prefers-reduced-motion: reduce) { .vb-rec.is-live { animation: none; } }
+
+/* =========================================================================
+   Daily update
+   ========================================================================= */
+.update-box {
+  width: 100%; min-height: 200px; padding: 14px; font: inherit; line-height: 1.5;
+  color: var(--ink); background: var(--surface-2);
+  border: 2px solid var(--line-strong); border-radius: var(--radius-sm); resize: vertical;
+}
+.pill {
+  font-size: var(--fs-sm); font-weight: 700; padding: 5px 12px; border-radius: 999px;
+  background: var(--primary-tint); color: var(--primary);
+}
+.btn.is-disabled { opacity: 0.45; pointer-events: none; }
+a.btn { text-decoration: none; }
+
+/* ---- accuracy by part of day (dashboard) ------------------------------- */
+.tod-row { display: grid; grid-template-columns: 8.5em 1fr 3.2em; align-items: center; gap: 12px; }
+.tod-label { font-weight: 700; font-size: var(--fs-sm); }
+.tod-track { height: 14px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
+.tod-track i { display: block; height: 100%; background: var(--d-attention); }
+.tod-row.is-low .tod-track i { background: var(--warn); }
+.tod-val { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* The daily-update nudge — shown while the app is open, never a fake push. */
+.remind-bar {
+  position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 60;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 12px 12px 18px; border-radius: var(--radius);
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line-strong); box-shadow: var(--shadow-lg);
+}
+.remind-bar > span { flex: 1; font-weight: 700; }
+.remind-bar .btn { min-height: 48px; padding: 0 18px; font-size: var(--fs-base); }
+.remind-x {
+  width: 40px; height: 40px; flex: none; border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: 22px; line-height: 1;
+  color: var(--ink-soft); background: transparent; border: 0;
+}

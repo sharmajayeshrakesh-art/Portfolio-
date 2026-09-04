@@ -24,6 +24,11 @@ import { renderEmergency } from "./screens/memory/emergency.js";
 import { renderSettings } from "./screens/settings.js";
 import { renderTour } from "./screens/tour.js";
 import { renderProgress } from "./screens/progress.js";
+import { renderCalm } from "./screens/calm.js";
+import { renderVoiceStudio } from "./screens/caregiver/voice.js";
+import { renderUpdate } from "./screens/caregiver/update.js";
+import { calmSettings, inWindow, stampCalm, dismissedToday } from "./calm.js";
+import { el } from "./ui.js";
 import { showSplash } from "./screens/splash.js";
 import { applyStoredTheme } from "./theme.js";
 
@@ -43,6 +48,9 @@ const ROUTES = {
   settings: renderSettings,
   tour: renderTour,
   progress: renderProgress,
+  calm: renderCalm,
+  voicestudio: renderVoiceStudio,
+  update: renderUpdate,
 };
 
 const ctx = {
@@ -65,18 +73,22 @@ ctx.unlockCaregiver = () => { _caregiverUnlocked = true; };
 ctx.lockCaregiver = () => { _caregiverUnlocked = false; };
 
 let _route = null;
+let _syncCalm = null;      // set once the stored calm settings are loaded
 
 function navigate(name, params = {}) {
   cancel(); // stop any in-progress speech on navigation
   const render = ROUTES[name] || ROUTES.home;
   // caregiver area is gated behind the PIN
-  const gated = ["dashboard", "content", "report"];
+  const gated = ["dashboard", "content", "report", "voicestudio", "update"];
   if (gated.includes(name) && !_caregiverUnlocked) {
     return renderInto(ROUTES.pin, { next: name, params });
   }
   _route = name;
   location.hash = "#/" + name;
   renderInto(render, params);
+  // Landing on home is the moment to check the sundowning window — waiting for
+  // the next minute tick would let someone sit on a bright home screen at 6pm.
+  if (name === "home" && _syncCalm) _syncCalm();
 }
 
 /* Follow hash changes, so a deep link like #/settings works on an already
@@ -109,6 +121,43 @@ async function boot() {
   if (size === "large") document.documentElement.dataset.size = "large";
   else delete document.documentElement.dataset.size;
 
+  // Sundowning: dim the whole app while the window is open, and re-check on a
+  // slow timer so an app left running crosses into it on its own. Four in the
+  // afternoon is when this starts to matter; nobody will be tapping a button.
+  const calmCfg = await calmSettings();
+  const syncCalm = _syncCalm = async () => {
+    const open = inWindow(calmCfg);
+    stampCalm(open);
+    if (open && calmCfg.auto && _route === "home" && !(await dismissedToday())) {
+      navigate("calm");
+    }
+  };
+  setInterval(syncCalm, 60000);
+
+  /* The daily-update nudge. A static app cannot wake itself, so this is
+     honestly what it says it is: a reminder shown while the app is open,
+     once a day, dismissible. */
+  const dayStamp = () => new Date().toISOString().slice(0, 10);
+  async function maybeRemind() {
+    const at = await store.getSetting("updateReminderAt", null);
+    if (!at || document.querySelector(".remind-bar")) return;
+    if ((await store.getSetting("updateRemindedOn", null)) === dayStamp()) return;
+    const [h, m] = String(at).split(":").map(Number);
+    const now = new Date();
+    if (now.getHours() * 60 + now.getMinutes() < h * 60 + (m || 0)) return;
+    await store.setSetting("updateRemindedOn", dayStamp());
+    const bar = el("div.remind-bar", {}, [
+      el("span", { text: t("update_title") }),
+      el("button.btn.btn-primary", {
+        text: t("update_send"),
+        onclick: () => { bar.remove(); navigate("update"); },
+      }),
+      el("button.remind-x", { "aria-label": t("close"), text: "\u00d7", onclick: () => bar.remove() }),
+    ]);
+    document.body.appendChild(bar);
+  }
+  setInterval(maybeRemind, 60000);
+
   onLanguageChange((code) => {
     refreshVoicebank(code);
     const cur = (location.hash.replace("#/", "") || "home").split("/")[0];
@@ -135,6 +184,8 @@ async function boot() {
   const wanted = (location.hash.replace("#/", "").split("/")[0] || "").trim();
   if (done && toured && ROUTES[wanted]) navigate(wanted);
   else navigate(!done ? "onboarding" : !toured ? "tour" : "home");
+  await syncCalm();
+  await maybeRemind();
 }
 
 window.addEventListener("DOMContentLoaded", boot);

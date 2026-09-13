@@ -13,14 +13,20 @@ import { parseReceipt } from "./parse.js";
 import { recognize } from "./ocr.js";
 import { toCSV, parseCSV, downloadCSV, downloadText } from "./csv.js";
 import { initGym } from "./gymscreen.js";
+import { initHome } from "./home.js";
 import {
   $, $$, el, svg, clear, amount, rupees, friendlyDate, shortDate, fromISO,
   add, toast, openSheet, closeSheet, updateSheet, sheetIsOpen,
 } from "./ui.js";
 
-const TABS = ["today", "history", "add", "gym", "settings"];
+const TABS = ["home", "history", "add", "gym", "settings"];
 
 const { renderGym } = initGym({ go: (tab) => go(tab), renderAll: () => renderAll() });
+const { renderHome } = initHome({
+  go: (tab) => go(tab),
+  openScan: () => pickScreenshot(),
+  editExpense: (id) => editExpense(id),
+});
 let historyPeriod = "month";
 
 /* ---------- date ranges ---------- */
@@ -44,11 +50,6 @@ function rangeFor(period, now = new Date()) {
     toISODate(new Date(now.getFullYear(), now.getMonth(), 1)),
     toISODate(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
   ];
-}
-
-function sumFor(period) {
-  const [from, to] = rangeFor(period);
-  return store.total(store.inRange(from, to));
 }
 
 /* ---------- shared pieces ---------- */
@@ -107,58 +108,6 @@ function groupByDay(expenses) {
     byDay.get(e.date).push(e);
   }
   return [...byDay.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
-}
-
-/* ---------- Today ---------- */
-
-function renderToday() {
-  const screen = clear($("#screen-today"));
-  const today = todayISO();
-  const entries = store.onDate(today);
-
-  add(screen,
-    el("header", { class: "screen-head" },
-      el("p", { class: "eyebrow", text: "Spent today" }),
-      figure(store.total(entries)),
-      el("div", { class: "stat-pair" },
-        el("div", { class: "stat" },
-          el("span", { class: "stat-label", text: "This week" }),
-          el("span", { class: "stat-value", text: rupees(sumFor("week")) }),
-        ),
-        el("div", { class: "stat" },
-          el("span", { class: "stat-label", text: "This month" }),
-          el("span", { class: "stat-value", text: rupees(sumFor("month")) }),
-        ),
-      ),
-    ),
-    backupNudge(),
-    el("section", { class: "list" },
-      entries.length
-        ? entries.map(entryRow)
-        : emptyState("Nothing yet today", "Share a payment screenshot here, or add a cash payment below."),
-    ),
-    el("div", { class: "screen-actions" },
-      el("button", { class: "btn btn-primary", type: "button", text: "Add a payment", onclick: () => go("add") }),
-      scanButton("Scan a screenshot"),
-    ),
-  );
-}
-
-/** Quiet reminder when the only copy of this data has not been backed up. */
-function backupNudge() {
-  const { lastExportAt } = store.getSettings();
-  if (!store.getExpenses().length && !store.getSessions().length) return null;
-  const age = lastExportAt ? (Date.now() - lastExportAt) / 86400000 : Infinity;
-  if (age < 30) return null;
-
-  return el("button", {
-    class: "nudge", type: "button", onclick: () => go("settings"),
-  },
-    lastExportAt
-      ? "It has been over a month since your last backup."
-      : "This data lives only on this phone. Back it up.",
-    el("span", { class: "nudge-go", text: "Back up" }),
-  );
 }
 
 /* ---------- History ---------- */
@@ -291,7 +240,7 @@ function renderAdd() {
           if (draft.merchant.trim()) learnIfChanged(draft.merchant, draft.category);
           Object.assign(draft, { amount: "", merchant: "", note: "", category: "Other", date: todayISO() });
           toast("Saved");
-          go("today");
+          go("home");
         },
       }),
       scanButton("Scan a screenshot instead"),
@@ -625,15 +574,27 @@ function fieldSet(form) {
 
 /* ---------- share → OCR → review ---------- */
 
+/**
+ * Open the gallery and review whatever comes back.
+ *
+ * The share sheet is the real path, but it only exists once the app is
+ * installed — this is how the same OCR flow is reachable before that, and from
+ * a desktop browser.
+ */
+let scanInput = null;
+function pickScreenshot() {
+  if (!scanInput) {
+    scanInput = el("input", {
+      class: "visually-hidden", type: "file", accept: "image/*",
+      onchange: (e) => { const f = e.target.files?.[0]; if (f) reviewImage(f); e.target.value = ""; },
+    });
+    document.body.append(scanInput);
+  }
+  scanInput.click();
+}
+
 function scanButton(label) {
-  const input = el("input", {
-    class: "visually-hidden", type: "file", accept: "image/*",
-    onchange: (e) => { const f = e.target.files?.[0]; if (f) reviewImage(f); e.target.value = ""; },
-  });
-  return el("span", { class: "scan-wrap" },
-    el("button", { class: "btn btn-quiet", type: "button", text: label, onclick: () => input.click() }),
-    input,
-  );
+  return el("button", { class: "btn btn-quiet", type: "button", text: label, onclick: () => pickScreenshot() });
 }
 
 /** Pick up an image the share sheet handed to the service worker. */
@@ -754,7 +715,7 @@ function showReview(parsed) {
           store.addExpense({ ...form, amount: value, source: "shared" });
           closeSheet();
           renderAll();
-          go("today");
+          go("home");
           toast(`Saved ${rupees(value)}`);
         } }),
         el("button", { class: "btn btn-quiet", type: "button", text: "Discard", onclick: closeSheet }),
@@ -777,11 +738,13 @@ function go(tab) {
 
 function currentTab() {
   const tab = location.hash.slice(1);
-  return TABS.includes(tab) ? tab : "today";
+  // "#today" was the old name for this screen; keep old links working.
+  if (tab === "today") return "home";
+  return TABS.includes(tab) ? tab : "home";
 }
 
 function render(tab) {
-  if (tab === "today") renderToday();
+  if (tab === "home") renderHome();
   else if (tab === "history") renderHistory();
   else if (tab === "add") renderAdd();
   else if (tab === "gym") renderGym();

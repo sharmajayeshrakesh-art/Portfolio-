@@ -130,10 +130,37 @@ name, several date formats, credits refused, and rows without a category sorted
 the same way a shared receipt would be. Rows that are unparseable are counted and
 reported rather than dropped silently.
 
+## The landing screen
+
+It used to lead with "spent today", which is ₹0 every morning — not an empty
+state to decorate but the **normal** state, so the app greeted you with a giant
+zero and three different ways of saying "nothing", most times you opened it.
+
+Home now leads with the month (never zero after day one) and spends the rest of
+the screen on the two questions worth asking: where the money is going, and
+whether you are training. One chart answers both — spending as columns, training
+as filled/hollow dots beneath, over a shared seven-day axis.
+
+Chart decisions, deliberately:
+
+- **One hero figure per view**, in proportional figures. `tabular-nums` gives
+  every digit the width of a zero, which makes a large number look gappy; the
+  lists keep it, because there the vertical alignment is the point.
+- **One accent for every column.** Colouring by size would double-encode the
+  height as hue and burn the only free channel on what the chart already shows.
+- **No gridlines.** A direct label on today carries the one value worth reading
+  exactly; the rest is shape, and tapping a day reads it out.
+- **Bars capped at 20px** with a 4px rounded cap, square on the baseline, so the
+  band's leftover is air.
+- **Filled vs hollow dots** are a shape difference, so the training row never
+  depends on colour alone.
+- **Day one shows a statement, not charts.** Charts of nothing are worse than no
+  charts.
+
 ## Layout
 
 ```
-index.html         shell: four screens, tab bar, sheet, toast
+index.html         shell: five screens, tab bar, sheet, toast
 manifest.json      icons + share_target
 sw.js              offline shell, share-target POST handler
 styles/app.css
@@ -145,6 +172,7 @@ src/ocr.js         preprocessing + Tesseract
 src/csv.js         export / import
 src/ui.js          DOM helpers, sheet, toast
 src/app.js         money screens, routing, share → review → save
+src/home.js        the overview: hero, seven-day chart, panels
 src/plan.js        the PPL plan as data
 src/gym.js         rotation cursor, streaks, adherence
 src/gymscreen.js   Gym tab + the check-in sheet

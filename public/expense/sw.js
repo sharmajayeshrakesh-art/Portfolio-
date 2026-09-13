@@ -12,7 +12,7 @@
  * flow.
  */
 
-const VERSION = "kharcha-v1";
+const VERSION = "kharcha-v2";
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -37,6 +37,9 @@ const SHELL = [
   "src/parse.js",
   "src/ocr.js",
   "src/csv.js",
+  "src/plan.js",
+  "src/gym.js",
+  "src/gymscreen.js",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",

@@ -15,6 +15,7 @@ const KEY = "kharcha.v1";
 
 const EMPTY = {
   expenses: [],
+  sessions: [],
   learnedMerchants: {},
   settings: { lastExportAt: null },
 };
@@ -30,6 +31,7 @@ function read() {
       ...structuredClone(EMPTY),
       ...parsed,
       expenses: Array.isArray(parsed.expenses) ? parsed.expenses : [],
+      sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
       learnedMerchants: parsed.learnedMerchants && typeof parsed.learnedMerchants === "object"
         ? parsed.learnedMerchants
         : {},
@@ -152,6 +154,58 @@ export function restoreExpense(entry) {
   commit();
 }
 
+/* ---------- training sessions ---------- */
+
+/** Newest first, same as expenses — every screen reads most-recent-first. */
+function sortSessions() {
+  state.sessions.sort((a, b) =>
+    a.date === b.date ? (b.createdAt || 0) - (a.createdAt || 0) : (a.date < b.date ? 1 : -1));
+}
+
+export function getSessions() {
+  return state.sessions;
+}
+
+export function getSession(id) {
+  return state.sessions.find((s) => s.id === id) || null;
+}
+
+/** The session logged on a given day, if any. One session per day is the rule —
+ *  logging again for the same day replaces it rather than double-counting. */
+export function sessionOn(iso) {
+  return state.sessions.find((s) => s.date === iso) || null;
+}
+
+export function saveSession({ id, date, slot, exercises, note = "" }) {
+  const existing = id ? getSession(id) : sessionOn(date);
+  if (existing) {
+    Object.assign(existing, { date, slot, exercises, note });
+    sortSessions();
+    commit();
+    return existing;
+  }
+  const entry = { id: newId(), date, slot, exercises, note, createdAt: Date.now() };
+  state.sessions.push(entry);
+  sortSessions();
+  commit();
+  return entry;
+}
+
+export function deleteSession(id) {
+  const i = state.sessions.findIndex((s) => s.id === id);
+  if (i === -1) return null;
+  const [removed] = state.sessions.splice(i, 1);
+  commit();
+  return removed;
+}
+
+export function restoreSession(entry) {
+  if (!entry || getSession(entry.id)) return;
+  state.sessions.push(entry);
+  sortSessions();
+  commit();
+}
+
 /* ---------- learned merchants ---------- */
 
 export function learn(merchantKey, category) {
@@ -196,6 +250,33 @@ export function importExpenses(rows) {
   sort();
   commit();
   return added;
+}
+
+/**
+ * Everything, for a real backup. The expenses CSV is for reading in a
+ * spreadsheet; this is what actually restores the app — sessions and learned
+ * merchants have no CSV representation.
+ */
+export function exportAll() {
+  return JSON.stringify({ kharcha: 1, exportedAt: new Date().toISOString(), ...state }, null, 2);
+}
+
+export function importAll(json) {
+  const parsed = JSON.parse(json);
+  if (!parsed || typeof parsed !== "object") throw new Error("not a backup");
+  if (!Array.isArray(parsed.expenses) && !Array.isArray(parsed.sessions)) throw new Error("not a backup");
+
+  state = {
+    ...structuredClone(EMPTY),
+    expenses: Array.isArray(parsed.expenses) ? parsed.expenses : [],
+    sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+    learnedMerchants: parsed.learnedMerchants || {},
+    settings: { ...EMPTY.settings, ...(parsed.settings || {}) },
+  };
+  sort();
+  sortSessions();
+  commit();
+  return { expenses: state.expenses.length, sessions: state.sessions.length };
 }
 
 export function clearAll() {

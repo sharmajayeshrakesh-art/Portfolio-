@@ -554,3 +554,273 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+/* ==========================================================================
+   Gym
+   Same language as the money side — hairlines, one accent, big light figures.
+   The only new idea is the grid, which earns its place by showing months of
+   consistency in a glance no list of dates could.
+   ========================================================================== */
+
+.figure-of {
+  margin-left: 2px;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* ---------- next up ---------- */
+
+.nextup {
+  margin: 6px var(--gutter) 0;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: 14px;
+  /* A single hairline rule rather than a shadow — the surface shift is enough
+     separation on a ground this dark. */
+  border: 1px solid var(--hairline);
+}
+
+.nextup-title {
+  margin: 2px 0 0;
+  font-size: 27px;
+  font-weight: 300;
+  letter-spacing: -0.015em;
+}
+
+.nextup-focus {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.dot-sep { margin: 0 7px; opacity: 0.5; }
+
+.nextup-meta {
+  margin: 14px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.nextup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+/* A logged day steps back: the accent has done its job, so stop shouting. */
+.nextup.is-done .nextup-title { color: var(--accent); }
+.nextup.is-done .btn-primary {
+  background: none;
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ---------- consistency grid ---------- */
+
+.gridwrap {
+  display: flex;
+  gap: 7px;
+  padding: 12px var(--gutter) 6px;
+}
+
+/* Weekdays run down, weeks run across — three months fits the width of a
+   phone this way, where a week-per-row grid manages barely five. */
+.griddays,
+.grid {
+  display: grid;
+  grid-template-rows: repeat(7, 1fr);
+  grid-auto-flow: column;
+  gap: 4px;
+}
+
+.grid {
+  flex: 1;
+  grid-auto-columns: 1fr;
+  min-width: 0;
+}
+
+.griddays { flex: none; }
+
+.gridday {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.cell {
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  background: var(--surface);
+  border: 0;
+  border-radius: 3px;
+}
+
+.cell.is-on {
+  /* --fill carries how complete the session was, so a cut-short day reads
+     dimmer than a full one without needing a second colour. */
+  background: color-mix(in srgb, var(--accent) calc(var(--fill, 1) * 100%), var(--surface));
+  cursor: pointer;
+}
+
+.cell.is-future { background: none; }
+
+.cell.is-today { box-shadow: inset 0 0 0 1px var(--muted); }
+.cell.is-on.is-today { box-shadow: inset 0 0 0 1px var(--text); }
+
+/* ---------- check-in ---------- */
+
+.checkin-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.checkin-total {
+  flex: none;
+  padding-top: 4px;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.checkin-total.is-full { color: var(--accent); }
+
+.checkin-date { margin-top: 18px; }
+
+.checkin-hint {
+  margin: 18px 0 4px;
+  font-size: 13px;
+  color: var(--muted);
+  opacity: 0.85;
+}
+
+.checkin-list { margin-top: 6px; }
+
+.ex {
+  padding: 15px 0;
+  border-top: 1px solid var(--hairline);
+}
+.ex:last-child { border-bottom: 1px solid var(--hairline); }
+
+.ex-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ex-name { font-size: 16px; }
+
+.ex-count {
+  flex: none;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.ex-reps {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+/* A skipped exercise recedes but stays legible — it is information, not an
+   error, and it has to be easy to tap back on. */
+.ex.is-skipped .ex-name,
+.ex.is-skipped .ex-reps { opacity: 0.45; }
+.ex.is-skipped .ex-count { color: var(--danger); opacity: 0.9; }
+
+/* ---------- set dots ---------- */
+
+.pips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pip {
+  flex: 1;
+  max-width: 52px;
+  height: 34px;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  color: transparent;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.pip.is-on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.pip-skip {
+  flex: none;
+  width: 34px;
+  max-width: none;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+}
+.pip-skip.is-active {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.checkin-swap {
+  width: 100%;
+  min-height: var(--tap);
+  margin-top: 18px;
+  padding: 12px;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hairline);
+  cursor: pointer;
+}
+
+.row-action.is-current .row-title { color: var(--accent); }
+
+.note {
+  margin: 14px var(--gutter) 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Five tabs at 360px: let the labels shrink rather than wrap or clip. */
+@media (max-width: 380px) {
+  .tab { font-size: 10px; padding-left: 2px; padding-right: 2px; }
+  .tab svg { width: 20px; height: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pip { transition: none; }
+}
+
+.nextup-next {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.settings-sub {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}

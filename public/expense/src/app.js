@@ -11,13 +11,16 @@ import { todayISO, toISODate, money } from "./store.js";
 import { CATEGORIES, guessCategory, normalizeMerchant } from "./categories.js";
 import { parseReceipt } from "./parse.js";
 import { recognize } from "./ocr.js";
-import { toCSV, parseCSV, downloadCSV } from "./csv.js";
+import { toCSV, parseCSV, downloadCSV, downloadText } from "./csv.js";
+import { initGym } from "./gymscreen.js";
 import {
   $, $$, el, svg, clear, amount, rupees, friendlyDate, shortDate, fromISO,
   add, toast, openSheet, closeSheet, updateSheet, sheetIsOpen,
 } from "./ui.js";
 
-const TABS = ["today", "history", "add", "settings"];
+const TABS = ["today", "history", "add", "gym", "settings"];
+
+const { renderGym } = initGym({ go: (tab) => go(tab), renderAll: () => renderAll() });
 let historyPeriod = "month";
 
 /* ---------- date ranges ---------- */
@@ -144,7 +147,7 @@ function renderToday() {
 /** Quiet reminder when the only copy of this data has not been backed up. */
 function backupNudge() {
   const { lastExportAt } = store.getSettings();
-  if (!store.getExpenses().length) return null;
+  if (!store.getExpenses().length && !store.getSessions().length) return null;
   const age = lastExportAt ? (Date.now() - lastExportAt) / 86400000 : Infinity;
   if (age < 30) return null;
 
@@ -153,8 +156,8 @@ function backupNudge() {
   },
     lastExportAt
       ? "It has been over a month since your last backup."
-      : "This data lives only on this phone. Export a backup.",
-    el("span", { class: "nudge-go", text: "Export" }),
+      : "This data lives only on this phone. Back it up.",
+    el("span", { class: "nudge-go", text: "Back up" }),
   );
 }
 
@@ -338,8 +341,14 @@ function keypad(display) {
 function renderSettings() {
   const screen = clear($("#screen-settings"));
   const expenses = store.getExpenses();
+  const sessions = store.getSessions();
   const learned = store.getLearned();
   const { lastExportAt } = store.getSettings();
+
+  const restoreInput = el("input", {
+    class: "visually-hidden", type: "file", accept: ".json,application/json",
+    onchange: (e) => { const f = e.target.files?.[0]; if (f) doRestore(f); e.target.value = ""; },
+  });
 
   const importInput = el("input", {
     class: "visually-hidden", type: "file", accept: ".csv,text/csv", id: "import-file",
@@ -349,15 +358,27 @@ function renderSettings() {
   add(screen,
     el("header", { class: "screen-head screen-head-tight" },
       el("p", { class: "eyebrow", text: "Settings" }),
-      el("p", { class: "screen-title", text: `${expenses.length} ${expenses.length === 1 ? "entry" : "entries"}` }),
+      el("p", { class: "screen-title",
+        text: `${expenses.length} ${expenses.length === 1 ? "entry" : "entries"} · ${sessions.length} session${sessions.length === 1 ? "" : "s"}` }),
+      el("p", { class: "settings-sub",
+        text: lastExportAt
+          ? `Last backed up ${relativeWord(toISODate(new Date(lastExportAt)))}`
+          : "Never backed up" }),
     ),
 
     el("section", { class: "list" },
       el("p", { class: "list-head", text: "Backup" }),
-      actionRow("Export to CSV",
-        lastExportAt ? `Last exported ${relativeWord(toISODate(new Date(lastExportAt)))}` : "Never exported",
-        () => doExport()),
-      actionRow("Import from CSV", "Restore a backup, or load a statement", () => importInput.click()),
+      actionRow("Back up everything",
+        "Expenses, workouts and learned merchants",
+        () => doBackup()),
+      actionRow("Restore from a backup", "Replaces everything on this phone", () => restoreInput.click()),
+      restoreInput,
+    ),
+
+    el("section", { class: "list" },
+      el("p", { class: "list-head", text: "Spreadsheet" }),
+      actionRow("Export expenses to CSV", "Opens in any spreadsheet", () => doExport()),
+      actionRow("Import expenses from CSV", "Load a statement or an old export", () => importInput.click()),
       importInput,
     ),
 
@@ -392,6 +413,29 @@ function actionRow(title, sub, onclick, danger = false) {
     ),
     el("span", { class: "row-chevron", "aria-hidden": "true", text: "›" }),
   );
+}
+
+function doBackup() {
+  const expenses = store.getExpenses().length;
+  const sessions = store.getSessions().length;
+  if (!expenses && !sessions) return toast("Nothing to back up yet");
+  downloadText(`kharcha-backup-${todayISO()}.json`, store.exportAll(), "application/json");
+  store.setSetting("lastExportAt", Date.now());
+  renderSettings();
+  toast(`Backed up ${expenses} entries · ${sessions} sessions`);
+}
+
+async function doRestore(file) {
+  let text;
+  try {
+    text = await file.text();
+    store.importAll(text);
+  } catch {
+    return toast("That is not a Kharcha backup");
+  }
+  renderAll();
+  const counts = { e: store.getExpenses().length, s: store.getSessions().length };
+  toast(`Restored ${counts.e} entries · ${counts.s} sessions`);
 }
 
 function doExport() {
@@ -740,6 +784,7 @@ function render(tab) {
   if (tab === "today") renderToday();
   else if (tab === "history") renderHistory();
   else if (tab === "add") renderAdd();
+  else if (tab === "gym") renderGym();
   else renderSettings();
 
   $$(".screen").forEach((s) => { s.hidden = s.id !== `screen-${tab}`; });

@@ -150,9 +150,9 @@ export function parseCSV(text) {
   return { rows, skipped };
 }
 
-/** Hand the file to the browser. Uses a blob URL so nothing touches a network. */
-export function downloadCSV(filename, csv) {
-  const blob = new Blob([`﻿${csv}`], { type: "text/csv;charset=utf-8" });
+/** Hand a file to the browser. Uses a blob URL so nothing touches a network. */
+export function downloadText(filename, text, type = "text/plain;charset=utf-8") {
+  const blob = new Blob([text], { type });
   const href = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = href;
@@ -161,4 +161,9 @@ export function downloadCSV(filename, csv) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(href), 10000);
+}
+
+/** The BOM keeps Excel from mangling the rupee sign and Indian names. */
+export function downloadCSV(filename, csv) {
+  downloadText(filename, `﻿${csv}`, "text/csv;charset=utf-8");
 }

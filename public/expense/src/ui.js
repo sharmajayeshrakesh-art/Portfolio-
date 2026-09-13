@@ -8,9 +8,11 @@
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-export function el(tag, attrs = {}, ...children) {
+export function el(tag, attrs, ...children) {
   const node = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
+  // An explicit null defeats a default parameter, and `el("div", null, ...)` is
+  // a natural thing to write for a wrapper with no attributes.
+  for (const [k, v] of Object.entries(attrs || {})) {
     if (v == null || v === false) continue;
     if (k === "class") node.className = v;
     else if (k === "text") node.textContent = v;

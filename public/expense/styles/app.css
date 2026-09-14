@@ -849,11 +849,7 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
 .wordmark-mark {
   width: 15px;
   height: 15px;
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 13;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  fill: var(--accent);
 }
 
 .masthead-date {

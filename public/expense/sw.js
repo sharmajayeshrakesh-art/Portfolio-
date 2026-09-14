@@ -12,13 +12,13 @@
  * flow.
  */
 
-const VERSION = "kharcha-v3";
+const VERSION = "tally-v1";
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
 // Deliberately not versioned: an update must not throw away an image that the
 // share sheet handed over seconds ago.
-const SHARE_CACHE = "kharcha-share";
+const SHARE_CACHE = "tally-share";
 const SHARE_KEY = "shared-image";
 
 const SCOPE = self.registration.scope;

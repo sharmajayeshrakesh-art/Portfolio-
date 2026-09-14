@@ -5,7 +5,7 @@
  * that floats over whatever is open for reviewing a shared screenshot.
  */
 
-import { APP_NAME, url, SHARE_CACHE, SHARE_KEY } from "./base.js";
+import { APP_NAME, url, SHARE_CACHE, LEGACY_SHARE_CACHES, SHARE_KEY } from "./base.js";
 import * as store from "./store.js";
 import { todayISO, toISODate, money } from "./store.js";
 import { CATEGORIES, guessCategory, normalizeMerchant } from "./categories.js";
@@ -16,7 +16,7 @@ import { initGym } from "./gymscreen.js";
 import { initHome } from "./home.js";
 import {
   $, $$, el, svg, clear, amount, rupees, friendlyDate, shortDate, fromISO,
-  add, toast, openSheet, closeSheet, updateSheet, sheetIsOpen,
+  add, toast, openSheet, closeSheet, updateSheet, setSheetDismissible, sheetIsOpen,
 } from "./ui.js";
 
 const TABS = ["home", "history", "add", "gym", "settings"];
@@ -368,7 +368,7 @@ function doBackup() {
   const expenses = store.getExpenses().length;
   const sessions = store.getSessions().length;
   if (!expenses && !sessions) return toast("Nothing to back up yet");
-  downloadText(`kharcha-backup-${todayISO()}.json`, store.exportAll(), "application/json");
+  downloadText(`tally-backup-${todayISO()}.json`, store.exportAll(), "application/json");
   store.setSetting("lastExportAt", Date.now());
   renderSettings();
   toast(`Backed up ${expenses} entries · ${sessions} sessions`);
@@ -380,7 +380,7 @@ async function doRestore(file) {
     text = await file.text();
     store.importAll(text);
   } catch {
-    return toast("That is not a Kharcha backup");
+    return toast("That is not a Tally backup");
   }
   renderAll();
   const counts = { e: store.getExpenses().length, s: store.getSessions().length };
@@ -390,7 +390,7 @@ async function doRestore(file) {
 function doExport() {
   const expenses = store.getExpenses();
   if (!expenses.length) return toast("Nothing to export yet");
-  downloadCSV(`kharcha-${todayISO()}.csv`, toCSV(expenses));
+  downloadCSV(`tally-${todayISO()}.csv`, toCSV(expenses));
   store.setSetting("lastExportAt", Date.now());
   renderSettings();
   toast(`Exported ${expenses.length} entries`);
@@ -600,17 +600,18 @@ function scanButton(label) {
 /** Pick up an image the share sheet handed to the service worker. */
 async function takeSharedImage() {
   if (!("caches" in globalThis)) return null;
-  try {
-    const cache = await caches.open(SHARE_CACHE);
-    const key = url(SHARE_KEY);
-    const res = await cache.match(key);
-    if (!res) return null;
-    const blob = await res.blob();
-    await cache.delete(key);
-    return blob;
-  } catch {
-    return null;
+  const key = url(SHARE_KEY);
+  for (const name of [SHARE_CACHE, ...LEGACY_SHARE_CACHES]) {
+    try {
+      const cache = await caches.open(name);
+      const res = await cache.match(key);
+      if (!res) continue;
+      const blob = await res.blob();
+      await cache.delete(key);
+      return blob;
+    } catch { /* try the next name */ }
   }
+  return null;
 }
 
 async function reviewImage(blob) {
@@ -640,6 +641,7 @@ async function reviewImage(blob) {
     });
   } catch (err) {
     const offline = err?.message === "offline-first-run";
+    setSheetDismissible(true);
     return updateSheet((panel) => {
       add(panel,
         el("h2", { class: "sheet-title", text: offline ? "Needs one connection first" : "Could not read that image" }),
@@ -654,6 +656,7 @@ async function reviewImage(blob) {
     });
   }
 
+  setSheetDismissible(true);
   showReview(parseReceipt(text));
 }
 

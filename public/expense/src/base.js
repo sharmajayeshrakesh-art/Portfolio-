@@ -12,7 +12,7 @@
  * localhost with no configuration.
  */
 
-export const APP_NAME = "Kharcha";
+export const APP_NAME = "Tally";
 
 /** Absolute URL of the app folder, with a trailing slash. */
 export const BASE = new URL("../", import.meta.url);
@@ -23,7 +23,17 @@ export function url(path) {
 }
 
 /** Cache name holding the image handed over by the Android share sheet. */
-export const SHARE_CACHE = "kharcha-share";
+export const SHARE_CACHE = "tally-share";
+
+/**
+ * Older names for that cache.
+ *
+ * A service worker updates on its own schedule, so for a moment after a rename
+ * the new page can be live while the old worker is still the one handling the
+ * share. Checking the old names too means a screenshot shared in that window is
+ * not silently dropped.
+ */
+export const LEGACY_SHARE_CACHES = ["kharcha-share"];
 
 /** Key inside SHARE_CACHE. Must match sw.js. */
 export const SHARE_KEY = "shared-image";

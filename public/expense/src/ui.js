@@ -167,6 +167,18 @@ export function closeSheet() {
   done?.();
 }
 
+/**
+ * Re-allow scrim and Escape dismissal.
+ *
+ * A sheet is locked while something is running under it — OCR, mainly — so a
+ * stray tap cannot cancel work in flight. Once that finishes, success or
+ * failure, it has to unlock again, or the only way out is the one button the
+ * new state happens to offer.
+ */
+export function setSheetDismissible(yes) {
+  $("#sheet").dataset.dismissible = yes ? "yes" : "no";
+}
+
 export function sheetIsOpen() {
   return !$("#sheet").hidden;
 }

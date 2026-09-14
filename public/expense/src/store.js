@@ -11,7 +11,11 @@
  * why we nag when a backup gets stale.
  */
 
-const KEY = "kharcha.v1";
+const KEY = "tally.v1";
+
+// The app was called Kharcha when it only tracked money. Renaming the key
+// without this would orphan every entry already on the phone.
+const LEGACY_KEYS = ["kharcha.v1"];
 
 const EMPTY = {
   expenses: [],
@@ -24,7 +28,7 @@ let state = read();
 
 function read() {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(KEY) || migrateLegacy();
     if (!raw) return structuredClone(EMPTY);
     const parsed = JSON.parse(raw);
     return {
@@ -44,11 +48,29 @@ function read() {
   }
 }
 
+/**
+ * Copy data written under an older name into the current key.
+ *
+ * The old key is deliberately left in place rather than deleted — it costs a
+ * few kilobytes and it is the only safety net if this migration is ever wrong.
+ */
+function migrateLegacy() {
+  for (const legacy of LEGACY_KEYS) {
+    const old = localStorage.getItem(legacy);
+    if (!old) continue;
+    try {
+      localStorage.setItem(KEY, old);
+    } catch { /* quota — still return the data so this session works */ }
+    return old;
+  }
+  return null;
+}
+
 function commit() {
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
   } catch (err) {
-    console.warn("Kharcha: could not save", err);
+    console.warn("Tally: could not save", err);
   }
 }
 
@@ -258,7 +280,7 @@ export function importExpenses(rows) {
  * merchants have no CSV representation.
  */
 export function exportAll() {
-  return JSON.stringify({ kharcha: 1, exportedAt: new Date().toISOString(), ...state }, null, 2);
+  return JSON.stringify({ tally: 1, exportedAt: new Date().toISOString(), ...state }, null, 2);
 }
 
 export function importAll(json) {

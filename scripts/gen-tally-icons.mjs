@@ -1,5 +1,5 @@
 /**
- * gen-kharcha-icons.mjs — renders the Kharcha PWA icons as real PNGs.
+ * gen-tally-icons.mjs — renders the Tally PWA icons as real PNGs.
  *
  * Android only reliably offers "Add to home screen" (and, in turn, the share
  * sheet entry) when the manifest points at PNG icons, so SVG is not an option
@@ -7,11 +7,11 @@
  * this writes the PNGs directly: zlib is in Node, and a PNG is little more than
  * a header, a deflated block of scanlines, and a CRC per chunk.
  *
- * The mark is a geometric rupee — two bars, a stem, a leg — rasterised from
- * line segments by distance field, which gives rounded caps for free and stays
- * legible down to the 48px the launcher actually draws.
+ * The mark is four columns of uneven height — the home screen's own chart,
+ * reduced until it still reads at the 48px a launcher actually draws. Uneven on
+ * purpose: a clean ascending ramp would read as a signal-strength meter.
  *
- * Run: node scripts/gen-kharcha-icons.mjs
+ * Run: node scripts/gen-tally-icons.mjs
  */
 
 import zlib from "node:zlib";
@@ -72,34 +72,34 @@ function encodePNG(w, h, rgba) {
 
 /* ---------- geometry ---------- */
 
-/** Signed distance to a rounded rectangle; <= 0 is inside. */
-function sdRoundRect(px, py, w, h, r) {
-  const dx = Math.abs(px - w / 2) - (w / 2 - r);
-  const dy = Math.abs(py - h / 2) - (h / 2 - r);
-  const ax = Math.max(dx, 0);
-  const ay = Math.max(dy, 0);
-  return Math.hypot(ax, ay) + Math.min(Math.max(dx, dy), 0) - r;
+/** Signed distance to a rounded rectangle at (x, y); <= 0 is inside. */
+function sdRoundRect(px, py, x, y, w, h, r) {
+  const rr = Math.min(r, w / 2, h / 2);
+  const dx = Math.abs(px - (x + w / 2)) - (w / 2 - rr);
+  const dy = Math.abs(py - (y + h / 2)) - (h / 2 - rr);
+  return Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) + Math.min(Math.max(dx, dy), 0) - rr;
 }
 
-/** Distance from a point to a line segment. */
-function sdSegment(px, py, x1, y1, x2, y2) {
-  const vx = x2 - x1;
-  const vy = y2 - y1;
-  const wx = px - x1;
-  const wy = py - y1;
-  const len2 = vx * vx + vy * vy;
-  const t = len2 ? Math.max(0, Math.min(1, (wx * vx + wy * vy) / len2)) : 0;
-  return Math.hypot(wx - t * vx, wy - t * vy);
-}
+// Column heights as fractions of the tile, at the reference box width below.
+const COLUMNS = [0.30, 0.52, 0.40, 0.70];
+const REF_BOX = 0.66;
 
-// A rupee sign reduced to four strokes, in the unit square of the mark box.
-const STROKES = [
-  [0.08, 0.13, 0.92, 0.13], // upper bar
-  [0.08, 0.39, 0.92, 0.39], // lower bar
-  [0.31, 0.13, 0.31, 0.39], // stem joining them
-  [0.31, 0.39, 0.86, 0.95], // leg
-];
-const STROKE_W = 0.125;
+/** True where a column covers this point. `box` scales the whole group. */
+function onColumns(u, v, box) {
+  const w = box * 0.159;
+  const origin = (1 - box) / 2;
+  const step = (box - w) / (COLUMNS.length - 1);
+  const base = 0.5 + box * 0.455;
+  const scale = box / REF_BOX;
+
+  for (let i = 0; i < COLUMNS.length; i++) {
+    const top = base - COLUMNS[i] * scale;
+    // Rounded cap, square on the baseline — the same mark spec the in-app
+    // chart uses, so the icon and the screen agree.
+    if (sdRoundRect(u, v, origin + i * step, top, w, base - top, w * 0.34) <= 0) return true;
+  }
+  return false;
+}
 
 /**
  * @param {number} size      output edge length in px
@@ -109,10 +109,9 @@ const STROKE_W = 0.125;
 function render(size, fullBleed) {
   const S = size * SS;
   const radius = fullBleed ? 0 : S * 0.22;
-  const markSize = S * (fullBleed ? 0.54 : 0.62);
-  const markX = (S - markSize) / 2;
-  const markY = (S - markSize) / 2;
-  const half = (STROKE_W * markSize) / 2;
+  // Maskable icons get cropped by the launcher, so the mark pulls into the
+  // safe area rather than sitting at the edges.
+  const box = fullBleed ? 0.54 : 0.66;
 
   const out = new Uint8Array(size * size * 4);
 
@@ -128,22 +127,10 @@ function render(size, fullBleed) {
           const px = x * SS + sx + 0.5;
           const py = y * SS + sy + 0.5;
 
-          if (!fullBleed && sdRoundRect(px, py, S, S, radius) > 0) continue;
+          if (!fullBleed && sdRoundRect(px, py, 0, 0, S, S, radius) > 0) continue;
 
-          // Inside the tile: background unless a stroke covers this subpixel.
-          let onMark = false;
-          const ux = (px - markX) / markSize;
-          const uy = (py - markY) / markSize;
-          for (const [x1, y1, x2, y2] of STROKES) {
-            if (sdSegment(ux * markSize, uy * markSize,
-                          x1 * markSize, y1 * markSize,
-                          x2 * markSize, y2 * markSize) <= half) {
-              onMark = true;
-              break;
-            }
-          }
-
-          const c = onMark ? ACCENT : BG;
+          // Inside the tile: background unless a column covers this subpixel.
+          const c = onColumns(px / S, py / S, box) ? ACCENT : BG;
           r += c[0];
           g += c[1];
           b += c[2];

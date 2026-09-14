@@ -1,7 +1,7 @@
 {
-  "name": "Kharcha",
-  "short_name": "Kharcha",
-  "description": "Share a payment screenshot, tap save. A personal expense tracker that works offline and keeps everything on your phone.",
+  "name": "Tally",
+  "short_name": "Tally",
+  "description": "A daily tally of what you spent and what you trained. Works offline, keeps everything on your phone.",
   "start_url": "./",
   "scope": "./",
   "id": "./",

@@ -102,24 +102,29 @@ export function renderHome() {
 /** Wordmark and the date — the screen should know what day it is. */
 function masthead(now) {
   return el("header", { class: "masthead" },
-    el("div", { class: "wordmark" }, rupeeMark(), el("span", { text: "Kharcha" })),
+    el("div", { class: "wordmark" }, columnsMark(), el("span", { text: "Tally" })),
     el("p", { class: "masthead-date", text: now.toLocaleDateString("en-IN", {
       weekday: "long", day: "numeric", month: "long",
     }) }),
   );
 }
 
-/** The same geometric rupee as the app icon, so the two agree. */
-function rupeeMark() {
+/** The same four columns as the app icon, so the mark and the launcher agree. */
+function columnsMark() {
   const ns = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(ns, "svg");
   svg.setAttribute("viewBox", "0 0 100 100");
   svg.setAttribute("class", "wordmark-mark");
   svg.setAttribute("aria-hidden", "true");
-  for (const d of ["M8 13H92", "M8 39H92", "M31 13V39", "M31 39L86 95"]) {
-    const path = document.createElementNS(ns, "path");
-    path.setAttribute("d", d);
-    svg.appendChild(path);
+  // x, y, height — same proportions as scripts/gen-tally-icons.mjs
+  for (const [x, y, h] of [[17, 50, 30], [35.5, 28, 52], [54, 40, 40], [72.5, 10, 70]]) {
+    const rect = document.createElementNS(ns, "rect");
+    rect.setAttribute("x", x);
+    rect.setAttribute("y", y);
+    rect.setAttribute("width", 10.5);
+    rect.setAttribute("height", h);
+    rect.setAttribute("rx", 3.5);
+    svg.appendChild(rect);
   }
   return svg;
 }

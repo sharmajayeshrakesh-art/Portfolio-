@@ -11,6 +11,16 @@
  * reduced until it still reads at the 48px a launcher actually draws. Uneven on
  * purpose: a clean ascending ramp would read as a signal-strength meter.
  *
+ * The tile is WHITE, not the app's near-black, because an icon is judged on a
+ * home screen rather than next to the app it opens — and icon packs habitually
+ * sit every icon on a pale tile, which turns a dark one into a hole in the grid.
+ *
+ * That forces a darker green than the in-app accent: #4ade80 on white is 1.74:1,
+ * effectively invisible. #15803d is 5.02:1 and holds up in sunlight, which
+ * matters more here than matching the UI exactly — thin marks need contrast the
+ * way small text does. The app keeps the bright accent on its dark surfaces; a
+ * mark simply needs a different step of the same hue on a light one.
+ *
  * Run: node scripts/gen-tally-icons.mjs
  */
 
@@ -19,8 +29,8 @@ import fs from "node:fs";
 
 const OUT_DIR = new URL("../public/expense/icons/", import.meta.url);
 
-const BG = [0x10, 0x14, 0x18];     // --bg
-const ACCENT = [0x4a, 0xde, 0x80]; // --accent
+const TILE = [0xff, 0xff, 0xff];   // pale, to sit among icon-pack tiles
+const MARK = [0x15, 0x80, 0x3d];   // the accent, stepped down for a light ground
 const SS = 4;                       // supersampling factor, for clean edges
 
 /* ---------- PNG container ---------- */
@@ -171,7 +181,7 @@ function render(size, { fullBleed = false, monochrome = false } = {}) {
             continue;
           }
 
-          const c = onMark ? ACCENT : BG;
+          const c = onMark ? MARK : TILE;
           r += c[0];
           g += c[1];
           b += c[2];

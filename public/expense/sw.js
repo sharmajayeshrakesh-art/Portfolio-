@@ -12,7 +12,7 @@
  * flow.
  */
 
-const VERSION = "tally-v1";
+const VERSION = "tally-v2";
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -44,6 +44,7 @@ const SHELL = [
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/maskable-512.png",
+  "icons/monochrome-512.png",
 ].map(inScope);
 
 // The OCR engine and its language data are large and come from a CDN. Caching
@@ -111,17 +112,31 @@ async function cacheFirst(request, cacheName) {
   return res;
 }
 
-/** Serve instantly from cache, refresh in the background for the next launch. */
-async function staleWhileRevalidate(request, cacheName) {
+/**
+ * The shell is served cache-first, with no background revalidation.
+ *
+ * Revalidating every asset on every launch was costing ~150KB of network per
+ * open to confirm files that cannot have changed: the precache is pinned to
+ * VERSION, so a deploy bumps the name, install re-fetches everything with
+ * `cache: "reload"`, and activate drops the old cache. Nothing in the current
+ * cache is ever stale.
+ *
+ * On a good connection that waste is invisible. On the 2 KB/s this app is
+ * actually used on, it is the difference between opening instantly and
+ * appearing to hang. Updates still arrive: the browser byte-compares sw.js on
+ * every navigation, which is the one request worth making.
+ */
+async function shellFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   const hit = await cache.match(request);
-  const network = fetch(request)
-    .then((res) => {
-      if (res && res.ok) cache.put(request, res.clone()).catch(() => {});
-      return res;
-    })
-    .catch(() => null);
-  return hit || (await network) || new Response("", { status: 504, statusText: "Offline" });
+  if (hit) return hit;
+  try {
+    const res = await fetch(request);
+    if (res && res.ok) cache.put(request, res.clone()).catch(() => {});
+    return res;
+  } catch {
+    return new Response("", { status: 504, statusText: "Offline" });
+  }
 }
 
 self.addEventListener("fetch", (event) => {
@@ -145,15 +160,9 @@ self.addEventListener("fetch", (event) => {
   // A navigation anywhere in scope resolves to the single-page shell, so a
   // deep link or a cold launch offline still opens the app.
   if (request.mode === "navigate") {
-    event.respondWith((async () => {
-      try {
-        return await staleWhileRevalidate(new Request(inScope("index.html")), SHELL_CACHE);
-      } catch {
-        return (await caches.match(inScope("index.html"))) || new Response("", { status: 504 });
-      }
-    })());
+    event.respondWith(shellFirst(new Request(inScope("index.html")), SHELL_CACHE));
     return;
   }
 
-  event.respondWith(staleWhileRevalidate(request, SHELL_CACHE));
+  event.respondWith(shellFirst(request, SHELL_CACHE));
 });

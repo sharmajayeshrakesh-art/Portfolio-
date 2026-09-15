@@ -19,7 +19,7 @@ import {
   add, toast, openSheet, closeSheet, updateSheet, setSheetDismissible, sheetIsOpen,
 } from "./ui.js";
 
-const TABS = ["home", "history", "add", "gym", "settings"];
+const TABS = ["history", "add", "home", "gym", "settings"];
 
 const { renderGym } = initGym({ go: (tab) => go(tab), renderAll: () => renderAll() });
 const { renderHome } = initHome({

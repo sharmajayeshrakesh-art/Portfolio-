@@ -84,14 +84,23 @@ function sdRoundRect(px, py, x, y, w, h, r) {
 const COLUMNS = [0.30, 0.52, 0.40, 0.70];
 const REF_BOX = 0.66;
 
-/** True where a column covers this point. `box` scales the whole group. */
-function onColumns(u, v, box) {
+/** Geometry of the column group, in tile-unit space. */
+function layout(box, centred) {
   const w = box * 0.159;
   const origin = (1 - box) / 2;
   const step = (box - w) / (COLUMNS.length - 1);
-  const base = 0.5 + box * 0.455;
   const scale = box / REF_BOX;
+  const tallest = Math.max(...COLUMNS) * scale;
+  // A maskable icon is cropped to a circle, so the group is centred on the tile
+  // rather than sitting low — an off-centre group pushes its far corners out
+  // past the safe zone even when it looks balanced in a square.
+  const base = centred ? 0.5 + tallest / 2 : 0.5 + box * 0.455;
+  return { w, origin, step, scale, base };
+}
 
+/** True where a column covers this point. */
+function onColumns(u, v, box, centred = false) {
+  const { w, origin, step, scale, base } = layout(box, centred);
   for (let i = 0; i < COLUMNS.length; i++) {
     const top = base - COLUMNS[i] * scale;
     // Rounded cap, square on the baseline — the same mark spec the in-app
@@ -102,16 +111,39 @@ function onColumns(u, v, box) {
 }
 
 /**
+ * Furthest corner of the mark from the tile centre.
+ *
+ * A maskable icon may be cropped to a circle of 80% diameter — radius 0.4 — so
+ * anything beyond that can be shaved off by the launcher. Computed rather than
+ * eyeballed, because "it looks fine in the square" is exactly how a mark ends up
+ * clipped on someone's phone.
+ */
+function safeZoneReach(box, centred) {
+  const { w, origin, step, scale, base } = layout(box, centred);
+  let worst = 0;
+  for (let i = 0; i < COLUMNS.length; i++) {
+    const top = base - COLUMNS[i] * scale;
+    for (const x of [origin + i * step, origin + i * step + w]) {
+      for (const y of [top, base]) {
+        worst = Math.max(worst, Math.hypot(x - 0.5, y - 0.5));
+      }
+    }
+  }
+  return worst;
+}
+
+/**
  * @param {number} size      output edge length in px
  * @param {boolean} fullBleed  maskable icons fill the square; the launcher
  *                             crops them, so the mark shrinks into the safe area
  */
-function render(size, fullBleed) {
+function render(size, { fullBleed = false, monochrome = false } = {}) {
   const S = size * SS;
-  const radius = fullBleed ? 0 : S * 0.22;
-  // Maskable icons get cropped by the launcher, so the mark pulls into the
-  // safe area rather than sitting at the edges.
-  const box = fullBleed ? 0.54 : 0.66;
+  const radius = fullBleed || monochrome ? 0 : S * 0.22;
+  // Cropped shapes get the smaller, centred group; the plain icon keeps the
+  // fuller one because a rounded square shows all of it.
+  const cropped = fullBleed || monochrome;
+  const box = cropped ? 0.50 : 0.66;
 
   const out = new Uint8Array(size * size * 4);
 
@@ -127,10 +159,19 @@ function render(size, fullBleed) {
           const px = x * SS + sx + 0.5;
           const py = y * SS + sy + 0.5;
 
-          if (!fullBleed && sdRoundRect(px, py, 0, 0, S, S, radius) > 0) continue;
+          if (!cropped && sdRoundRect(px, py, 0, 0, S, S, radius) > 0) continue;
 
-          // Inside the tile: background unless a column covers this subpixel.
-          const c = onColumns(px / S, py / S, box) ? ACCENT : BG;
+          const onMark = onColumns(px / S, py / S, box, cropped);
+
+          // A monochrome icon is a silhouette: the launcher supplies both the
+          // background and the tint, so everything but the mark is transparent.
+          if (monochrome) {
+            if (!onMark) continue;
+            r += 255; g += 255; b += 255; a += 255;
+            continue;
+          }
+
+          const c = onMark ? ACCENT : BG;
           r += c[0];
           g += c[1];
           b += c[2];
@@ -154,13 +195,23 @@ function render(size, fullBleed) {
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
 const jobs = [
-  ["icon-192.png", 192, false],
-  ["icon-512.png", 512, false],
-  ["maskable-512.png", 512, true],
+  ["icon-192.png", 192, {}],
+  ["icon-512.png", 512, {}],
+  ["maskable-512.png", 512, { fullBleed: true }],
+  ["monochrome-512.png", 512, { monochrome: true }],
 ];
 
-for (const [name, size, fullBleed] of jobs) {
-  const png = render(size, fullBleed);
+for (const [name, size, opts] of jobs) {
+  const png = render(size, opts);
   fs.writeFileSync(new URL(name, OUT_DIR), png);
-  console.log(`${name.padEnd(18)} ${size}×${size}  ${(png.length / 1024).toFixed(1)} KB`);
+  console.log(`${name.padEnd(20)} ${size}×${size}  ${(png.length / 1024).toFixed(1)} KB`);
+}
+
+const SAFE_RADIUS = 0.4;
+for (const [label, box, centred] of [["plain (rounded square)", 0.66, false], ["cropped (circle mask)", 0.50, true]]) {
+  const reach = safeZoneReach(box, centred);
+  const verdict = centred
+    ? (reach <= SAFE_RADIUS ? `within the ${SAFE_RADIUS} safe radius` : `OUTSIDE the ${SAFE_RADIUS} safe radius — will be clipped`)
+    : "n/a (not cropped)";
+  console.log(`  ${label.padEnd(24)} furthest corner ${reach.toFixed(3)}  ${verdict}`);
 }

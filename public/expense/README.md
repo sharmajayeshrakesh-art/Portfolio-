@@ -157,6 +157,18 @@ Chart decisions, deliberately:
 - **Day one shows a statement, not charts.** Charts of nothing are worse than no
   charts.
 
+## Tests
+
+`node scripts/test-tally.mjs` — no dependencies, no browser. Covers the parts
+that are easy to break by accident: reading a receipt, refusing money coming in,
+the training rotation surviving a missed day, and what CSV import will accept.
+
+What that suite deliberately does **not** cover is layout, and that gap has
+already cost once: a hidden screen kept its layout box and pushed every other
+tab a full viewport down, while every content-based assertion sailed straight
+through it. Layout needs checks on **position**, and screens need looking at —
+not just the one being worked on.
+
 ## Layout
 
 ```

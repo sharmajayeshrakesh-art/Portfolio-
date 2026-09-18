@@ -37,3 +37,15 @@ export const LEGACY_SHARE_CACHES = ["kharcha-share"];
 
 /** Key inside SHARE_CACHE. Must match sw.js. */
 export const SHARE_KEY = "shared-image";
+
+/**
+ * Where the non-file half of a share is kept: the title and text Android sends
+ * alongside (or instead of) a file, plus a note of what actually arrived.
+ *
+ * Worth having for two reasons. A payment app's "share" often hands over a text
+ * summary rather than a screenshot — and that text can be read directly, which
+ * is both faster and more accurate than putting a picture of the same words
+ * through OCR. And when a share genuinely brings nothing usable, this is the
+ * difference between the app saying what turned up and the app shrugging.
+ */
+export const SHARE_TEXT_KEY = "shared-text";

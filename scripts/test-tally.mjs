@@ -85,6 +85,27 @@ for (const [name, text, reason] of [
   check(`refuses · ${name}`, got.reason === reason && !got.ok, `reason=${got.reason}`);
 }
 
+// A payment app's "share" often sends a text summary rather than a screenshot.
+// That text is better input than a picture of the same words — no OCR — but the
+// payee sits mid-sentence, where the line-start patterns never look.
+for (const [name, text, want] of [
+  ["paid … to … on", "Payment successful\nPaid ₹450 to Shree Ganesh Petro on 12 Sept 2026. UPI ID 428394857392",
+   { amount: 450, merchant: "Shree Ganesh Petro" }],
+  ["decimal before the payee", "You paid ₹328.50 to SWIGGY via UPI", { amount: 328.5, merchant: "SWIGGY" }],
+  ["sent … to … at", "Sent ₹1,240 to Amrut Kirana Stores at 3:45 pm", { amount: 1240, merchant: "Amrut Kirana Stores" }],
+  ["amount first", "₹2,450 paid to DECATHLON SPORTS INDIA for order #4821",
+   { amount: 2450, merchant: "DECATHLON SPORTS INDIA" }],
+]) {
+  const got = parseReceipt(text);
+  check(`shared text · ${name} · amount`, got.amount === want.amount, `${got.amount} != ${want.amount}`);
+  check(`shared text · ${name} · merchant`, got.merchant === want.merchant, `"${got.merchant}"`);
+}
+
+check("shared text · money received is still refused",
+  parseReceipt("₹2,000 received from Amit Sharma").reason === "incoming");
+check("shared text · a bare link yields nothing to save",
+  parseReceipt("https://pay.google.com/some/link").ok === false);
+
 /* ---------- categories ---------- */
 
 check("learned mapping beats the keyword table",

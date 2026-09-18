@@ -5,7 +5,7 @@
  * that floats over whatever is open for reviewing a shared screenshot.
  */
 
-import { APP_NAME, url, SHARE_CACHE, LEGACY_SHARE_CACHES, SHARE_KEY } from "./base.js";
+import { APP_NAME, url, SHARE_CACHE, LEGACY_SHARE_CACHES, SHARE_KEY, SHARE_TEXT_KEY } from "./base.js";
 import * as store from "./store.js";
 import { todayISO, toISODate, money } from "./store.js";
 import { CATEGORIES, guessCategory, normalizeMerchant } from "./categories.js";
@@ -597,21 +597,86 @@ function scanButton(label) {
   return el("button", { class: "btn btn-quiet", type: "button", text: label, onclick: () => pickScreenshot() });
 }
 
-/** Pick up an image the share sheet handed to the service worker. */
-async function takeSharedImage() {
-  if (!("caches" in globalThis)) return null;
-  const key = url(SHARE_KEY);
+/**
+ * Collect whatever the share sheet handed to the service worker.
+ *
+ * Returns the file if one came, the text if one came, and a note of what
+ * arrived either way — so a share that brings nothing usable can be reported
+ * precisely instead of as a shrug.
+ */
+async function takeShared() {
+  const out = { blob: null, text: "", title: "", received: null };
+  if (!("caches" in globalThis)) return out;
+
+  const imageKey = url(SHARE_KEY);
+  const textKey = url(SHARE_TEXT_KEY);
+
   for (const name of [SHARE_CACHE, ...LEGACY_SHARE_CACHES]) {
     try {
       const cache = await caches.open(name);
-      const res = await cache.match(key);
-      if (!res) continue;
-      const blob = await res.blob();
-      await cache.delete(key);
-      return blob;
+
+      if (!out.blob) {
+        const res = await cache.match(imageKey);
+        if (res) {
+          out.blob = await res.blob();
+          await cache.delete(imageKey);
+        }
+      }
+      if (!out.received) {
+        const res = await cache.match(textKey);
+        if (res) {
+          out.received = await res.json().catch(() => null);
+          await cache.delete(textKey);
+        }
+      }
     } catch { /* try the next name */ }
   }
-  return null;
+
+  out.text = out.received?.text || "";
+  out.title = out.received?.title || "";
+  return out;
+}
+
+/**
+ * A share that carried no usable file.
+ *
+ * Payment apps frequently share a text summary rather than a picture of one,
+ * and that text is better input than a screenshot — no OCR, no misread digits.
+ * So try to read it; only if that fails does this become an error, and then it
+ * says what actually turned up rather than "nothing".
+ */
+function handleSharedText({ text, title, received }) {
+  const body = [title, text].filter(Boolean).join("\n").trim();
+
+  if (body) {
+    const parsed = parseReceipt(body);
+    if (parsed.ok || parsed.reason === "incoming" || parsed.reason === "failed" || parsed.reason === "pending") {
+      openSheet(() => {}, { dismissible: true });
+      showReview(parsed);
+      return;
+    }
+  }
+
+  // Nothing readable. Say what arrived — a share that quietly fails is
+  // impossible to report and impossible to fix.
+  openSheet((panel) => {
+    add(panel,
+      el("h2", { class: "sheet-title", text: body ? "Could not read that share" : "The share sheet sent nothing" }),
+      el("p", { class: "sheet-body", text: body
+        ? "It came through as text, but there was no amount in it."
+        : "No image and no text arrived. Some apps only share a link, which has nothing in it to read." }),
+      body
+        ? el("p", { class: "sheet-quote", text: body.length > 220 ? `${body.slice(0, 220)}…` : body })
+        : null,
+      el("p", { class: "sheet-body sheet-body-muted", text:
+        "Take a screenshot of the receipt and share that instead — or enter it by hand." }),
+      el("div", { class: "sheet-actions" },
+        el("button", { class: "btn btn-primary", type: "button", text: "Enter it by hand",
+          onclick: () => { closeSheet(); go("add"); } }),
+        el("button", { class: "btn btn-quiet", type: "button", text: "Close", onclick: closeSheet }),
+      ),
+    );
+  });
 }
 
 async function reviewImage(blob) {
@@ -796,9 +861,9 @@ async function boot() {
   const params = new URLSearchParams(location.search);
   if (params.has("shared")) {
     history.replaceState(null, "", url("") + location.hash);
-    const blob = await takeSharedImage();
-    if (blob) reviewImage(blob);
-    else toast("Nothing came through from the share sheet");
+    const shared = await takeShared();
+    if (shared.blob) reviewImage(shared.blob);
+    else handleSharedText(shared);
   }
 }
 

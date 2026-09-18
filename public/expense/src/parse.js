@@ -194,6 +194,20 @@ function findMerchant(lines) {
     }
   }
 
+  // Nothing at the start of a line. A shared text summary is a sentence rather
+  // than a receipt layout — "Paid ₹450 to Shree Ganesh Petro on 12 Sept" — so
+  // the payee sits mid-line, where the patterns above never look. Stop at the
+  // word that ends the payee rather than running on into the date.
+  const inline = lines.join("\n").match(
+    // The gap allows full stops: the amount between the verb and the payee
+    // usually has a decimal point in it, which a no-periods gap cannot cross.
+    /\b(?:paid|sent|transferred|payment)\b[^\n]{0,40}?\bto\s+([^.,\n]+?)(?=\s+(?:on|at|via|using|from|through|for|against)\b|[.,\n]|$)/i,
+  );
+  if (inline) {
+    const name = cleanMerchant(inline[1]);
+    if (name.length >= 2 && !NOT_A_MERCHANT.test(name)) return { merchant: name, confident: true };
+  }
+
   // No "to" anywhere. Take the longest mostly-alphabetic line as a guess and
   // flag it, so the review card shows it as unverified rather than as fact.
   const candidates = lines

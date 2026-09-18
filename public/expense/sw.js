@@ -12,7 +12,7 @@
  * flow.
  */
 
-const VERSION = "tally-v2";
+const VERSION = "tally-v3";
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -20,6 +20,7 @@ const RUNTIME_CACHE = `${VERSION}-runtime`;
 // share sheet handed over seconds ago.
 const SHARE_CACHE = "tally-share";
 const SHARE_KEY = "shared-image";
+const SHARE_TEXT_KEY = "shared-text";
 
 const SCOPE = self.registration.scope;
 const inScope = (path) => new URL(path, SCOPE).href;
@@ -74,24 +75,45 @@ self.addEventListener("activate", (event) => {
 
 /* ---------- the share target ---------- */
 
+/** A Blob or File — checked by behaviour, because a share can arrive with an
+ *  empty or generic MIME type and still be a perfectly good screenshot. */
+const isFile = (v) => v && typeof v === "object" && typeof v.arrayBuffer === "function";
+
 async function handleShare(request) {
+  const received = { fields: [], fileType: null, title: "", text: "" };
+
   try {
     const form = await request.formData();
+    received.fields = [...form.keys()];
+    received.title = String(form.get("title") || "");
+    received.text = String(form.get("text") || "");
 
-    // "image" is the field name declared in the manifest, but some senders
-    // relabel it, so fall back to the first image-shaped part.
+    // "image" is the field name declared in the manifest. Senders relabel it,
+    // and Android hands screenshots over with a generic type often enough that
+    // filtering on image/* alone silently drops real ones — so: the declared
+    // field, else an image-typed part, else ANY file at all. The page decodes
+    // it; if it is not really an image, that is where it fails, visibly.
     let file = form.get("image");
-    if (!(file && typeof file === "object" && "type" in file)) {
-      file = [...form.values()].find((v) => v && typeof v === "object" && String(v.type || "").startsWith("image/"));
+    if (!isFile(file)) {
+      const files = [...form.values()].filter(isFile);
+      file = files.find((f) => String(f.type || "").startsWith("image/")) || files[0] || null;
     }
 
-    if (file) {
-      const cache = await caches.open(SHARE_CACHE);
+    const cache = await caches.open(SHARE_CACHE);
+
+    if (isFile(file)) {
+      received.fileType = file.type || "unknown";
       await cache.put(
         inScope(SHARE_KEY),
         new Response(file, { headers: { "Content-Type": file.type || "application/octet-stream" } }),
       );
     }
+
+    // Kept whether or not a file came too: it is the fallback the page reads,
+    // and the record of what arrived when nothing usable did.
+    await cache.put(inScope(SHARE_TEXT_KEY), new Response(JSON.stringify(received), {
+      headers: { "Content-Type": "application/json" },
+    }));
   } catch {
     // A failed hand-off should still open the app rather than show a browser
     // error page — the page copes with finding nothing waiting for it.

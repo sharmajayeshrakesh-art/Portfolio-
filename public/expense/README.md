@@ -30,6 +30,21 @@ This is the part that took the work, and the part most likely to break silently.
 3. On load the app finds `?shared=1`, reads the blob, deletes it so it cannot be
    saved twice, strips the query from the address bar, and runs OCR.
 
+**Not every share carries a screenshot.** A payment app's own Share often sends
+a text summary, and Android will hand a picture over with a generic MIME type
+under a field name nobody declared. So the worker takes the field named in the
+manifest, else an `image/*` part, else **any** file at all — and keeps the
+`title`/`text` either way.
+
+If no file arrives but text does, that text is parsed **directly**, which beats
+OCR outright: no download, no misread digits. The catch is that a summary is a
+sentence — "Paid ₹450 to Shree Ganesh Petro on 12 Sept" — so the payee sits
+mid-line, where the line-start patterns used for screenshot layouts never look.
+There is a separate inline pattern for it.
+
+If nothing readable arrives, the app quotes back what it was actually sent. A
+share that fails silently is one nobody can describe well enough to fix.
+
 It only appears in the Android share sheet once the app has been installed via
 **Add to home screen** *and* the service worker has activated. It cannot be
 tested from a desktop browser — use the **Scan a screenshot** button for that.

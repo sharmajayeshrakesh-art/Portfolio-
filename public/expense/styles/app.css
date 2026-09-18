@@ -1072,3 +1072,17 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   min-height: calc(100svh - var(--tap) - 30px - env(safe-area-inset-bottom));
 }
 #screen-home .screen-actions { margin-top: auto; }
+
+/* What the share sheet actually sent, quoted back — so a share that failed can
+   be described rather than just re-attempted. */
+.sheet-quote {
+  margin: 12px 0 0;
+  padding: 11px 13px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}

@@ -24,6 +24,20 @@ const EMPTY = {
   settings: { lastExportAt: null },
 };
 
+let rescued = false;
+let onWriteError = null;
+
+/**
+ * Called when a save fails.
+ *
+ * Worth surfacing rather than swallowing: a failed write leaves the entry
+ * looking saved on screen and gone on the next open, which is the most
+ * confusing way to lose something.
+ */
+export function onStorageError(fn) {
+  onWriteError = fn;
+}
+
 let state = read();
 
 function read() {
@@ -41,11 +55,39 @@ function read() {
         : {},
       settings: { ...EMPTY.settings, ...(parsed.settings || {}) },
     };
-  } catch {
-    // Corrupt or unreadable (private mode, quota, hand-edited) — start clean
-    // rather than leaving the app unusable.
+  } catch (err) {
+    // Unreadable data must never be quietly replaced by empty data. Starting
+    // clean is right — the app has to open — but the next save would then write
+    // {} over the only copy there is, and a damaged file is often still
+    // recoverable by hand. So park it first, under a key nothing else touches.
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) {
+        localStorage.setItem(`${KEY}.rescued.${Date.now()}`, raw);
+        rescued = true;
+      }
+    } catch { /* storage is refusing us entirely; nothing further to try */ }
+    console.warn("Tally: saved data could not be read", err);
     return structuredClone(EMPTY);
   }
+}
+
+/** True when this session started from unreadable data that had to be set
+ *  aside — the one case where the app looks empty but is not. */
+export function wasRescued() {
+  return rescued;
+}
+
+/** Rescue keys currently held, newest first. */
+export function rescuedKeys() {
+  const keys = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(`${KEY}.rescued.`)) keys.push(k);
+    }
+  } catch { /* nothing to report */ }
+  return keys.sort().reverse();
 }
 
 /**
@@ -69,8 +111,11 @@ function migrateLegacy() {
 function commit() {
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
+    return true;
   } catch (err) {
     console.warn("Tally: could not save", err);
+    onWriteError?.(err);
+    return false;
   }
 }
 

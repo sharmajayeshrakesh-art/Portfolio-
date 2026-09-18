@@ -849,11 +849,24 @@ function wireChrome() {
 }
 
 async function boot() {
+  // A save that fails is worse than a save that errors loudly: the entry looks
+  // stored until the next launch, when it is simply gone.
+  store.onStorageError(() => {
+    toast("Could not save — this phone's storage may be full", { duration: 9000 });
+  });
+
   wireChrome();
   render(currentTab());
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
     navigator.serviceWorker.register(url("sw.js"), { scope: "./" }).catch(() => {});
+  }
+
+  // Unreadable data was set aside rather than overwritten. Say so, because the
+  // app otherwise just looks empty and the copy is still there to recover.
+  if (store.wasRescued()) {
+    toast(`Saved data could not be read. It has been kept as ${store.rescuedKeys()[0]} — restore a backup.`,
+      { duration: 12000, actionLabel: "Settings", onAction: () => go("settings") });
   }
 
   // Arriving from the Android share sheet: the worker has already stashed the

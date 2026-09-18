@@ -128,6 +128,36 @@ treating them as two different lifts.
 
 ## Storage and backup
 
+### Updates never touch your data
+
+Deliberate, and verified rather than assumed:
+
+- Data lives in `localStorage`; a service worker update replaces **caches**,
+  which are a different store. `activate` deletes old cache names and nothing
+  else.
+- `id`, `scope` and `start_url` in the manifest never change, so Android keeps
+  treating each deploy as the same installed app rather than a new one.
+- The folder never moves. `localStorage` is keyed by origin, so even a move
+  would keep it — but the worker's scope and the install identity would change,
+  which is reason enough to leave the path alone.
+- Renaming the storage key requires carrying the old one forward and **leaving
+  it in place**, the way `kharcha.v1` → `tally.v1` did.
+
+Two ways data could once have vanished quietly, both now closed:
+
+- **Unreadable data is set aside, never overwritten.** `read()` used to fall
+  back to empty on a parse failure, and the next save would then write `{}` over
+  the only copy — a damaged file is often still recoverable by hand. It is now
+  copied to `tally.v1.rescued.<timestamp>` first, and the app says so instead of
+  just looking empty.
+- **A failed write is reported.** `commit()` used to swallow quota errors, so an
+  entry looked saved on screen and was gone on the next launch. It now raises a
+  message.
+
+`test-survives-update.mjs` in the scratch suite proves the whole thing: enter
+data through the UI, genuinely deploy a new worker version underneath it, and
+assert `localStorage` is byte-for-byte identical afterwards.
+
 `localStorage` under `tally.v1`. A browser can clear it without warning and
 there is no server copy, **so backup is the strategy, not a convenience.** The
 app nags if the last backup is over 30 days old.

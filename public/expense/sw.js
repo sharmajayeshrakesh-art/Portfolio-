@@ -12,7 +12,7 @@
  * flow.
  */
 
-const VERSION = "tally-v3";
+const VERSION = "tally-v4";
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -122,6 +122,18 @@ async function handleShare(request) {
   // 303 so the browser follows with a GET; a 302 would re-issue the POST.
   return Response.redirect(inScope("?shared=1"), 303);
 }
+
+/**
+ * Tell the page which version is live.
+ *
+ * "It still looks the same" is impossible to diagnose without this: the page
+ * knows what it was built from, but only the worker knows what is actually
+ * serving. Asking the worker makes the running version checkable from Settings.
+ */
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "version") return;
+  event.ports?.[0]?.postMessage({ version: VERSION });
+});
 
 /* ---------- fetching ---------- */
 

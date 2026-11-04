@@ -128,6 +128,27 @@ treating them as two different lifts.
 
 ## Storage and backup
 
+### Getting the update to land
+
+Serving the shell cache-first makes a launch cost no network, but it also means
+a deploy only arrives through the worker's own install cycle — and even then the
+page in front of you was already built from the old cache, so the new version
+does not appear until the **next** launch. On Android a "launch" that resumes
+from recents is not a navigation at all, so that next launch can quietly never
+happen and the app sits on an old build looking perfectly healthy.
+
+So the app no longer leaves that to chance:
+
+- it calls `registration.update()` on every boot rather than waiting for the
+  browser's own schedule;
+- when a newer worker activates it says so and offers a one-tap **Reload** —
+  no force-quitting;
+- a first install does **not** announce itself. `controllerchange` also fires
+  when the very first worker claims a fresh page, so the prompt is gated on
+  whether a worker was already in control when the page booted;
+- **Settings → Running version** asks the active worker what it is serving, so
+  "it still looks the same" becomes a value you can read off the screen.
+
 ### Updates never touch your data
 
 Deliberate, and verified rather than assumed:

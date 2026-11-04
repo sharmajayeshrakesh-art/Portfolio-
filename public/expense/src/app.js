@@ -5,7 +5,7 @@
  * that floats over whatever is open for reviewing a shared screenshot.
  */
 
-import { APP_NAME, url, SHARE_CACHE, LEGACY_SHARE_CACHES, SHARE_KEY, SHARE_TEXT_KEY } from "./base.js";
+import { APP_NAME, url, activeVersion, SHARE_CACHE, LEGACY_SHARE_CACHES, SHARE_KEY, SHARE_TEXT_KEY } from "./base.js";
 import * as store from "./store.js";
 import { todayISO, toISODate, money } from "./store.js";
 import { CATEGORIES, guessCategory, normalizeMerchant } from "./categories.js";
@@ -343,6 +343,11 @@ function renderSettings() {
       actionRow("Clear everything", "Cannot be undone", () => confirmClear(), true),
     ),
 
+    el("section", { class: "list" },
+      el("p", { class: "list-head", text: "Version" }),
+      versionRow(),
+    ),
+
     el("p", { class: "footnote" },
       `${APP_NAME} keeps everything on this phone. No account, no server, no network after the first load.`),
   );
@@ -352,6 +357,45 @@ function renderSettings() {
 function relativeWord(iso) {
   const label = friendlyDate(iso);
   return label === "Today" || label === "Yesterday" ? label.toLowerCase() : `on ${label}`;
+}
+
+/**
+ * Which build is actually serving, filled in once the worker answers.
+ *
+ * Here because "it still looks the same" is otherwise unanswerable — this turns
+ * it into a value that can be read off the screen and quoted.
+ */
+function versionRow() {
+  const sub = el("span", { class: "row-sub", text: "checking…" });
+
+  activeVersion().then((v) => {
+    sub.textContent = v
+      ? `${v} · tap to check for an update`
+      : "no offline copy yet · tap to check";
+  });
+
+  return el("button", { class: "row row-action", type: "button",
+    onclick: async () => {
+      const reg = await navigator.serviceWorker?.getRegistration?.();
+      if (!reg) return toast("No service worker — open this over https");
+      sub.textContent = "checking…";
+      try {
+        await reg.update();
+        const v = await activeVersion();
+        sub.textContent = v ? `${v} · up to date` : "no offline copy yet";
+        toast(reg.installing || reg.waiting ? "Update downloading…" : "Already on the latest version");
+      } catch {
+        sub.textContent = "could not check — no connection";
+        toast("Could not reach the server");
+      }
+    },
+  },
+    el("span", { class: "row-main" },
+      el("span", { class: "row-title", text: "Running version" }),
+      sub,
+    ),
+    el("span", { class: "row-chevron", "aria-hidden": "true", text: "›" }),
+  );
 }
 
 function actionRow(title, sub, onclick, danger = false) {
@@ -797,6 +841,64 @@ function listWords(items) {
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
+/* ---------- staying current ---------- */
+
+/**
+ * Register the worker, force an update check, and offer a reload when a newer
+ * version takes over.
+ *
+ * Needed because the shell is served cache-first. That makes a launch cost no
+ * network, but it also means a deploy only arrives through the worker's own
+ * install cycle — and even then the page you are looking at was already built
+ * from the old cache, so the new version does not appear until the NEXT launch.
+ * On Android a "launch" that resumes from recents is not a navigation at all,
+ * so that next launch can quietly never happen, and the app sits on an old
+ * version indefinitely looking perfectly fine.
+ *
+ * So: ask for an update explicitly rather than relying on the browser's own
+ * schedule, and when one lands, say so and offer the reload instead of
+ * expecting anyone to force-quit the app.
+ */
+function watchForUpdates() {
+  // Read BEFORE registering. A worker already in control means anything that
+  // activates from here is an update; no controller means this is a first
+  // install, and a first install taking over is not news — announcing it would
+  // nag every new user about an update they just got.
+  const hadController = Boolean(navigator.serviceWorker.controller);
+  let announced = false;
+
+  const announce = () => {
+    if (announced || !hadController) return;
+    announced = true;
+    offerReload();
+  };
+
+  // Backstop for the case this page never sees `updatefound`: the new worker
+  // may have installed during an earlier launch and be taking over now.
+  navigator.serviceWorker.addEventListener("controllerchange", announce);
+
+  navigator.serviceWorker.register(url("sw.js"), { scope: "./" }).then((reg) => {
+    reg.addEventListener("updatefound", () => {
+      const incoming = reg.installing;
+      if (!incoming) return;
+      incoming.addEventListener("statechange", () => {
+        if (incoming.state === "activated") announce();
+      });
+    });
+
+    // Ask explicitly rather than waiting for the browser to decide it is time.
+    reg.update().catch(() => {});
+  }).catch(() => {});
+}
+
+function offerReload() {
+  toast("A new version is ready", {
+    actionLabel: "Reload",
+    onAction: () => location.reload(),
+    duration: 20000,
+  });
+}
+
 /* ---------- routing ---------- */
 
 function go(tab) {
@@ -859,7 +961,7 @@ async function boot() {
   render(currentTab());
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-    navigator.serviceWorker.register(url("sw.js"), { scope: "./" }).catch(() => {});
+    watchForUpdates();
   }
 
   // Unreadable data was set aside rather than overwritten. Say so, because the

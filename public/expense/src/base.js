@@ -49,3 +49,29 @@ export const SHARE_KEY = "shared-image";
  * difference between the app saying what turned up and the app shrugging.
  */
 export const SHARE_TEXT_KEY = "shared-text";
+
+/**
+ * The version the active service worker reports, or null if none is in control.
+ *
+ * Deliberately asked of the worker rather than baked into the page: the worker
+ * is what decides which files you are actually running, so it is the only
+ * honest answer to "am I on the new one yet".
+ */
+export function activeVersion(timeoutMs = 1500) {
+  const sw = globalThis.navigator?.serviceWorker?.controller;
+  if (!sw) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const channel = new MessageChannel();
+    const timer = setTimeout(() => resolve(null), timeoutMs);
+    channel.port1.onmessage = (e) => {
+      clearTimeout(timer);
+      resolve(e.data?.version || null);
+    };
+    try {
+      sw.postMessage({ type: "version" }, [channel.port2]);
+    } catch {
+      clearTimeout(timer);
+      resolve(null);
+    }
+  });
+}

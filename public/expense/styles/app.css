@@ -1101,3 +1101,28 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
 .refunds .list-head { padding: 0; margin-top: 0; }
 .row-refund { padding-left: 0; padding-right: 0; }
 .refund-add { margin-top: 14px; }
+
+/* The text a reading came from — shown on request, so a wrong amount can be
+   explained instead of just retried. */
+.raw-wrap { margin-top: 12px; }
+
+.raw-toggle {
+  min-height: var(--tap);
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--hairline);
+  cursor: pointer;
+}
+
+.raw-text {
+  max-height: 180px;
+  margin: 0;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}

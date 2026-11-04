@@ -158,6 +158,8 @@ function findDate(text) {
 
 /* ---------- merchant ---------- */
 
+const MAX_MERCHANT = 42;
+
 // Lines that follow "To" but are plainly not a merchant name.
 const NOT_A_MERCHANT = /^(bank|account|a\/c|upi|transaction|reference|ref|from|to|paid|debited|using|via|id\b)/i;
 
@@ -167,10 +169,25 @@ function cleanMerchant(raw) {
     .replace(/[•·*]{2,}\s*\d+/g, " ")         // masked account tail: ••1234
     .replace(/\b(completed|successful|success|pending|failed)\b/gi, " ")
     .replace(/[₹₨]\s*[0-9][0-9,.]*/g, " ")     // an amount that ran onto the line
+    // OCR runs a shop's name together when it was set on two lines:
+    // "HardwareElectricals". Split only where both halves are real words, so
+    // "McDonald" and "BigBasket" survive — the lowercase run before the capital
+    // has to be at least three letters.
+    .replace(/([a-z]{3,})([A-Z][a-z]{3,})/g, "$1 $2")
     .replace(/\s+/g, " ")
     .replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9)]+$/g, "")
     .trim();
-  if (s.length > 42) s = s.slice(0, 42).trim();
+
+  // Trim to the last whole word rather than mid-syllable: a name cut to
+  // "…Plyw" looks like a bug, which is exactly what it was.
+  if (s.length > MAX_MERCHANT) {
+    const cut = s.slice(0, MAX_MERCHANT + 1);
+    const lastSpace = cut.lastIndexOf(" ");
+    s = (lastSpace > MAX_MERCHANT / 2 ? cut.slice(0, lastSpace) : cut.slice(0, MAX_MERCHANT)).trim();
+    // A name ending "… Plywood and" reads as truncated; ending "… Plywood"
+    // reads as a name.
+    s = s.replace(/\s+(?:and|&|or|the|of|for)$/i, "");
+  }
   return s;
 }
 

@@ -81,7 +81,15 @@ The parser (`src/parse.js`) then looks for:
 | Status | Explicit `Failed` / `Pending` is refused |
 
 Nothing is ever saved without confirmation, and every field the parser guessed
-at is named on the review card so you know where to look.
+at is named on the review card so you know where to look. When a field could not
+be read at all, **Show what was read** reveals the text it worked from — the
+only thing that explains a blank amount, and the only thing worth sending on
+when the answer is wrong.
+
+Merchant names get two repairs OCR makes necessary: a shop name set on two lines
+comes back run together ("HardwareElectricals"), split only where both halves are
+real words so "McDonalds" survives; and the length cap trims to the last whole
+word, because a name cut to "…Plyw" reads as a bug — which it was.
 
 ## Returns
 

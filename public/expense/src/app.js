@@ -842,7 +842,7 @@ function handleSharedText({ text, title, received }) {
     const parsed = parseReceipt(body);
     if (parsed.ok || parsed.reason === "incoming" || parsed.reason === "failed" || parsed.reason === "pending") {
       openSheet(() => {}, { dismissible: true });
-      showReview(parsed);
+      showReview(parsed, body);
       return;
     }
   }
@@ -912,10 +912,10 @@ async function reviewImage(blob) {
   }
 
   setSheetDismissible(true);
-  showReview(parseReceipt(text));
+  showReview(parseReceipt(text), text);
 }
 
-function showReview(parsed) {
+function showReview(parsed, rawText = "") {
   // Money coming in is refused outright — it is not spending, and storing it as
   // a negative would quietly corrupt every total from then on.
   if (parsed.reason === "incoming") {
@@ -968,6 +968,10 @@ function showReview(parsed) {
         ? el("p", { class: "sheet-warn", text:
             `Not sure about the ${listWords(parsed.uncertain)} — worth a look.` })
         : null,
+      // When a field could not be read, the text it was read FROM is the only
+      // thing that explains why — and the only thing worth sending me when the
+      // answer is wrong. Hidden by default; one tap when it matters.
+      parsed.uncertain.length && rawText ? rawTextDisclosure(rawText) : null,
       fieldSet(form),
       el("div", { class: "sheet-actions" },
         el("button", { class: "btn btn-primary", type: "button", text: "Save", onclick: () => {
@@ -984,6 +988,20 @@ function showReview(parsed) {
       ),
     );
   });
+}
+
+/** Reveals the text the parser actually worked from. */
+function rawTextDisclosure(rawText) {
+  const holder = el("div", { class: "raw-wrap" });
+  const show = el("button", { class: "raw-toggle", type: "button", text: "Show what was read" });
+
+  show.addEventListener("click", () => {
+    clear(holder);
+    add(holder, el("pre", { class: "sheet-quote raw-text", text: rawText.trim() }));
+  });
+
+  add(holder, show);
+  return holder;
 }
 
 function listWords(items) {

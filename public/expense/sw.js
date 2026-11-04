@@ -12,7 +12,7 @@
  * flow.
  */
 
-const VERSION = "tally-v5";
+const VERSION = "tally-v6";
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 

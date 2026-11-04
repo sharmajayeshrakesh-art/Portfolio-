@@ -167,6 +167,23 @@ check("the grid starts on a Monday", new Date(grid[0].date + "T00:00").getDay() 
 check("the grid ends today", grid[34].date === "2026-09-13" && grid[34].isToday);
 check("the skipped day is blank, not future", grid.find((c) => c.date === "2026-09-09").session === null);
 
+// A shop name set on two lines comes out of OCR run together, and a hard
+// character cut leaves it looking broken ("… Plyw").
+for (const [name, text, want] of [
+  ["words run together by OCR",
+   "Paid to Navdurga HardwareElectricals Stores\n₹1240\nCompleted",
+   "Navdurga Hardware Electricals Stores"],
+  ["a long name is cut at a word, not mid-syllable",
+   "Paid to Navdurga HardwareElectricals Plywood and Sanitary Stores\n₹1240\nCompleted",
+   "Navdurga Hardware Electricals Plywood"],
+  ["a real capital inside a name survives", "Paid to McDonalds India\n₹320\nCompleted", "McDonalds India"],
+  ["so does a compound brand", "Paid to BigBasket\n₹890\nCompleted", "BigBasket"],
+]) {
+  check(`merchant · ${name}`, parseReceipt(text).merchant === want, `"${parseReceipt(text).merchant}"`);
+}
+check("a merchant never exceeds the display cap",
+  parseReceipt("Paid to " + "Averylongword ".repeat(12) + "\n₹10\nCompleted").merchant.length <= 42);
+
 /* ---------- refunds ---------- */
 
 // A refund is a correction to a purchase, not income. Returning ₹900 of a

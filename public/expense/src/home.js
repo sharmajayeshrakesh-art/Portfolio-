@@ -32,12 +32,15 @@ const DOW_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frida
 
 let go = () => {};
 let openScan = () => {};
-let editExpense = () => {};
+// Handed in rather than reimplemented. This screen used to render its own copy
+// of an expense row, which meant a change to how a row reads — showing a return
+// netted off, say — landed on the other screens and silently not on this one.
+let entryRow = () => null;
 
 export function initHome(ctx) {
   go = ctx.go;
   openScan = ctx.openScan;
-  editExpense = ctx.editExpense;
+  entryRow = ctx.entryRow;
   return { renderHome };
 }
 
@@ -247,18 +250,7 @@ function todayEntries() {
   return el("section", { class: "list" },
     el("p", { class: "list-head" }, "Today",
       el("span", { class: "list-head-sum", text: rupees(store.total(entries)) })),
-    entries.map((e) =>
-      el("button", { class: "row row-entry", type: "button", onclick: () => editExpense(e.id) },
-        el("span", { class: "row-main" },
-          el("span", { class: "row-title", text: e.merchant || e.category }),
-          el("span", { class: "row-sub" },
-            e.category,
-            e.note ? ` · ${e.note}` : "",
-            e.source === "shared" ? el("span", { class: "tag", text: "scanned" }) : null,
-          ),
-        ),
-        el("span", { class: "row-amount", text: rupees(e.amount) }),
-      )),
+    entries.map(entryRow),
   );
 }
 
@@ -267,7 +259,7 @@ function topCategories(from, to, monthSpend) {
   if (!entries.length) return null;
 
   const byCategory = new Map();
-  for (const e of entries) byCategory.set(e.category, (byCategory.get(e.category) || 0) + e.amount);
+  for (const e of entries) byCategory.set(e.category, (byCategory.get(e.category) || 0) + store.effectiveAmount(e));
   const top = [...byCategory.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
 
   return el("section", { class: "list" },

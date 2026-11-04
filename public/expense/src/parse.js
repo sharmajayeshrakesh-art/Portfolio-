@@ -208,6 +208,18 @@ function findMerchant(lines) {
     if (name.length >= 2 && !NOT_A_MERCHANT.test(name)) return { merchant: name, confident: true };
   }
 
+  // A refund names where the money came FROM — "Refund of ₹550 from Myntra".
+  // Deliberately after every "to" pattern: on an ordinary receipt "From" is the
+  // funding account ("From HDFC Bank ••1234"), and letting that win would
+  // replace the real payee. By here, no payee was found at all.
+  const fromWho = lines.join("\n").match(
+    /\b(?:from|by)\s+([^.,\n]+?)(?=\s+(?:on|at|via|using|to|for|has|have|was|will)\b|[.,\n]|$)/i,
+  );
+  if (fromWho) {
+    const name = cleanMerchant(fromWho[1]);
+    if (name.length >= 2 && !NOT_A_MERCHANT.test(name)) return { merchant: name, confident: false };
+  }
+
   // No "to" anywhere. Take the longest mostly-alphabetic line as a guess and
   // flag it, so the review card shows it as unverified rather than as fact.
   const candidates = lines
@@ -237,13 +249,24 @@ export function parseReceipt(text) {
   const clean = String(text || "").replace(/\r/g, "");
   const lines = clean.split("\n").map((l) => l.trim()).filter(Boolean);
 
+  // Read the fields first, whatever this turns out to be. Money coming in used
+  // to discard them, which was fine while the only possible outcome was
+  // "discard" — but a refund can now be attached to the purchase it reverses,
+  // and that flow needs the amount and the merchant to do anything useful.
+  const amount = findAmount(clean, lines);
+  const date = findDate(clean);
+  const merchant = findMerchant(lines);
+
   const incoming = INCOMING.find((re) => re.test(clean));
   if (incoming) {
     return {
       ok: false,
       reason: "incoming",
-      amount: null, date: todayISO(), merchant: "",
-      status: "unknown", uncertain: [],
+      amount: amount.amount,
+      date: date.date,
+      merchant: merchant.merchant,
+      status: "unknown",
+      uncertain: [],
     };
   }
 
@@ -260,10 +283,6 @@ export function parseReceipt(text) {
       status, uncertain: [],
     };
   }
-
-  const amount = findAmount(clean, lines);
-  const date = findDate(clean);
-  const merchant = findMerchant(lines);
 
   // Anything the parser is guessing at gets named, so the review card can point
   // at the specific field rather than a vague "check this".

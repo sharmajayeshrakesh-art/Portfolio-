@@ -1086,3 +1086,18 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ---------- refunds ---------- */
+
+/* The original price, kept visible under the net so a row still matches the
+   receipt it came from. */
+.row-was {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.refunds { margin-top: 22px; }
+.refunds .list-head { padding: 0; margin-top: 0; }
+.row-refund { padding-left: 0; padding-right: 0; }
+.refund-add { margin-top: 14px; }

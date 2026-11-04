@@ -25,7 +25,7 @@ const { renderGym } = initGym({ go: (tab) => go(tab), renderAll: () => renderAll
 const { renderHome } = initHome({
   go: (tab) => go(tab),
   openScan: () => pickScreenshot(),
-  editExpense: (id) => editExpense(id),
+  entryRow: (expense) => entryRow(expense),
 });
 let historyPeriod = "month";
 
@@ -64,6 +64,7 @@ function figure(value, { size = "xl" } = {}) {
 
 function entryRow(expense) {
   let pressTimer = null;
+  const refunded = store.refundedTotal(expense);
 
   const row = el("button", {
     class: "row row-entry",
@@ -85,10 +86,16 @@ function entryRow(expense) {
       el("span", { class: "row-sub" },
         expense.category,
         expense.note ? ` · ${expense.note}` : "",
+        refunded > 0 ? ` · ${rupees(refunded)} returned` : "",
         expense.source === "shared" ? el("span", { class: "tag", text: "scanned" }) : null,
       ),
     ),
-    el("span", { class: "row-amount", text: rupees(expense.amount) }),
+    // The net is the figure that counts, so it is the one set large; the
+    // original stays visible underneath so the row still matches the receipt.
+    el("span", { class: "row-amount" },
+      rupees(store.effectiveAmount(expense)),
+      refunded > 0 ? el("span", { class: "row-was", text: rupees(expense.amount) }) : null,
+    ),
   );
   return row;
 }
@@ -119,7 +126,9 @@ function renderHistory() {
   const sum = store.total(entries);
 
   const byCategory = new Map();
-  for (const e of entries) byCategory.set(e.category, money((byCategory.get(e.category) || 0) + e.amount));
+  for (const e of entries) {
+    byCategory.set(e.category, money((byCategory.get(e.category) || 0) + store.effectiveAmount(e)));
+  }
   const breakdown = [...byCategory.entries()].sort((a, b) => b[1] - a[1]);
 
   add(screen,
@@ -524,6 +533,7 @@ function editExpense(id) {
     add(panel,
       el("h2", { class: "sheet-title", text: "Edit entry" }),
       fieldSet(form),
+      refundSection(expense),
       el("div", { class: "sheet-actions" },
         el("button", { class: "btn btn-primary", type: "button", text: "Save changes", onclick: () => {
           const value = Number(form.amount);
@@ -538,6 +548,142 @@ function editExpense(id) {
           closeSheet();
           removeExpense(id);
         } }),
+      ),
+    );
+  });
+}
+
+/**
+ * Refunds already attached to an expense, and the way to add one.
+ *
+ * Lives inside the edit sheet because a refund belongs to a purchase — finding
+ * the purchase and recording what came back are the same action.
+ */
+function refundSection(expense) {
+  const refunds = store.refundsOf(expense);
+  const back = store.refundedTotal(expense);
+  const remaining = store.remainingOf(expense);
+
+  return el("div", { class: "refunds" },
+    el("p", { class: "list-head" }, "Returned",
+      back > 0
+        ? el("span", { class: "list-head-sum", text: `${rupees(back)} of ${rupees(expense.amount)}` })
+        : el("span", { class: "list-head-sum", text: "nothing yet" })),
+
+    refunds.map((r) =>
+      el("div", { class: "row row-refund" },
+        el("span", { class: "row-main" },
+          el("span", { class: "row-title", text: rupees(r.amount) }),
+          el("span", { class: "row-sub", text: r.note ? `${friendlyDate(r.date)} · ${r.note}` : friendlyDate(r.date) }),
+        ),
+        el("button", { class: "row-remove", type: "button", text: "Remove",
+          onclick: () => {
+            store.removeRefund(expense.id, r.id);
+            closeSheet();
+            renderAll();
+            toast("Refund removed");
+          } }),
+      )),
+
+    remaining > 0
+      ? el("button", { class: "btn btn-quiet refund-add", type: "button",
+          text: refunds.length ? "Record another return" : "Record a return",
+          onclick: () => recordRefund(expense) })
+      : el("p", { class: "note", text: "Fully refunded — this purchase now counts as nothing." }),
+  );
+}
+
+/** Enter the amount that came back on a specific purchase. */
+function recordRefund(expense, prefill = null) {
+  const remaining = store.remainingOf(expense);
+  const form = {
+    amount: prefill != null ? String(Math.min(prefill, remaining)) : String(remaining),
+    date: todayISO(),
+    note: "",
+  };
+
+  openSheet((panel) => {
+    add(panel,
+      el("h2", { class: "sheet-title", text: "What came back?" }),
+      el("p", { class: "sheet-body", text:
+        `${expense.merchant || expense.category} · ${rupees(expense.amount)} spent, ${rupees(remaining)} still counted.` }),
+
+      el("div", { class: "fields" },
+        el("label", { class: "labelled" },
+          el("span", { class: "label-text", text: "Amount returned" }),
+          el("input", { class: "field field-amount", type: "number", inputmode: "decimal",
+            step: "0.01", min: "0", max: String(remaining), value: form.amount,
+            oninput: (e) => { form.amount = e.target.value; } }),
+        ),
+        el("label", { class: "labelled" },
+          el("span", { class: "label-text", text: "Date" }),
+          el("input", { class: "field", type: "date", value: form.date, max: todayISO(),
+            oninput: (e) => { form.date = e.target.value || todayISO(); } }),
+        ),
+        el("label", { class: "labelled" },
+          el("span", { class: "label-text", text: "Note" }),
+          el("input", { class: "field", type: "text", placeholder: "Which items? (optional)",
+            oninput: (e) => { form.note = e.target.value; } }),
+        ),
+      ),
+
+      el("p", { class: "note", text:
+        "This comes off the purchase rather than being logged as money in, so the category and the month both correct themselves." }),
+
+      el("div", { class: "sheet-actions" },
+        el("button", { class: "btn btn-primary", type: "button", text: "Record it", onclick: () => {
+          const value = Number(form.amount);
+          if (!Number.isFinite(value) || value <= 0) return toast("Enter an amount");
+          const saved = store.addRefund(expense.id, { amount: value, date: form.date, note: form.note });
+          if (!saved) return toast("That is more than is left on this purchase");
+          closeSheet();
+          renderAll();
+          toast(`${rupees(saved.amount)} off ${expense.merchant || expense.category}`);
+        } }),
+        el("button", { class: "btn btn-quiet", type: "button", text: "Cancel", onclick: closeSheet }),
+      ),
+    );
+  });
+}
+
+/**
+ * Pick the purchase a refund belongs to.
+ *
+ * Offered straight from the share sheet's refusal screen: that is the moment
+ * the app already has a refund in hand, and until now it was a dead end.
+ * Same-merchant purchases are listed first, because that is nearly always the
+ * answer.
+ */
+function attachRefund(parsed) {
+  const key = normalizeMerchant(parsed.merchant || "");
+  const candidates = store.refundable()
+    .map((e) => ({ e, same: key && normalizeMerchant(e.merchant) === key }))
+    .sort((a, b) => (b.same - a.same) || (a.e.date < b.e.date ? 1 : -1))
+    .slice(0, 12);
+
+  openSheet((panel) => {
+    add(panel,
+      el("h2", { class: "sheet-title", text: "Which purchase was this?" }),
+      el("p", { class: "sheet-body", text: parsed.amount
+        ? `${rupees(parsed.amount)} came back. Pick what it was refunded against — it comes off that purchase.`
+        : "Pick the purchase this was refunded against." }),
+
+      candidates.length
+        ? el("div", { class: "list list-flush" }, candidates.map(({ e, same }) =>
+            el("button", { class: "row row-action", type: "button",
+              onclick: () => recordRefund(e, parsed.amount ?? null) },
+              el("span", { class: "row-main" },
+                el("span", { class: "row-title", text: e.merchant || e.category }),
+                el("span", { class: "row-sub", text:
+                  `${friendlyDate(e.date)} · ${e.category}${same ? " · same merchant" : ""}` }),
+              ),
+              el("span", { class: "row-amount", text: rupees(store.remainingOf(e)) }),
+            )))
+        : el("p", { class: "note", text:
+            "No purchase here to refund against. If you bought it before using the app, add the purchase first and then record the return." }),
+
+      el("div", { class: "sheet-actions" },
+        el("button", { class: "btn btn-quiet", type: "button", text: "Cancel", onclick: closeSheet }),
       ),
     );
   });
@@ -777,12 +923,16 @@ function showReview(parsed) {
       add(panel,
         el("h2", { class: "sheet-title", text: "That looks like money coming in" }),
         el("p", { class: "sheet-body", text:
-          `${APP_NAME} only tracks spending, so refunds, cashback and payments received are not saved.` }),
+          `${APP_NAME} records no income. A refund is different — it is money off something you already bought, so it can come off that purchase instead.` }),
         el("div", { class: "sheet-actions" },
-          el("button", { class: "btn btn-primary", type: "button", text: "Discard", onclick: closeSheet }),
-          // Escape hatch: a cashback strip on an ordinary payment receipt trips
-          // the same words, and dead-ending a real expense would be worse.
-          el("button", { class: "btn btn-quiet", type: "button", text: "It was a payment — enter it", onclick: () => { closeSheet(); go("add"); } }),
+          // A refund IS money coming in, but it is not income — it is a
+          // correction to something already bought. So the primary action is to
+          // find that purchase rather than to throw this away.
+          el("button", { class: "btn btn-primary", type: "button", text: "It was a refund — find the purchase",
+            onclick: () => attachRefund(parsed) }),
+          el("button", { class: "btn btn-quiet", type: "button", text: "It was a payment — enter it",
+            onclick: () => { closeSheet(); go("add"); } }),
+          el("button", { class: "btn btn-quiet", type: "button", text: "Discard", onclick: closeSheet }),
         ),
       );
     });

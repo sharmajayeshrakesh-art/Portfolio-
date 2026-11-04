@@ -25,6 +25,7 @@ const { guessCategory, CATEGORIES } = await import(new URL("categories.js", SRC)
 const { CYCLE, SESSIONS, plannedSets } = await import(new URL("plan.js", SRC));
 const gym = await import(new URL("gym.js", SRC));
 const { toCSV, parseCSV } = await import(new URL("csv.js", SRC));
+const store = await import(new URL("store.js", SRC));
 
 let pass = 0;
 const failures = [];
@@ -166,12 +167,77 @@ check("the grid starts on a Monday", new Date(grid[0].date + "T00:00").getDay() 
 check("the grid ends today", grid[34].date === "2026-09-13" && grid[34].isToday);
 check("the skipped day is blank, not future", grid.find((c) => c.date === "2026-09-09").session === null);
 
+/* ---------- refunds ---------- */
+
+// A refund is a correction to a purchase, not income. Returning ₹900 of a
+// ₹2,450 order means the order cost ₹1,550 — it does not mean ₹900 arrived.
+{
+  const order = store.addExpense({ amount: 2450, merchant: "Myntra", category: "Shopping", date: "2026-09-10" });
+
+  check("a purchase with no returns counts in full", store.effectiveAmount(order) === 2450);
+
+  store.addRefund(order.id, { amount: 900, date: "2026-09-18", note: "two shirts" });
+  check("a part-return comes off the purchase", store.effectiveAmount(order) === 1550,
+    String(store.effectiveAmount(order)));
+  check("and what came back is recorded", store.refundedTotal(order) === 900);
+  check("the original price is untouched", store.getExpense(order.id).amount === 2450);
+
+  store.addRefund(order.id, { amount: 550, date: "2026-09-19" });
+  check("returns accumulate", store.effectiveAmount(order) === 1000, String(store.effectiveAmount(order)));
+
+  // The invariant the whole design rests on: an expense can never go negative,
+  // because a negative expense is income and this app records none.
+  const over = store.addRefund(order.id, { amount: 99999 });
+  check("a return is capped at what is left", store.effectiveAmount(order) === 0,
+    String(store.effectiveAmount(order)));
+  check("the cap is applied to the stored value, not just displayed", over.amount === 1000,
+    String(over?.amount));
+  check("nothing further can be returned", store.addRefund(order.id, { amount: 10 }) === null);
+  check("a fully returned purchase is no longer refundable",
+    !store.refundable().some((e) => e.id === order.id));
+
+  check("totals net off refunds", store.total([store.getExpense(order.id)]) === 0);
+
+  // removing a refund puts the money back on the purchase
+  const refunds = store.refundsOf(store.getExpense(order.id));
+  store.removeRefund(order.id, refunds[refunds.length - 1].id);
+  check("removing a return restores that much", store.effectiveAmount(order) > 0);
+
+  store.deleteExpense(order.id);
+}
+
+{
+  // mixed list: one clean purchase, one partly returned
+  const a = store.addExpense({ amount: 1000, merchant: "A", category: "Shopping", date: "2026-09-10" });
+  const b = store.addExpense({ amount: 500, merchant: "B", category: "Shopping", date: "2026-09-11" });
+  store.addRefund(b.id, { amount: 200 });
+  check("a mixed list totals net", store.total([store.getExpense(a.id), store.getExpense(b.id)]) === 1300,
+    String(store.total([store.getExpense(a.id), store.getExpense(b.id)])));
+  store.deleteExpense(a.id);
+  store.deleteExpense(b.id);
+}
+
 /* ---------- CSV ---------- */
 
 const expenses = [
   { id: "1", date: "2026-09-12", amount: 420, merchant: "Shree Ganesh Petro", category: "Fuel", note: "", source: "shared" },
   { id: "2", date: "2026-09-13", amount: 328.5, merchant: 'Cafe "The Brew", Pune', category: "Eating", note: "lunch", source: "manual" },
 ];
+// an export that carried only the amount would hand a spreadsheet totals this
+// app knows to be wrong
+const withRefund = [{ id: "r1", date: "2026-09-10", amount: 2450, merchant: "Myntra",
+  category: "Shopping", note: "", source: "manual",
+  refunds: [{ id: "x", amount: 900, date: "2026-09-18", note: "" }] }];
+const refundCsv = toCSV(withRefund);
+check("csv header carries amount, refunded and net",
+  refundCsv.split("\n")[0].startsWith("date,amount,refunded,net,"), refundCsv.split("\n")[0]);
+check("csv states the net", refundCsv.split("\n")[1].includes("2450.00,900.00,1550.00"),
+  refundCsv.split("\n")[1]);
+const refundBack = parseCSV(refundCsv);
+check("re-importing keeps the return attached rather than flattening it",
+  refundBack.rows[0].amount === 2450 && refundBack.rows[0].refunds?.[0]?.amount === 900,
+  JSON.stringify(refundBack.rows[0]));
+
 const round = parseCSV(toCSV(expenses));
 check("csv round-trips both rows", round.rows.length === 2, JSON.stringify(round));
 check("csv preserves a quoted comma",

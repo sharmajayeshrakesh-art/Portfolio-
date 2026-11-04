@@ -14,9 +14,14 @@ Live at `/Portfolio-/expense/`.
 No backend, no accounts, no API keys, no network calls after the first load.
 The OCR runs on the phone. Nothing about a payment leaves the device.
 
-It tracks **spending only**. A screenshot that looks like a refund, cashback or
-money received is refused rather than stored as a negative — a credit filed as
+It records **no income**. A screenshot of a salary, a friend repaying you or a
+cashback credit is refused rather than stored as a negative — a credit filed as
 an expense is a number nobody would ever notice was wrong.
+
+**A refund is not income**, though, and the first version of this rule got that
+wrong. Returning ₹900 of a ₹2,450 order does not mean ₹900 arrived from nowhere;
+it means the order cost ₹1,550, and counting the full ₹2,450 forever overstates
+your spending. See *Returns* below.
 
 ## The share target
 
@@ -77,6 +82,38 @@ The parser (`src/parse.js`) then looks for:
 
 Nothing is ever saved without confirmation, and every field the parser guessed
 at is named on the review card so you know where to look.
+
+## Returns
+
+A refund attaches to the purchase it reverses, as `refunds: [{id, amount, date,
+note}]` on the expense — never as a standalone negative entry. That one choice
+keeps three things true without any further work:
+
+- the app still has no concept of income, so no total can go negative;
+- the money comes off the **right category** without anyone picking one — a
+  clothes refund reduces Shopping because that is where the purchase was;
+- a part-return is just a smaller number, and several returns against one order
+  simply accumulate.
+
+`effectiveAmount()` is what every total uses, so netting off happens once and
+every screen is correct at the same moment. The original price is never
+overwritten — a row shows the net large with the amount paid struck through
+beneath, so it still matches the receipt it came from.
+
+A return is capped at what is left on its purchase. Refunding more than was
+spent would push the expense negative, which is income by another name.
+
+Two ways in: **Edit an expense → Record a return**, or straight from the share
+sheet. The refusal screen for money coming in used to be a dead end; its primary
+action is now *It was a refund — find the purchase*, which lists refundable
+expenses with the same merchant first. That also meant the parser had to stop
+discarding the amount and merchant when it detects incoming money — it had no
+use for them while the only outcome was "discard", and now it does. A refund
+names its source with `from` rather than `to`, matched only after every `to`
+pattern has failed, because on an ordinary receipt `From` is the funding account.
+
+CSV export carries `amount`, `refunded` and `net`; exporting only the amount
+would hand a spreadsheet totals this app knows to be wrong.
 
 ## Categories
 

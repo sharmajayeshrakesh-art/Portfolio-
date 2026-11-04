@@ -159,9 +159,79 @@ function sort() {
     a.date === b.date ? (b.createdAt || 0) - (a.createdAt || 0) : (a.date < b.date ? 1 : -1));
 }
 
-/** Total for a list of expenses, rounded once at the end. */
+/* ---------- refunds ---------- */
+
+/**
+ * A refund is not income — it is a correction to a purchase already made.
+ *
+ * That distinction is the whole design. Returning ₹900 of a ₹2,450 order does
+ * not mean ₹900 arrived from nowhere; it means the order cost ₹1,550. So a
+ * refund is stored ON the expense it reverses rather than as a standalone
+ * negative entry, which keeps three things true for free: the app still has no
+ * concept of income, the money comes off the right category without anyone
+ * choosing one, and a part-return is just a smaller number.
+ *
+ * Old entries have no `refunds` key at all, so every reader goes through these
+ * rather than touching the field.
+ */
+export function refundsOf(expense) {
+  return Array.isArray(expense?.refunds) ? expense.refunds : [];
+}
+
+export function refundedTotal(expense) {
+  return money(refundsOf(expense).reduce((n, r) => n + Number(r.amount || 0), 0));
+}
+
+/** What the purchase actually cost, after anything sent back. */
+export function effectiveAmount(expense) {
+  return money(Number(expense?.amount || 0) - refundedTotal(expense));
+}
+
+/** What is still refundable on this expense. */
+export function remainingOf(expense) {
+  return effectiveAmount(expense);
+}
+
+/**
+ * Attach a refund to an expense.
+ *
+ * Capped at what is left on that expense: refunding more than was spent would
+ * push it negative, which is income by another name and exactly what this app
+ * refuses to record.
+ */
+export function addRefund(expenseId, { amount, date, note = "" }) {
+  const e = getExpense(expenseId);
+  if (!e) return null;
+
+  const value = Math.min(money(amount), remainingOf(e));
+  if (!(value > 0)) return null;
+
+  if (!Array.isArray(e.refunds)) e.refunds = [];
+  const entry = { id: newId(), amount: value, date: date || todayISO(), note: String(note).trim() };
+  e.refunds.push(entry);
+  e.refunds.sort((a, b) => (a.date < b.date ? 1 : -1));
+  commit();
+  return entry;
+}
+
+export function removeRefund(expenseId, refundId) {
+  const e = getExpense(expenseId);
+  if (!e || !Array.isArray(e.refunds)) return null;
+  const i = e.refunds.findIndex((r) => r.id === refundId);
+  if (i === -1) return null;
+  const [removed] = e.refunds.splice(i, 1);
+  commit();
+  return removed;
+}
+
+/** Expenses that still have something refundable, newest first. */
+export function refundable() {
+  return state.expenses.filter((e) => remainingOf(e) > 0);
+}
+
+/** Total for a list of expenses, net of refunds, rounded once at the end. */
 export function total(expenses) {
-  return money(expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0));
+  return money(expenses.reduce((sum, e) => sum + effectiveAmount(e), 0));
 }
 
 export function inRange(from, to) {
@@ -311,6 +381,7 @@ export function importExpenses(rows) {
       note: String(row.note || "").trim(),
       source: "imported",
       createdAt: Date.now(),
+      ...(Array.isArray(row.refunds) && row.refunds.length ? { refunds: row.refunds } : {}),
     });
     added++;
   }

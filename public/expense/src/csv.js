@@ -8,7 +8,13 @@
  * file nobody can do anything with.
  */
 
-const COLUMNS = ["date", "amount", "merchant", "category", "note", "source", "id"];
+// "amount" is what was paid and "refunded" is what came back, so "net" is the
+// figure that actually counts. Exporting only the amount would hand a
+// spreadsheet totals this app knows to be wrong.
+const COLUMNS = ["date", "amount", "refunded", "net", "merchant", "category", "note", "source", "id"];
+
+const refundedOf = (e) => (Array.isArray(e.refunds) ? e.refunds : [])
+  .reduce((n, r) => n + Number(r.amount || 0), 0);
 
 function escapeCell(value) {
   const s = String(value ?? "");
@@ -20,7 +26,13 @@ export function toCSV(expenses) {
   // Oldest first: a backup reads like a ledger, and spreadsheets open it that way.
   const ordered = [...expenses].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   for (const e of ordered) {
-    rows.push(COLUMNS.map((c) => escapeCell(c === "amount" ? Number(e.amount).toFixed(2) : e[c])).join(","));
+    const refunded = refundedOf(e);
+    rows.push(COLUMNS.map((c) => {
+      if (c === "amount") return escapeCell(Number(e.amount).toFixed(2));
+      if (c === "refunded") return escapeCell(refunded.toFixed(2));
+      if (c === "net") return escapeCell((Math.round((e.amount - refunded) * 100) / 100).toFixed(2));
+      return escapeCell(e[c]);
+    }).join(","));
   }
   return rows.join("\n");
 }
@@ -111,6 +123,7 @@ export function parseCSV(text) {
   const idx = {
     date: at(["date", "transaction date", "txn date", "value date"]),
     amount: at(["amount", "debit", "withdrawal", "amount (inr)", "spent"]),
+    refunded: at(["refunded"]),
     merchant: at(["merchant", "description", "narration", "particulars", "payee", "to"]),
     category: at(["category", "type"]),
     note: at(["note", "notes", "remark", "remarks"]),
@@ -137,10 +150,17 @@ export function parseCSV(text) {
     // are not this app's business.
     if (!date || !Number.isFinite(amount) || amount <= 0) { skipped++; continue; }
 
+    // Re-importing our own export: keep the return attached rather than
+    // flattening it into a smaller purchase that never happened.
+    const refunded = Number(get(idx.refunded).replace(/[₹₨,\s]/g, "")) || 0;
+
     rows.push({
       id: get(idx.id) || null,
       date,
       amount,
+      refunds: refunded > 0
+        ? [{ id: `${get(idx.id) || date}-r`, amount: Math.min(refunded, amount), date, note: "imported" }]
+        : undefined,
       merchant: get(idx.merchant),
       category: get(idx.category) || null,
       note: get(idx.note),

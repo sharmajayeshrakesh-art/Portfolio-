@@ -189,3 +189,42 @@ export function updateSheet(build) {
   clear(panel);
   build(panel);
 }
+
+/**
+ * Count a figure up to its value when its screen is entered.
+ *
+ * The element is built already holding the final, correctly formatted text;
+ * this reads the target from data-count, animates, then writes that text back.
+ * So the animation is strictly additive: if motion is off, the number is
+ * unreadable, or anything throws, the figure just shows the right value.
+ *
+ * Eased out to the fourth power over ~460ms, so most of the count is over
+ * almost immediately and it settles rather than ticking. A linear count reads
+ * as a progress indicator, which is the opposite of the intent.
+ */
+export function countUp(root) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  for (const node of $$("[data-count]", root)) {
+    const target = Number(node.dataset.count);
+    if (!Number.isFinite(target) || target <= 0) continue;
+
+    const final = node.textContent;
+    const started = performance.now();
+
+    const step = (now) => {
+      // Every render replaces these nodes. Without this check the loop keeps
+      // animating an orphan and fights whatever rendered next.
+      if (!node.isConnected) return;
+
+      const t = Math.min(1, (now - started) / 460);
+      if (t >= 1) { node.textContent = final; return; }
+
+      node.textContent = amount(Math.round(target * (1 - Math.pow(1 - t, 4))));
+      requestAnimationFrame(step);
+    };
+
+    node.textContent = amount(0);
+    requestAnimationFrame(step);
+  }
+}

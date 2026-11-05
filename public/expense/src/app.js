@@ -16,7 +16,7 @@ import { initGym } from "./gymscreen.js";
 import { initHome } from "./home.js";
 import {
   $, $$, el, svg, clear, amount, rupees, friendlyDate, shortDate, fromISO,
-  add, toast, openSheet, closeSheet, updateSheet, setSheetDismissible, sheetIsOpen,
+  add, toast, openSheet, closeSheet, updateSheet, setSheetDismissible, sheetIsOpen, countUp,
 } from "./ui.js";
 
 const TABS = ["history", "add", "home", "gym", "settings"];
@@ -64,7 +64,7 @@ function rangeFor(period, now = new Date()) {
 function figure(value, { size = "xl" } = {}) {
   return el("div", { class: `figure figure-${size}` },
     el("span", { class: "figure-sym", text: "₹" }),
-    el("span", { class: "figure-val", text: amount(value) }),
+    el("span", { class: "figure-val", text: amount(value), dataset: { count: value } }),
   );
 }
 
@@ -1137,6 +1137,10 @@ function currentTab() {
   return TABS.includes(tab) ? tab : "home";
 }
 
+/** The tab the previous render drew, so a re-render in place can be told apart
+ *  from a navigation. */
+let lastRenderedTab = null;
+
 function render(tab) {
   // Leaving History drops the filter. Coming back to a screen still narrowed
   // from minutes ago, with no memory of having narrowed it, reads as lost data.
@@ -1149,6 +1153,26 @@ function render(tab) {
   else renderSettings();
 
   $$(".screen").forEach((s) => { s.hidden = s.id !== `screen-${tab}`; });
+
+  // Play the entrance only on a real navigation. renderAll() re-renders a
+  // screen in place after every data change — logging a set, editing an
+  // amount — and animating those would turn each tap into a full-screen
+  // shimmy. The class comes off once the cascade finishes, so it can run again
+  // the next time the tab is genuinely entered.
+  if (tab !== lastRenderedTab) {
+    const screen = $(`#screen-${tab}`);
+    if (screen) {
+      countUp(screen);
+      screen.classList.add("is-entering");
+      screen.addEventListener(
+        "animationend",
+        () => screen.classList.toggle("is-entering", false),
+        { once: true },
+      );
+    }
+    lastRenderedTab = tab;
+  }
+
   $$(".tab").forEach((t) => {
     const active = t.dataset.tab === tab;
     t.classList.toggle("is-active", active);

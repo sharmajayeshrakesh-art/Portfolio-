@@ -142,7 +142,11 @@ function hero(monthSpend, days) {
     el("p", { class: "eyebrow", text: "Spent this month" }),
     el("div", { class: "figure figure-hero" },
       el("span", { class: "figure-sym", text: "₹" }),
-      el("span", { class: "figure-val", text: amount(Math.round(monthSpend)) }),
+      el("span", {
+        class: "figure-val",
+        text: amount(Math.round(monthSpend)),
+        dataset: { count: Math.round(monthSpend) },
+      }),
     ),
     // Summary figures round to whole rupees; the paise live in the lists, where
     // they are the actual record rather than a headline.
@@ -180,7 +184,7 @@ function weekChart(days) {
     caption.classList.add("is-active");
   };
 
-  const columns = days.map((d) => {
+  const columns = days.map((d, i) => {
     // Zero-height marks read as "a tiny amount"; absence is the honest encoding.
     // Capped at 86% so the direct label has room above the tallest column.
     const height = peak > 0 && d.spend > 0 ? Math.max(3, Math.round((d.spend / peak) * 86)) : 0;
@@ -193,7 +197,9 @@ function weekChart(days) {
     },
       el("span", { class: "col-plot" },
         height
-          ? el("span", { class: "col-bar", style: `height:${height}%` },
+          // --col drives the entrance stagger, so the week grows left to right
+          // rather than all at once.
+          ? el("span", { class: "col-bar", style: `height:${height}%; --col:${i}` },
               // Rides the cap, so it reads as this column's value rather than
               // floating free at the top of the plot.
               d.isToday && d.spend

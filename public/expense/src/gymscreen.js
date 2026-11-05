@@ -73,7 +73,14 @@ function nextUpCard(s, todaySession) {
   const lastLine = todaySession
     ? `Logged today · ${setsDone(todaySession)} of ${plannedSets(slot)} sets`
     : s.lastSession
-      ? `Last trained ${friendlyDate(s.lastSession.date).toLowerCase()} · ${sessionDef(s.lastSession.slot)?.name}`
+      // A slot this build does not recognise — from an import, or a session
+      // logged before the plan changed — must degrade to the date alone. The
+      // optional chain stops the crash; without the fallback it still prints
+      // the word "undefined" onto the card.
+      ? [
+          `Last trained ${friendlyDate(s.lastSession.date).toLowerCase()}`,
+          sessionDef(s.lastSession.slot)?.name,
+        ].filter(Boolean).join(" · ")
       : "Nothing logged yet — this is session one";
 
   // Once today is logged the card shows what was done, so say what comes next

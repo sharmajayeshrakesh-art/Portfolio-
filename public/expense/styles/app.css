@@ -10,17 +10,52 @@
  */
 
 :root {
-  --bg: #101418;
-  --surface: #181d23;
+  /* Ground. Not flat #000: a cool near-black with a blue cast, so the accent
+     reads as warm against it and the grain has something to sit on. */
+  --bg: #0b0e13;
+  --bg-high: #10151c;
+
+  /* Three surface steps instead of one. Depth on a dark ground comes from
+     stacking near-identical greys, not from shadows — shadows are invisible
+     here, and anything strong enough to see looks like dirt. */
+  --surface: #151b23;
+  --surface-2: #1b222c;
+  --surface-3: #222b36;
+
   --text: #f2f4f6;
-  --muted: #7c8896;
-  --accent: #4ade80;
+  --muted: #7f8b99;
+  --faint: #55606d;
+
+  /* Pulled back from the old neon #4ade80. At full saturation a green this
+     bright vibrates against a dark ground and cheapens everything near it. */
+  --accent: #46d98a;
+  --accent-soft: #46d98a26;
+  --accent-ink: #04140c;
   --danger: #f2635f;
-  --hairline: #242b33;
+
+  --hairline: #232c37;
+  --hairline-soft: #1a212a;
+
+  /* Light falls from above, so every raised edge gets this along its top. One
+     light source, applied consistently, is most of what reads as "physical". */
+  --sheen: linear-gradient(180deg, #ffffff14, #ffffff00 42%);
+
+  /* Tinted, never pure black — a black shadow on a blue-black ground is a
+     grey smear. */
+  --shadow-1: 0 1px 2px #00000040, 0 4px 14px -6px #000a0680;
+  --shadow-2: 0 2px 6px #00000047, 0 18px 40px -16px #000a0699;
 
   --tap: 44px;
   --gutter: 20px;
   --radius: 10px;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+
+  /* Easing. Spring overshoots slightly, which is what makes a tap feel like it
+     hit something; glide is for anything travelling a long distance. */
+  --ease-spring: cubic-bezier(0.34, 1.42, 0.64, 1);
+  --ease-glide: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* No webfont is fetched at runtime — an expense tracker should not wait on a
      CDN to render a number. The system stack on Android is Roboto, which has
@@ -35,6 +70,47 @@ html, body {
   background: var(--bg);
   color: var(--text);
 }
+
+/**
+ * The ground.
+ *
+ * Two very low-opacity radial washes and a grain layer, fixed behind
+ * everything. This is the whole reason the app stops looking like a list on a
+ * flat rectangle, and it costs one painted layer that never repaints: both
+ * elements are position:fixed with pointer-events:none, so scrolling does not
+ * touch them.
+ *
+ * The grain is an inline SVG turbulence rather than a PNG. It is about 300
+ * bytes, needs no second request, and resolution-independently breaks up the
+ * banding that large dark gradients show on cheap OLED panels.
+ */
+.ground,
+.ground::after {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ground {
+  z-index: 0;
+  background:
+    radial-gradient(90% 60% at 12% -8%, #46d98a1f, transparent 60%),
+    radial-gradient(70% 50% at 108% 8%, #3f7fd11a, transparent 62%),
+    radial-gradient(120% 70% at 50% 108%, #0b0e1300, #0b0e13 70%);
+}
+
+.ground::after {
+  content: "";
+  /* No mix-blend-mode on purpose. The ground already sits behind every
+     screen, so blending changes almost nothing visually, and a full-viewport
+     blend is re-composited on every frame — which is exactly the kind of cost
+     this phone cannot afford. Plain opacity is free. */
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+}
+
+/* Everything the app draws sits above the ground. */
+#screens, .tabbar, .sheet, .toast { position: relative; z-index: 1; }
 
 body {
   font-family: var(--font);
@@ -1145,3 +1221,320 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
 .row-back { color: var(--accent); }
 .row-back .row-title { color: var(--accent); font-size: 15px; }
 .row-chevron-back { margin-right: -4px; font-size: 20px; }
+
+/* ==========================================================================
+   Design system — surfaces, depth, motion
+   ==========================================================================
+   The rule for every effect below: transform and opacity only, one light
+   source from above, and nothing that repaints on scroll. This runs on a
+   mid-range Android over a very slow connection, so "premium" has to be
+   bought with CSS that the compositor can hand straight to the GPU — not
+   with a library, a webfont, or a canvas.
+   ========================================================================== */
+
+/* ---------- raised surfaces ---------- */
+
+/* One treatment, applied to everything that should read as lifted off the
+   ground: a hairline, a top sheen, and a tinted shadow. */
+.nextup,
+.panel,
+.sheet-panel,
+.nudge,
+.segmented {
+  background-image: var(--sheen);
+  background-repeat: no-repeat;
+}
+
+.nextup,
+.panel {
+  background-color: var(--surface);
+  border-color: var(--hairline);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-1);
+}
+
+.nudge {
+  background-color: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+.sheet-panel {
+  background-color: var(--surface);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: var(--shadow-2);
+}
+
+/* ---------- the hero figure ---------- */
+
+/* The number is the content, so it gets the one genuinely expensive-looking
+   treatment in the app: a vertical gradient fill that fades the baseline
+   slightly, which stops a 52px light weight from looking washed out. */
+.figure-hero .figure-val,
+.figure-xl .figure-val {
+  font-weight: 200;
+  letter-spacing: -0.035em;
+  background: linear-gradient(176deg, #ffffff 18%, #c9d4e0 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.figure-sym { color: var(--faint); font-weight: 300; }
+
+/* ---------- controls ---------- */
+
+.segmented {
+  background-color: var(--surface);
+  border: 1px solid var(--hairline-soft);
+  border-radius: 12px;
+}
+
+.seg {
+  transition: color 180ms ease;
+}
+
+/* The active segment is a raised chip rather than a hole punched in the
+   track — lit from above like every other raised thing here. */
+.seg.is-active {
+  background: var(--surface-3);
+  background-image: var(--sheen);
+  box-shadow: var(--shadow-1);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.chip {
+  transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
+}
+.chip.is-active {
+  background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.field {
+  background-color: var(--surface);
+  border-color: var(--hairline-soft);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+.field:focus {
+  background-color: var(--surface-2);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  position: relative;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: transform 160ms var(--ease-spring), filter 160ms ease, background-color 160ms ease;
+}
+
+/* A press that moves is a press you felt. 0.975 is enough to register on a
+   phone and small enough not to look like a bounce. */
+.btn:active { transform: scale(0.975); }
+
+.btn-primary {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, #fff), var(--accent));
+  color: var(--accent-ink);
+  box-shadow: 0 1px 0 #ffffff33 inset, 0 8px 20px -14px var(--accent);
+}
+.btn-primary:active { filter: brightness(0.95); }
+
+.btn-quiet {
+  background: var(--surface);
+  background-image: var(--sheen);
+  border-color: var(--hairline);
+  color: var(--text);
+}
+.btn-quiet:active { background-color: var(--surface-2); }
+
+/* ---------- rows ---------- */
+
+.row-entry, .row-action {
+  transition: background-color 140ms ease, transform 140ms var(--ease-spring);
+}
+.row-entry:active, .row-action:active {
+  background: var(--surface);
+  transform: scale(0.992);
+}
+
+/* The share-of-total bar picks up the light from the same direction. */
+.bar { background: var(--hairline-soft); height: 3px; border-radius: 2px; }
+.bar-fill {
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--accent) 70%, transparent), var(--accent));
+  opacity: 1;
+  border-radius: 2px;
+}
+
+/* ---------- tab bar ---------- */
+
+/* Glass, done properly: a translucent ground, a real blur, and a 1px inner
+   highlight along the top edge so it has a lit lip rather than a hard cut. */
+.tabbar {
+  background: color-mix(in srgb, var(--bg-high) 96%, transparent);
+  border-top: 1px solid var(--hairline-soft);
+  box-shadow: 0 -1px 0 #ffffff0f inset, 0 -12px 30px -18px #000;
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .tabbar {
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+  }
+}
+
+/* A short fade above the bar, so a list scrolls out of view instead of being
+   sliced off by a hard edge. Without it the last row sits half-read behind the
+   glass and looks like a rendering fault. */
+.tabbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 32px;
+  pointer-events: none;
+  background: linear-gradient(180deg, #0b0e1300, var(--bg) 92%);
+}
+
+.tab {
+  position: relative;
+  transition: color 200ms ease;
+}
+
+.tab svg {
+  transition: transform 300ms var(--ease-spring);
+}
+.tab.is-active svg { transform: translateY(-1px) scale(1.08); }
+.tab:active svg { transform: scale(0.9); }
+
+/* A lit dot above the active tab. Small, but it is what tells you at a glance
+   where you are without reading the five labels. */
+.tab.is-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 18px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--accent);
+  box-shadow: 0 0 10px 0 color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+/* ---------- motion: screens ---------- */
+
+/*
+ * Staggered entry, but ONLY when the tab actually changed.
+ *
+ * The obvious implementation — animate .screen > * on every render — re-runs
+ * the whole cascade every time a set is logged or an amount is edited, because
+ * those re-render the screen in place. That turns a data update into a
+ * full-screen shimmy. So app.js adds .is-entering on a genuine navigation and
+ * takes it off when the animation ends.
+ */
+@keyframes rise {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+.screen.is-entering > * {
+  animation: rise 440ms var(--ease-glide) both;
+}
+.screen.is-entering > *:nth-child(1) { animation-delay: 0ms; }
+.screen.is-entering > *:nth-child(2) { animation-delay: 45ms; }
+.screen.is-entering > *:nth-child(3) { animation-delay: 85ms; }
+.screen.is-entering > *:nth-child(4) { animation-delay: 115ms; }
+.screen.is-entering > *:nth-child(n+5) { animation-delay: 140ms; }
+
+/* ---------- motion: the seven-day chart ---------- */
+
+.col-bar {
+  /* The gradient carries the form; a glow wide enough to see turns every bar
+     into a neon tube and the week into a smear of halos. Today alone gets a
+     hint of one, because today is the only column worth pulling forward. */
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, #fff), color-mix(in srgb, var(--accent) 58%, transparent));
+  border-radius: 5px 5px 1px 1px;
+  transform-origin: 50% 100%;
+}
+
+.screen.is-entering .col-bar {
+  animation: grow 560ms var(--ease-glide) both;
+  animation-delay: calc(var(--col, 0) * 40ms + 120ms);
+}
+
+@keyframes grow {
+  from { transform: scaleY(0); opacity: 0.4; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+.col.is-today .col-bar { box-shadow: 0 0 16px -8px var(--accent); }
+
+/* ---------- consistency grid ---------- */
+
+.cell { border-radius: 4px; }
+.cell.is-on {
+  box-shadow: 0 0 8px -5px var(--accent);
+}
+.cell.is-today { box-shadow: inset 0 0 0 1.5px var(--faint); }
+.cell.is-on.is-today { box-shadow: inset 0 0 0 1.5px #fff, 0 0 12px -3px var(--accent); }
+
+/* ---------- set dots ---------- */
+
+.pip {
+  transition: background-color 160ms ease, border-color 160ms ease, transform 200ms var(--ease-spring);
+}
+.pip:active { transform: scale(0.9); }
+.pip.is-on {
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 94%, #fff), var(--accent));
+  box-shadow: 0 0 12px -8px var(--accent);
+}
+
+/* ---------- keypad ---------- */
+
+/* The 1px grid the keypad used to draw reads as a 2010 calculator. The keys
+   are separated by the press state alone now, with one rule above to divide
+   the pad from the amount. */
+.keypad {
+  gap: 0;
+  background: none;
+  border-top: 1px solid var(--hairline-soft);
+  border-bottom: 0;
+}
+.key {
+  background: none;
+  border-radius: var(--r-md);
+  font-weight: 200;
+  transition: background-color 120ms ease, transform 160ms var(--ease-spring);
+}
+.key:active { background: var(--surface-2); transform: scale(0.96); }
+
+/* ---------- sheet ---------- */
+
+.sheet-panel {
+  transition: transform 420ms var(--ease-glide);
+}
+
+/* ---------- wordmark ---------- */
+
+.wordmark {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.wordmark-mark {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 35%, transparent));
+}
+
+/* ---------- reduced motion ---------- */
+
+/* Everything above degrades to an instant state change. The layout never
+   depends on an animation having run. */
+@media (prefers-reduced-motion: reduce) {
+  .screen.is-entering > *,
+  .screen.is-entering .col-bar {
+    animation: none;
+  }
+  .btn, .row-entry, .row-action, .pip, .key, .tab svg { transition: none; }
+  .btn:active, .row-entry:active, .row-action:active,
+  .pip:active, .key:active, .tab:active svg { transform: none; }
+}

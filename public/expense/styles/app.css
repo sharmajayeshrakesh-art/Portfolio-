@@ -1780,3 +1780,83 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
 @media (max-width: 380px) {
   .tab span { font-size: 9px; letter-spacing: 0.06em; }
 }
+
+/* ==========================================================================
+   Two faces — money, and training behind one door
+   ========================================================================== */
+
+/* The bar belongs to the money face. Gone on the training side, along with the
+   space the page was reserving for it. */
+body.in-gym .tabbar { display: none; }
+body.in-gym { padding-bottom: calc(26px + env(safe-area-inset-bottom)); }
+
+/* ---------- the door, on Home ---------- */
+
+.panel-door {
+  flex-wrap: wrap;
+  border-color: var(--hairline);
+}
+
+/* A labelled footer rather than a lone chevron: the panel reads as a summary,
+   so the thing that says it is also a way through has to be explicit. */
+.panel-go {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  width: 100%;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  color: var(--accent);
+}
+
+.panel-go-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-stretch: 85%;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.panel-go .row-chevron { color: var(--accent); font-size: 17px; }
+
+/* ---------- the way back, in the training face ---------- */
+
+.faceback {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: calc(env(safe-area-inset-top) + 14px) var(--gutter) 2px;
+  background: none;
+  border: 0;
+  color: var(--accent);
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-stretch: 85%;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.faceback-arrow { font-size: 19px; line-height: 1; margin-top: -2px; }
+
+/* Names the face you are in, so the control reads as a move between two places
+   rather than an undo. */
+.faceback-here {
+  margin-left: auto;
+  color: var(--muted);
+  letter-spacing: 0.16em;
+}
+
+.faceback:active { opacity: 0.6; }
+
+/* Four tabs now, so they have room to breathe. */
+@media (max-width: 380px) {
+  .tab span { font-size: 10px; letter-spacing: 0.08em; }
+}

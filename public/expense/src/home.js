@@ -228,7 +228,11 @@ function trainingRow(gym, sessions) {
   const loggedToday = Boolean(todaySession);
   const next = sessionDef(loggedToday ? todaySession.slot : gym.next);
 
-  return el("button", { class: "panel", type: "button", onclick: () => go("gym") },
+  // The door into the training face, and the only one. It keeps the summary it
+  // always showed — what is next and how the week is going — because a door
+  // that also answers the question is worth more than a plain button, and
+  // because this is now the single place that information appears on this side.
+  return el("button", { class: "panel panel-door", type: "button", onclick: () => go("gym") },
     el("div", { class: "panel-main" },
       el("p", { class: "eyebrow", text: loggedToday ? "Trained today" : "Next session" }),
       el("p", { class: "panel-title", text: next?.name || "Pull 1" }),
@@ -241,6 +245,10 @@ function trainingRow(gym, sessions) {
     el("div", { class: "panel-stat" },
       el("span", { class: "panel-stat-val", text: `${gym.last7}/${gym.target}` }),
       el("span", { class: "panel-stat-label", text: "this week" }),
+    ),
+    el("span", { class: "panel-go" },
+      el("span", { class: "panel-go-text", text: "Gym" }),
+      el("span", { class: "row-chevron", text: "›" }),
     ),
   );
 }

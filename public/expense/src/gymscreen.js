@@ -40,7 +40,20 @@ export function renderGym() {
   const today = store.sessionOn(todayISO());
 
   add(screen,
-    el("header", { class: "screen-head" },
+    // The only control out of the training face. It is a real button in the
+    // flow of the page rather than a floating chevron, because this face has
+    // no tab bar underneath it to fall back on.
+    el("button", {
+      class: "faceback",
+      type: "button",
+      onclick: () => go("home"),
+    },
+      el("span", { class: "faceback-arrow", text: "‹" }),
+      el("span", { text: "Money" }),
+      el("span", { class: "faceback-here", text: "Training" }),
+    ),
+
+    el("header", { class: "screen-head screen-head-tight" },
       el("p", { class: "eyebrow", text: "Last 7 days" }),
       el("div", { class: "figure figure-xl" },
         el("span", { class: "figure-val", text: String(s.last7) }),

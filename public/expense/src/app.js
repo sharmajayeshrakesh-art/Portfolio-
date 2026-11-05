@@ -19,7 +19,19 @@ import {
   add, toast, openSheet, closeSheet, updateSheet, setSheetDismissible, sheetIsOpen, countUp,
 } from "./ui.js";
 
-const TABS = ["history", "add", "home", "gym", "settings"];
+/**
+ * The money face. Gym is deliberately not in here.
+ *
+ * This is two apps sharing one database: spending, which the app opens on and
+ * which the tab bar navigates, and training, which lives behind a single door
+ * on the Home screen. Mixing them put a gym tab between "Add" and "Settings" —
+ * a question nobody opening a spending tracker wanted to answer five times a
+ * day.
+ */
+const TABS = ["history", "add", "home", "settings"];
+
+/** Everything routable: the tabs, plus the gym face, which has no tab. */
+const SCREENS = [...TABS, "gym"];
 
 const { renderGym } = initGym({ go: (tab) => go(tab), renderAll: () => renderAll() });
 const { renderHome } = initHome({
@@ -1140,7 +1152,7 @@ function currentTab() {
   const tab = location.hash.slice(1);
   // "#today" was the old name for this screen; keep old links working.
   if (tab === "today") return "home";
-  return TABS.includes(tab) ? tab : "home";
+  return SCREENS.includes(tab) ? tab : "home";
 }
 
 /** The tab the previous render drew, so a re-render in place can be told apart
@@ -1159,6 +1171,11 @@ function render(tab) {
   else renderSettings();
 
   $$(".screen").forEach((s) => { s.hidden = s.id !== `screen-${tab}`; });
+
+  // Hiding the bar is what makes the two faces legible. Inside training there
+  // is one control and it goes back, so no tab is left looking half-lit on a
+  // screen it can no longer reach.
+  document.body.classList.toggle("in-gym", tab === "gym");
 
   // Play the entrance only on a real navigation. renderAll() re-renders a
   // screen in place after every data change — logging a set, editing an
@@ -1216,7 +1233,14 @@ async function boot() {
   });
 
   wireChrome();
-  render(currentTab());
+
+  // Always open on the money side. A launch is not a resume: the hash can still
+  // read #gym from whenever the app was last closed, and opening a spending
+  // tracker onto the training screen is exactly the confusion the two faces
+  // exist to remove. Deep links from the share sheet still work, because that
+  // path sets its own screen after this.
+  if (currentTab() === "gym") go("home");
+  else render(currentTab());
 
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
     watchForUpdates();

@@ -10,40 +10,43 @@
  */
 
 :root {
-  /* Ground. Not flat #000: a cool near-black with a blue cast, so the accent
-     reads as warm against it and the grain has something to sit on. */
-  --bg: #0b0e13;
-  --bg-high: #10151c;
+  /* "Receipt": warm beige paper rather than the near-black this started as.
+     Chosen from a set of six shown side by side on the real Home screen. A
+     light ground is also the right call for the actual use — this gets opened
+     outdoors, in daylight, where a dark screen is the harder one to read. */
+  --bg: #e8e0ce;
+  --bg-high: #efe8d8;
 
-  /* Three surface steps instead of one. Depth on a dark ground comes from
-     stacking near-identical greys, not from shadows — shadows are invisible
-     here, and anything strong enough to see looks like dirt. */
-  --surface: #151b23;
-  --surface-2: #1b222c;
-  --surface-3: #222b36;
+  /* On paper, depth runs the other way: a raised thing catches more light, so
+     each step up is lighter than the page, not darker. */
+  --surface: #f2ebdb;
+  --surface-2: #f7f2e6;
+  --surface-3: #fbf7ee;
 
-  --text: #f2f4f6;
-  --muted: #7f8b99;
-  --faint: #55606d;
+  --text: #1c1a15;
+  --muted: #6d6555;
+  --faint: #948b78;
 
-  /* Pulled back from the old neon #4ade80. At full saturation a green this
-     bright vibrates against a dark ground and cheapens everything near it. */
-  --accent: #46d98a;
-  --accent-soft: #46d98a26;
-  --accent-ink: #04140c;
-  --danger: #f2635f;
+  /* Two accents. Ink carries structure — the active tab, the primary button,
+     the chart — and the stamp red is kept for the few things that genuinely
+     need to interrupt. Black on beige is the whole character of the thing; a
+     coloured accent here would fight the paper. */
+  --accent: #1c1a15;
+  --accent-soft: #1c1a1514;
+  --accent-ink: #f4eedf;
+  --danger: #b4402c;
 
-  --hairline: #232c37;
-  --hairline-soft: #1a212a;
+  --hairline: #cdc2a9;
+  --hairline-soft: #ddd4bf;
 
-  /* Light falls from above, so every raised edge gets this along its top. One
-     light source, applied consistently, is most of what reads as "physical". */
-  --sheen: linear-gradient(180deg, #ffffff14, #ffffff00 42%);
+  /* Light still falls from above; on a pale ground it reads as the sheet
+     catching light along its top edge. */
+  --sheen: linear-gradient(180deg, #ffffff80, #ffffff00 46%);
 
-  /* Tinted, never pure black — a black shadow on a blue-black ground is a
-     grey smear. */
-  --shadow-1: 0 1px 2px #00000040, 0 4px 14px -6px #000a0680;
-  --shadow-2: 0 2px 6px #00000047, 0 18px 40px -16px #000a0699;
+  /* Warm brown rather than black. A neutral shadow on a beige ground looks
+     like a smudge; this looks like the paper is sitting above the desk. */
+  --shadow-1: 0 1px 1px #3a301c1f, 0 3px 10px -5px #3a301c3d;
+  --shadow-2: 0 2px 4px #3a301c24, 0 16px 34px -14px #3a301c4d;
 
   --tap: 44px;
   --gutter: 20px;
@@ -101,9 +104,9 @@ html, body {
 .ground {
   z-index: 0;
   background:
-    radial-gradient(90% 60% at 12% -8%, #46d98a1f, transparent 60%),
-    radial-gradient(70% 50% at 108% 8%, #3f7fd11a, transparent 62%),
-    radial-gradient(120% 70% at 50% 108%, #0b0e1300, #0b0e13 70%);
+    radial-gradient(90% 60% at 12% -8%, #b4402c0f, transparent 60%),
+    radial-gradient(70% 50% at 108% 8%, #6d655514, transparent 62%),
+    radial-gradient(120% 70% at 50% 108%, #e8e0ce00, #ded5bf 72%);
 }
 
 .ground::after {
@@ -112,7 +115,7 @@ html, body {
      screen, so blending changes almost nothing visually, and a full-viewport
      blend is re-composited on every frame — which is exactly the kind of cost
      this phone cannot afford. Plain opacity is free. */
-  opacity: 0.035;
+  opacity: 0.055;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
 }
 
@@ -461,13 +464,13 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   cursor: pointer;
 }
 
-.btn-primary { background: var(--accent); color: #0b1210; font-weight: 500; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); font-weight: 500; }
 .btn-primary:active { filter: brightness(0.92); }
 
 .btn-quiet { background: none; border: 1px solid var(--hairline); color: var(--muted); }
 .btn-quiet:active { background: var(--surface); }
 
-.btn-danger { background: var(--danger); color: #1a0d0d; font-weight: 500; }
+.btn-danger { background: var(--danger); color: var(--accent-ink); font-weight: 500; }
 .btn-danger-text { color: var(--danger); }
 
 .footnote {
@@ -1282,7 +1285,7 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   font-weight: 800;
   font-stretch: 80%;
   letter-spacing: -0.015em;
-  background: linear-gradient(176deg, #ffffff 18%, #c9d4e0 96%);
+  background: linear-gradient(176deg, #1c1a15 16%, #4a4034 98%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -1389,7 +1392,7 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
 .tabbar {
   background: color-mix(in srgb, var(--bg-high) 96%, transparent);
   border-top: 1px solid var(--hairline-soft);
-  box-shadow: 0 -1px 0 #ffffff0f inset, 0 -12px 30px -18px #000;
+  box-shadow: 0 -1px 0 #ffffffa6 inset, 0 -10px 26px -18px #3a301c;
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -1410,7 +1413,7 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   bottom: 100%;
   height: 32px;
   pointer-events: none;
-  background: linear-gradient(180deg, #0b0e1300, var(--bg) 92%);
+  background: linear-gradient(180deg, #e8e0ce00, var(--bg) 92%);
 }
 
 .tab {
@@ -1434,7 +1437,7 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   height: 2px;
   border-radius: 0 0 2px 2px;
   background: var(--accent);
-  box-shadow: 0 0 10px 0 color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow: none;
 }
 
 /* ---------- motion: screens ---------- */
@@ -1483,16 +1486,18 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   to   { transform: scaleY(1); opacity: 1; }
 }
 
-.col.is-today .col-bar { box-shadow: 0 0 16px -8px var(--accent); }
+/* Today is already the labelled column; on paper it is marked by being the
+   only solid one rather than by a halo. */
+.col.is-today .col-bar { background-image: none; background-color: var(--accent); }
 
 /* ---------- consistency grid ---------- */
 
 .cell { border-radius: 4px; }
 .cell.is-on {
-  box-shadow: 0 0 8px -5px var(--accent);
+  box-shadow: none;
 }
 .cell.is-today { box-shadow: inset 0 0 0 1.5px var(--faint); }
-.cell.is-on.is-today { box-shadow: inset 0 0 0 1.5px #fff, 0 0 12px -3px var(--accent); }
+.cell.is-on.is-today { box-shadow: inset 0 0 0 1.5px var(--bg); }
 
 /* ---------- set dots ---------- */
 
@@ -1502,7 +1507,7 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
 .pip:active { transform: scale(0.9); }
 .pip.is-on {
   background-image: linear-gradient(180deg, color-mix(in srgb, var(--accent) 94%, #fff), var(--accent));
-  box-shadow: 0 0 12px -8px var(--accent);
+  box-shadow: var(--shadow-1);
 }
 
 /* ---------- keypad ---------- */
@@ -1537,7 +1542,7 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   letter-spacing: -0.01em;
 }
 .wordmark-mark {
-  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 35%, transparent));
+  filter: none;
 }
 
 /* ---------- reduced motion ---------- */
@@ -1770,10 +1775,10 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
    what stops a dark page from reading as an empty void. */
 .ground {
   background-image:
-    linear-gradient(#ffffff04 1px, transparent 1px),
-    linear-gradient(90deg, #ffffff04 1px, transparent 1px),
-    radial-gradient(90% 55% at 12% -8%, #46d98a1c, transparent 60%),
-    radial-gradient(70% 45% at 108% 6%, #3f7fd117, transparent 62%);
+    linear-gradient(#1c1a150a 1px, transparent 1px),
+    linear-gradient(90deg, #1c1a150a 1px, transparent 1px),
+    radial-gradient(90% 55% at 12% -8%, #b4402c10, transparent 60%),
+    radial-gradient(70% 45% at 108% 6%, #6d655514, transparent 62%);
   background-size: 64px 64px, 64px 64px, auto, auto;
 }
 

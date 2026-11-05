@@ -29,21 +29,21 @@ export const CATEGORIES = [
  * but once you have seen "Fuel is the red one" twice, a breakdown becomes
  * readable at a glance instead of word by word.
  *
- * Held to a similar saturation and lightness so no single row shouts, and
+ * Drawn for a pale ground: deep enough to hold their own against beige, and
  * checked to stay apart for the common forms of colour blindness by keeping
  * red/green pairs different in lightness as well as hue.
  */
 const COLORS = {
-  "Fuel": "#e2503f",
-  "Eating": "#e8a33a",
-  "Groceries": "#4fb86a",
-  "Travel": "#3f86d8",
-  "Shopping": "#a569d8",
-  "Bills & recharge": "#3fb8b0",
-  "Entertainment": "#e3639f",
-  "Health": "#5fc9e8",
-  "Education": "#c0a94e",
-  "Other": "#8a94a3",
+  "Fuel": "#b4402c",
+  "Eating": "#b5751f",
+  "Groceries": "#4a6b3f",
+  "Travel": "#2a4a7a",
+  "Shopping": "#6b4a7a",
+  "Bills & recharge": "#2f6b66",
+  "Entertainment": "#9c3f63",
+  "Health": "#3f7d8a",
+  "Education": "#5a5a6b",
+  "Other": "#7d7566",
 };
 
 /** Falls back to the neutral rather than to nothing: an imported category this

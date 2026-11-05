@@ -16,6 +16,7 @@ import { todayISO } from "./store.js";
 import { CYCLE, SESSIONS, sessionDef, plannedSets } from "./plan.js";
 import { summary, grid, exerciseAdherence, setsDone, completeness } from "./gym.js";
 import { $, el, add, clear, friendlyDate, toast, openSheet, closeSheet } from "./ui.js";
+import { arcMeter } from "./marks.js";
 
 // Only alternate rows are labelled — seven stacked letters is noise, and this
 // is the convention every contribution graph already taught people to read.
@@ -54,11 +55,19 @@ export function renderGym() {
     ),
 
     el("header", { class: "screen-head screen-head-tight" },
-      el("p", { class: "eyebrow", text: "Last 7 days" }),
-      el("div", { class: "figure figure-xl" },
-        el("span", { class: "figure-val", text: String(s.last7) }),
-        el("span", { class: "figure-of", text: `of ${s.target}` }),
+      // Sessions against the week's target: one value, one limit, so a meter.
+      // Each cluster is a planned session and lights in proportion to how much
+      // of it was actually logged — a session cut short reads as a part-filled
+      // group rather than counting the same as a full one.
+      el("div", { class: "meter-wrap" },
+        arcMeter(s.last7, s.target, {
+          // Short enough to clear the inner ring: "Sessions this week" ran
+          // straight through the dots on both sides.
+          label: "This week",
+          value: `${s.last7}/${s.target}`,
+        }),
       ),
+
       el("div", { class: "stat-pair" },
         el("div", { class: "stat" },
           el("span", { class: "stat-label", text: "Streak" }),

@@ -980,7 +980,9 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  padding: 10px var(--gutter) 0;
+  /* Room above the tallest column for today's direct label, which sits over
+     the dots and was otherwise colliding with the section heading. */
+  padding: 26px var(--gutter) 0;
 }
 
 .col {
@@ -1864,4 +1866,110 @@ body.in-gym { padding-bottom: calc(26px + env(safe-area-inset-bottom)); }
 /* Four tabs now, so they have room to breathe. */
 @media (max-width: 380px) {
   .tab span { font-size: 10px; letter-spacing: 0.08em; }
+}
+
+/* ==========================================================================
+   Dot marks — the arc meter and the dotted columns
+   ==========================================================================
+   Both come from the same idea: quantity as countable dots rather than a
+   continuous fill. Lit dots are ink; the unlit track is a lighter step of the
+   same ink, so the state reads across the whole mark instead of the empty part
+   dropping out of the picture.
+   ========================================================================== */
+
+.meter-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.meter {
+  width: 100%;
+  max-width: 272px;
+  height: auto;
+}
+
+.meter-dot {
+  fill: var(--text);
+  opacity: 0.13;
+  transition: opacity 320ms var(--ease-glide);
+}
+.meter-dot.is-on { fill: var(--accent); opacity: 1; }
+
+.meter-label {
+  fill: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  text-anchor: middle;
+}
+
+.meter-value {
+  fill: var(--text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 80%;
+  font-size: 34px;
+  letter-spacing: -0.01em;
+  text-anchor: middle;
+}
+
+/* The ring fills round rather than all at once, so the eye follows the week in
+   the direction it actually ran. */
+.screen.is-entering .meter-dot.is-on {
+  animation: dotin 380ms var(--ease-glide) both;
+  animation-delay: calc(var(--d, 0) * 26ms + 80ms);
+}
+@keyframes dotin {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: none; }
+}
+.meter-dot { transform-box: fill-box; transform-origin: center; }
+
+/* ---------- dotted columns ---------- */
+
+.col-plot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 92px;
+  /* No axis rule: with a dot grid the empty dots already show where the
+     baseline is, and a line under them was one mark too many. */
+  border-bottom: 0;
+}
+
+.dotcol { width: 100%; max-width: 15px; height: 100%; overflow: visible; }
+
+.dotcol-dot {
+  fill: var(--text);
+  opacity: 0.13;
+}
+.dotcol-dot.is-on { fill: var(--accent); opacity: 1; }
+
+/* Today is the only column drawn in the stamp colour — emphasis, so the one
+   value worth reading exactly is the one that stands out. */
+.col.is-today .dotcol-dot.is-on { fill: var(--danger); }
+
+.screen.is-entering .dotcol-dot.is-on {
+  animation: dotin 380ms var(--ease-glide) both;
+  animation-delay: calc(var(--col, 0) * 45ms + 90ms);
+}
+
+.col-value {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 4px;
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen.is-entering .meter-dot.is-on,
+  .screen.is-entering .dotcol-dot.is-on { animation: none; }
+  .meter-dot { transition: none; }
 }

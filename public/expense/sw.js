@@ -12,7 +12,7 @@
  * flow.
  */
 
-const VERSION = "tally-v10";
+const VERSION = "tally-v11";
 const SHELL_CACHE = `${VERSION}-shell`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -39,6 +39,7 @@ const SHELL = [
   "src/ocr.js",
   "src/csv.js",
   "src/home.js",
+  "src/marks.js",
   "src/plan.js",
   "src/gym.js",
   "src/gymscreen.js",

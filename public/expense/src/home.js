@@ -27,6 +27,7 @@ import { sessionDef } from "./plan.js";
 import { summary } from "./gym.js";
 import { $, el, add, clear, amount, rupees, friendlyDate } from "./ui.js";
 import { categoryColor } from "./categories.js";
+import { dotColumn } from "./marks.js";
 
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
 const DOW_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -186,26 +187,21 @@ function weekChart(days) {
   };
 
   const columns = days.map((d, i) => {
-    // Zero-height marks read as "a tiny amount"; absence is the honest encoding.
-    // Capped at 86% so the direct label has room above the tallest column.
-    const height = peak > 0 && d.spend > 0 ? Math.max(3, Math.round((d.spend / peak) * 86)) : 0;
-
     return el("button", {
       class: `col${d.isToday ? " is-today" : ""}`,
       type: "button",
       "aria-label": `${d.isToday ? "Today" : DOW_FULL[d.dow]}, ${d.spend ? rupees(d.spend) : "nothing spent"}, ${d.session ? "trained" : "no session"}`,
       onclick: () => describe(d),
     },
-      el("span", { class: "col-plot" },
-        height
-          // --col drives the entrance stagger, so the week grows left to right
-          // rather than all at once.
-          ? el("span", { class: "col-bar", style: `height:${height}%; --col:${i}` },
-              // Rides the cap, so it reads as this column's value rather than
-              // floating free at the top of the plot.
-              d.isToday && d.spend
-                ? el("span", { class: "col-value", text: amount(Math.round(d.spend)) })
-                : null)
+      // --col drives the entrance stagger, so the week grows left to right
+      // rather than all at once.
+      el("span", { class: "col-plot", style: `--col:${i}` },
+        // Still a column on one flat baseline. Comparing days to each other is
+        // the whole job of this chart, and bending it into a ring would make
+        // exactly that harder — only the material changed.
+        dotColumn(d.spend, peak),
+        d.isToday && d.spend
+          ? el("span", { class: "col-value", text: amount(Math.round(d.spend)) })
           : null,
       ),
       el("span", { class: "col-day", text: DOW[d.dow] }),

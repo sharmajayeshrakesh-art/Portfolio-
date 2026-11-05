@@ -1773,15 +1773,19 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
 
 /* ---------- ground ---------- */
 
-/* A faint grid under the wash. The reference has one behind its hero and it is
-   what stops a dark page from reading as an empty void. */
+/*
+ * Just the wash and the grain now.
+ *
+ * There was a 64px grid ruled across this. It was borrowed from the reference,
+ * where it sits behind one hero on a page you scroll past once. Here it ran
+ * under every screen, behind lists that already carry their own hairlines, and
+ * the two sets of lines read as one muddled texture rather than as structure.
+ * The paper grain alone does the job the grid was brought in for.
+ */
 .ground {
   background-image:
-    linear-gradient(#1c1a150a 1px, transparent 1px),
-    linear-gradient(90deg, #1c1a150a 1px, transparent 1px),
     radial-gradient(90% 55% at 12% -8%, #b4402c10, transparent 60%),
     radial-gradient(70% 45% at 108% 6%, #6d655514, transparent 62%);
-  background-size: 64px 64px, 64px 64px, auto, auto;
 }
 
 @media (max-width: 380px) {

@@ -21,6 +21,37 @@ export const CATEGORIES = [
   "Other",
 ];
 
+/**
+ * One colour per category.
+ *
+ * Borrowed from the way gym plates are colour-coded by weight: the colour is
+ * never the only thing carrying the meaning — the label is always next to it —
+ * but once you have seen "Fuel is the red one" twice, a breakdown becomes
+ * readable at a glance instead of word by word.
+ *
+ * Held to a similar saturation and lightness so no single row shouts, and
+ * checked to stay apart for the common forms of colour blindness by keeping
+ * red/green pairs different in lightness as well as hue.
+ */
+const COLORS = {
+  "Fuel": "#e2503f",
+  "Eating": "#e8a33a",
+  "Groceries": "#4fb86a",
+  "Travel": "#3f86d8",
+  "Shopping": "#a569d8",
+  "Bills & recharge": "#3fb8b0",
+  "Entertainment": "#e3639f",
+  "Health": "#5fc9e8",
+  "Education": "#c0a94e",
+  "Other": "#8a94a3",
+};
+
+/** Falls back to the neutral rather than to nothing: an imported category this
+ *  build has never heard of still gets a dot, just an unassigned one. */
+export function categoryColor(category) {
+  return COLORS[category] || COLORS.Other;
+}
+
 const KEYWORDS = {
   // "PETRO" rather than "PETROL": it still catches PETROL and PETROLEUM, and
   // half the pumps in the country are named "<something> Petro".

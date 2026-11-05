@@ -8,7 +8,7 @@
 import { APP_NAME, url, activeVersion, SHARE_CACHE, LEGACY_SHARE_CACHES, SHARE_KEY, SHARE_TEXT_KEY } from "./base.js";
 import * as store from "./store.js";
 import { todayISO, toISODate, money } from "./store.js";
-import { CATEGORIES, guessCategory, normalizeMerchant } from "./categories.js";
+import { CATEGORIES, guessCategory, normalizeMerchant, categoryColor } from "./categories.js";
 import { parseReceipt } from "./parse.js";
 import { recognize } from "./ocr.js";
 import { toCSV, parseCSV, downloadCSV, downloadText } from "./csv.js";
@@ -179,7 +179,11 @@ function renderHistory() {
       // Without this line a filtered total looks like the whole period's
       // spending, which is the one reading that would be actively wrong.
       filtering
-        ? el("p", { class: "figure-note", text: `${historyCategory} — ${share}% of ${rupees(sum)}` })
+        ? el("p", {
+            class: "eyebrow figure-note",
+            style: `--dot:${categoryColor(historyCategory)}`,
+            text: `${historyCategory} — ${share}% of ${rupees(sum)}`,
+          })
         : null,
     ),
 
@@ -200,8 +204,9 @@ function renderHistory() {
             el("p", { class: "list-head", text: "By category" }),
             breakdown.map(([category, value]) =>
               el("button", {
-                class: "row row-cat row-action",
+                class: "row row-cat row-swatch row-action",
                 type: "button",
+                style: `--cat:${categoryColor(category)}`,
                 "aria-label": `${category}, ${rupees(value)}. See these entries.`,
                 onclick: () => { historyCategory = category; renderHistory(); },
               },
@@ -263,6 +268,7 @@ function renderAdd() {
       el("button", {
         class: `chip${c === draft.category ? " is-active" : ""}`,
         type: "button",
+        style: `--cat:${categoryColor(c)}`,
         text: c,
         onclick: (ev) => {
           draft.category = c;

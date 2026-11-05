@@ -26,6 +26,7 @@ import { todayISO, toISODate } from "./store.js";
 import { sessionDef } from "./plan.js";
 import { summary } from "./gym.js";
 import { $, el, add, clear, amount, rupees, friendlyDate } from "./ui.js";
+import { categoryColor } from "./categories.js";
 
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
 const DOW_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -275,8 +276,9 @@ function topCategories(from, to, monthSpend) {
       el("span", { class: "list-head-sum", text: "this month" })),
     top.map(([category, value]) =>
       el("button", {
-        class: "row row-cat row-action",
+        class: "row row-cat row-swatch row-action",
         type: "button",
+        style: `--cat:${categoryColor(category)}`,
         "aria-label": `${category}, ${rupees(value)}. See these entries.`,
         // Previously this dropped the category and opened History wholesale,
         // so the one thing the row was about was what the tap threw away.

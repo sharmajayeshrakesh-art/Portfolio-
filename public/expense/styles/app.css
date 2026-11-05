@@ -60,6 +60,13 @@
   /* No webfont is fetched at runtime — an expense tracker should not wait on a
      CDN to render a number. The system stack on Android is Roboto, which has
      proper tabular figures, so columns of amounts still line up. */
+  /* Condensed display face, taken from whatever the device already has.
+     Android ships Roboto Condensed; desktops usually do not, so this degrades
+     to the body stack and leans on weight and tracking instead. Nothing is
+     downloaded either way. */
+  --font-display: "Roboto Condensed", "Noto Sans Condensed", "Archivo Narrow",
+    "Arial Narrow", system-ui, sans-serif;
+
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -1271,8 +1278,10 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
    slightly, which stops a 52px light weight from looking washed out. */
 .figure-hero .figure-val,
 .figure-xl .figure-val {
-  font-weight: 200;
-  letter-spacing: -0.035em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 80%;
+  letter-spacing: -0.015em;
   background: linear-gradient(176deg, #ffffff 18%, #c9d4e0 96%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -1290,6 +1299,12 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
 }
 
 .seg {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-stretch: 85%;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   transition: color 180ms ease;
 }
 
@@ -1537,4 +1552,231 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   .btn, .row-entry, .row-action, .pip, .key, .tab svg { transition: none; }
   .btn:active, .row-entry:active, .row-action:active,
   .pip:active, .key:active, .tab:active svg { transform: none; }
+}
+
+/* ==========================================================================
+   Graphic layer
+   ==========================================================================
+   Rebuilt against the reference: heavy condensed caps, micro-labels carrying a
+   colour dot, a plate-colour per category, square corners and 1px rules
+   instead of glass and glow. The earlier pass was elegant and anonymous; this
+   one is supposed to have a voice.
+   ========================================================================== */
+
+/* ---------- micro-labels ---------- */
+
+/* The signature device. Tiny, widely tracked, upper case, with a lit dot in
+   front — it turns a plain section heading into a marker and costs nothing. */
+.eyebrow,
+.list-head,
+.label-text,
+.stat-label,
+.masthead-date {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.eyebrow,
+.list-head {
+  display: flex;
+  align-items: center;
+  /* The original rule set space-between for the heading/sum pair. With a dot
+     in front and no sum, that flung the label to the right edge away from its
+     own marker. The sum pushes itself over with margin-left instead. */
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.eyebrow::before,
+.list-head::before {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  /* --dot lets a section carry its own colour; the accent is the default. */
+  background: var(--dot, var(--accent));
+}
+
+/* The sum on the right of a list heading is data, not a label — it keeps its
+   figures and its case. */
+/* Sits opposite a micro-label, so it matches it. Caps do nothing to a figure
+   like ₹1,660 and bring "tap a day" into line with "LAST 7 DAYS". */
+.list-head-sum {
+  margin-left: auto;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---------- display type ---------- */
+
+.screen-title,
+.sheet-title,
+.nextup-title,
+.panel-title,
+.empty-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 80%;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 1.02;
+}
+
+.nextup-title { font-size: 34px; }
+.panel-title { font-size: 25px; }
+.screen-title, .sheet-title { font-size: 25px; }
+.empty-title { font-size: 19px; letter-spacing: 0.02em; }
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 80%;
+  font-size: 21px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.figure-of { font-family: var(--font-display); font-weight: 700; }
+
+/* ---------- square it off ---------- */
+
+/* The reference is built on 2px corners and hairlines. Softness was reading as
+   generic; the edge is part of the voice. */
+:root { --radius: 4px; --r-sm: 3px; --r-md: 5px; --r-lg: 6px; }
+
+.nextup, .panel, .sheet-panel, .nudge, .field,
+.btn, .segmented, .seg, .key, .toast, .cell, .pip {
+  border-radius: 4px;
+}
+.bar, .bar-fill { border-radius: 0; }
+.chip { border-radius: 3px; }
+
+/* A card is a bordered rectangle with a lit top edge, not a floating slab. */
+.nextup, .panel {
+  box-shadow: none;
+  border: 1px solid var(--hairline);
+}
+
+/* The coloured rule along a card's top edge, straight from the reference. */
+.nextup { position: relative; overflow: hidden; }
+.nextup::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-stretch: 85%;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background-image: none;
+  background-color: var(--accent);
+  box-shadow: none;
+}
+
+.btn-quiet {
+  background-image: none;
+  background-color: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--text);
+}
+
+/* ---------- category colour ---------- */
+
+/* Every row that names a category carries that category's dot, and its share
+   bar is drawn in the same colour. Two uses of one value, so the colour starts
+   meaning something rather than just decorating. */
+/* .row-cat is also used by the gym's exercise list, which has the same bar
+   layout and no category. The swatch is opt-in so it only ever appears where
+   it stands for something. */
+.row-swatch .row-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.row-swatch .row-title::before {
+  content: "";
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--cat, var(--accent));
+}
+
+.row-swatch .bar-fill {
+  background-image: none;
+  background-color: var(--cat, var(--accent));
+}
+
+/* The plate colour is visible before it is chosen, not only after. It makes
+   the palette learnable, and a bare row of outlined pills was the least
+   characterful thing left on the screen. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.chip::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--cat, var(--accent));
+  opacity: 0.55;
+  transition: opacity 180ms ease;
+}
+.chip.is-active::before { opacity: 1; }
+
+.chip.is-active {
+  background: color-mix(in srgb, var(--cat, var(--accent)) 16%, transparent);
+  border-color: var(--cat, var(--accent));
+  color: var(--cat, var(--accent));
+}
+
+/* ---------- tab bar ---------- */
+
+/* A solid block under the active tab rather than a glowing pill. */
+.tab.is-active::before {
+  width: 100%;
+  height: 2px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.tab span {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---------- ground ---------- */
+
+/* A faint grid under the wash. The reference has one behind its hero and it is
+   what stops a dark page from reading as an empty void. */
+.ground {
+  background-image:
+    linear-gradient(#ffffff04 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff04 1px, transparent 1px),
+    radial-gradient(90% 55% at 12% -8%, #46d98a1c, transparent 60%),
+    radial-gradient(70% 45% at 108% 6%, #3f7fd117, transparent 62%);
+  background-size: 64px 64px, 64px 64px, auto, auto;
+}
+
+@media (max-width: 380px) {
+  .tab span { font-size: 9px; letter-spacing: 0.06em; }
 }

@@ -26,8 +26,14 @@ const { renderHome } = initHome({
   go: (tab) => go(tab),
   openScan: () => pickScreenshot(),
   entryRow: (expense) => entryRow(expense),
+  openCategory: (category) => openCategory(category),
 });
 let historyPeriod = "month";
+
+// Which category History is narrowed to, or null for everything. Deliberately
+// not persisted and cleared on leaving the screen: a filter you cannot see the
+// origin of is indistinguishable from missing data.
+let historyCategory = null;
 
 /* ---------- date ranges ---------- */
 
@@ -62,9 +68,19 @@ function figure(value, { size = "xl" } = {}) {
   );
 }
 
-function entryRow(expense) {
+/**
+ * @param hideCategory  Suppress the category line. Set when the list is already
+ *   filtered to one category, where repeating it on every row is pure noise and
+ *   pushes the merchant — the thing being scanned for — around for no reason.
+ */
+function entryRow(expense, { hideCategory = false } = {}) {
   let pressTimer = null;
   const refunded = store.refundedTotal(expense);
+  const sub = [
+    hideCategory ? "" : expense.category,
+    expense.note,
+    refunded > 0 ? `${rupees(refunded)} returned` : "",
+  ].filter(Boolean).join(" · ");
 
   const row = el("button", {
     class: "row row-entry",
@@ -83,12 +99,12 @@ function entryRow(expense) {
   },
     el("span", { class: "row-main" },
       el("span", { class: "row-title", text: expense.merchant || expense.category }),
-      el("span", { class: "row-sub" },
-        expense.category,
-        expense.note ? ` · ${expense.note}` : "",
-        refunded > 0 ? ` · ${rupees(refunded)} returned` : "",
-        expense.source === "shared" ? el("span", { class: "tag", text: "scanned" }) : null,
-      ),
+      sub || expense.source === "shared"
+        ? el("span", { class: "row-sub" },
+            sub,
+            expense.source === "shared" ? el("span", { class: "tag", text: "scanned" }) : null,
+          )
+        : null,
     ),
     // The net is the figure that counts, so it is the one set large; the
     // original stays visible underneath so the row still matches the receipt.
@@ -119,17 +135,31 @@ function groupByDay(expenses) {
 
 /* ---------- History ---------- */
 
+/** Narrow History to one category, from anywhere in the app. */
+function openCategory(category) {
+  historyCategory = category;
+  go("history");
+}
+
 function renderHistory() {
   const screen = clear($("#screen-history"));
   const [from, to] = rangeFor(historyPeriod);
-  const entries = store.inRange(from, to);
-  const sum = store.total(entries);
+  const all = store.inRange(from, to);
+  const sum = store.total(all);
 
   const byCategory = new Map();
-  for (const e of entries) {
+  for (const e of all) {
     byCategory.set(e.category, money((byCategory.get(e.category) || 0) + store.effectiveAmount(e)));
   }
   const breakdown = [...byCategory.entries()].sort((a, b) => b[1] - a[1]);
+
+  // The filter survives a change of period, so "Groceries this week" and
+  // "Groceries this year" are one tap apart. It can therefore outlive the
+  // entries it selected, which is a real state and not an error.
+  const filtering = historyCategory != null;
+  const entries = filtering ? all.filter((e) => e.category === historyCategory) : all;
+  const shown = filtering ? store.total(entries) : sum;
+  const share = sum ? Math.round((shown / sum) * 100) : 0;
 
   add(screen,
     el("header", { class: "screen-head" },
@@ -145,26 +175,49 @@ function renderHistory() {
           })),
       ),
       el("p", { class: "eyebrow", text: periodLabel(from, to) }),
-      figure(sum),
+      figure(shown),
+      // Without this line a filtered total looks like the whole period's
+      // spending, which is the one reading that would be actively wrong.
+      filtering
+        ? el("p", { class: "figure-note", text: `${historyCategory} — ${share}% of ${rupees(sum)}` })
+        : null,
     ),
 
-    breakdown.length
-      ? el("section", { class: "list" },
-          el("p", { class: "list-head", text: "By category" }),
-          breakdown.map(([category, value]) =>
-            el("div", { class: "row row-cat" },
-              el("span", { class: "row-main" },
-                el("span", { class: "row-title", text: category }),
-                el("span", { class: "bar" },
-                  el("span", { class: "bar-fill", style: `width:${sum ? (value / sum) * 100 : 0}%` })),
-              ),
-              el("span", { class: "row-amount" },
-                rupees(value),
-                el("span", { class: "row-share", text: `${sum ? Math.round((value / sum) * 100) : 0}%` }),
-              ),
-            )),
+    filtering
+      ? el("section", { class: "list list-flush" },
+          el("button", {
+            class: "row row-action row-back",
+            type: "button",
+            onclick: () => { historyCategory = null; renderHistory(); },
+          },
+            el("span", { class: "row-chevron row-chevron-back", text: "‹" }),
+            el("span", { class: "row-main" },
+              el("span", { class: "row-title", text: "All categories" })),
+          ),
         )
-      : null,
+      : breakdown.length
+        ? el("section", { class: "list" },
+            el("p", { class: "list-head", text: "By category" }),
+            breakdown.map(([category, value]) =>
+              el("button", {
+                class: "row row-cat row-action",
+                type: "button",
+                "aria-label": `${category}, ${rupees(value)}. See these entries.`,
+                onclick: () => { historyCategory = category; renderHistory(); },
+              },
+                el("span", { class: "row-main" },
+                  el("span", { class: "row-title", text: category }),
+                  el("span", { class: "bar" },
+                    el("span", { class: "bar-fill", style: `width:${sum ? (value / sum) * 100 : 0}%` })),
+                ),
+                el("span", { class: "row-amount" },
+                  rupees(value),
+                  el("span", { class: "row-share", text: `${sum ? Math.round((value / sum) * 100) : 0}%` }),
+                ),
+                el("span", { class: "row-chevron", text: "›" }),
+              )),
+          )
+        : null,
 
     entries.length
       ? el("section", { class: "list" },
@@ -173,10 +226,13 @@ function renderHistory() {
               friendlyDate(date),
               el("span", { class: "list-head-sum", text: rupees(store.total(dayEntries)) }),
             ),
-            dayEntries.map(entryRow),
+            dayEntries.map((e) => entryRow(e, { hideCategory: filtering })),
           ]),
         )
-      : emptyState("Nothing in this period"),
+      : emptyState(
+          filtering ? `Nothing in ${historyCategory} this ${historyPeriod}` : "Nothing in this period",
+          filtering ? "Try a longer period, or go back to all categories." : null,
+        ),
   );
 }
 
@@ -1082,6 +1138,10 @@ function currentTab() {
 }
 
 function render(tab) {
+  // Leaving History drops the filter. Coming back to a screen still narrowed
+  // from minutes ago, with no memory of having narrowed it, reads as lost data.
+  if (tab !== "history") historyCategory = null;
+
   if (tab === "home") renderHome();
   else if (tab === "history") renderHistory();
   else if (tab === "add") renderAdd();

@@ -36,11 +36,13 @@ let openScan = () => {};
 // of an expense row, which meant a change to how a row reads — showing a return
 // netted off, say — landed on the other screens and silently not on this one.
 let entryRow = () => null;
+let openCategory = () => {};
 
 export function initHome(ctx) {
   go = ctx.go;
   openScan = ctx.openScan;
   entryRow = ctx.entryRow;
+  openCategory = ctx.openCategory;
   return { renderHome };
 }
 
@@ -266,13 +268,21 @@ function topCategories(from, to, monthSpend) {
     el("p", { class: "list-head" }, "Where it went",
       el("span", { class: "list-head-sum", text: "this month" })),
     top.map(([category, value]) =>
-      el("button", { class: "row row-cat", type: "button", onclick: () => go("history") },
+      el("button", {
+        class: "row row-cat row-action",
+        type: "button",
+        "aria-label": `${category}, ${rupees(value)}. See these entries.`,
+        // Previously this dropped the category and opened History wholesale,
+        // so the one thing the row was about was what the tap threw away.
+        onclick: () => openCategory(category),
+      },
         el("span", { class: "row-main" },
           el("span", { class: "row-title", text: category }),
           el("span", { class: "bar" },
             el("span", { class: "bar-fill", style: `width:${monthSpend ? (value / monthSpend) * 100 : 0}%` })),
         ),
         el("span", { class: "row-amount", text: rupees(value) }),
+        el("span", { class: "row-chevron", text: "›" }),
       )),
   );
 }

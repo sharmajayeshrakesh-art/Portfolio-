@@ -1126,3 +1126,22 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
 }
+
+/* ---------- category drill-down ---------- */
+
+/* Sits under the hero figure when History is narrowed to one category, so a
+   part of the period's spending is never read as all of it. */
+.figure-note {
+  margin: 8px 0 0;
+  padding: 0 var(--gutter);
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* The chevron is the only thing marking these rows as pressable, so it gets
+   pushed to the edge rather than sitting against the amount. */
+.row-cat .row-chevron { margin-left: 2px; }
+
+.row-back { color: var(--accent); }
+.row-back .row-title { color: var(--accent); font-size: 15px; }
+.row-chevron-back { margin-right: -4px; font-size: 20px; }

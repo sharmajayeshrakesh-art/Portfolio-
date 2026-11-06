@@ -1978,37 +1978,66 @@ body.in-gym { padding-bottom: calc(26px + env(safe-area-inset-bottom)); }
   .meter-dot { transition: none; }
 }
 
-/* ---------- ridgeline ---------- */
+/* ---------- the week by category ---------- */
 
-.ridge-wrap { padding: 0 var(--gutter); }
-.ridge { display: block; width: 100%; height: auto; margin-top: 6px; }
+.wa-wrap { padding: 0 var(--gutter); }
+.wa-stage { position: relative; }
+.wa { display: block; width: 100%; height: auto; }
 
-/* Solid page colour, so a nearer week paints over the one behind it. That
-   occlusion is what makes it read as depth rather than as seven tangled lines. */
-.ridge-fill { fill: var(--bg); }
+.wa-grid { stroke: var(--text); stroke-opacity: 0.08; stroke-width: 1; }
+.wa-axis { stroke: var(--text); stroke-opacity: 0.28; stroke-width: 1; }
+.wa-tick { fill: var(--muted); font-size: 8.5px; text-anchor: end; font-variant-numeric: tabular-nums; }
+.wa-day { fill: var(--muted); font-size: 9px; letter-spacing: 0.1em; text-anchor: middle; }
+.wa-day.is-on { fill: var(--text); font-weight: 600; }
 
-.ridge-day {
-  fill: var(--muted);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-anchor: middle;
+/* Translucent so the fills blend where they overlap instead of one hiding
+   the other; the line on top keeps each one exact. */
+.wa-area { fill-opacity: 0.16; }
+.wa-line { fill: none; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+
+.wa-guide { stroke: var(--text); stroke-opacity: 0.4; stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; transition: opacity 120ms ease; }
+.wa-guide.is-on { opacity: 1; }
+
+.wa-marker { stroke: var(--bg); stroke-width: 2; opacity: 0; transition: opacity 120ms ease; }
+.wa-marker.is-on { opacity: 1; }
+
+.wa-hit { fill: transparent; cursor: pointer; outline: none; }
+.wa-hit:focus-visible { fill: var(--text); fill-opacity: 0.05; }
+
+.wa-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 6px; font-size: 12px; color: var(--muted); }
+.wa-key { display: inline-flex; align-items: center; gap: 6px; }
+.wa-key::before { content: ""; width: 9px; height: 9px; border-radius: 2px; background: var(--c); }
+
+/* The tooltip is a small card over the plot, switching sides at the midpoint
+   so the selected day is never covered by its own readout. */
+.wa-tip {
+  position: absolute;
+  top: 8px;
+  left: 12%;
+  min-width: 132px;
+  padding: 9px 11px 8px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
+  font-size: 12px;
 }
+.wa-tip.is-right { left: auto; right: 4%; }
+.wa-tip-day { display: flex; justify-content: space-between; gap: 12px; margin: 0 0 5px; padding-bottom: 5px; border-bottom: 1px solid var(--hairline-soft); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.wa-tip-total { color: var(--text); letter-spacing: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.wa-tip-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 3px 0 0; }
+.wa-tip-row::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 2px; background: var(--c); margin-right: -6px; }
+.wa-tip-name { flex: 1; color: var(--text); }
+.wa-tip-val { font-variant-numeric: tabular-nums; color: var(--text); }
+.wa-tip-none::before { display: none; }
+.wa-tip-none { color: var(--muted); }
 
-.ridge-line {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 1.6;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
-.screen.is-entering .ridge-line {
-  stroke-dasharray: 600;
-  stroke-dashoffset: 600;
-  animation: ridgein 700ms var(--ease-glide) forwards;
-}
+.screen.is-entering .wa-line { stroke-dasharray: 700; stroke-dashoffset: 700; animation: ridgein 650ms var(--ease-glide) forwards; }
+.screen.is-entering .wa-area { animation: rise 500ms var(--ease-glide) both; }
 @keyframes ridgein { to { stroke-dashoffset: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .screen.is-entering .ridge-line { animation: none; stroke-dashoffset: 0; }
+  .screen.is-entering .wa-line, .screen.is-entering .wa-area { animation: none; stroke-dashoffset: 0; }
+  .wa-guide, .wa-marker { transition: none; }
 }

@@ -135,99 +135,179 @@ export function dotColumn(value, peak) {
 /* ---------- ridgeline ---------- */
 
 /**
- * Catmull-Rom through the points, emitted as cubic beziers.
+ * A monotone cubic through the points, emitted as beziers.
  *
- * The reference's curves are smooth, and straight segments between seven
- * weekly points would look like a different chart entirely. End tangents are
- * clamped to the end points so the curve does not overshoot past the data.
+ * Catmull-Rom was tried first and overshot: between a zero day and a big one
+ * the curve dipped below the baseline, drawing spending that was negative,
+ * which is a value this data cannot take. Steffen's tangents never cross a
+ * data extremum, so the curve stays at or above zero wherever the data does
+ * and a flat run of empty days is drawn flat.
  */
 function smoothPath(pts) {
-  if (pts.length < 2) return "";
-  let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  const n = pts.length;
+  if (n < 2) return "";
 
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] || pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2] || p2;
+  const h = pts[1][0] - pts[0][0]; // columns are equally spaced
+  const d = [];
+  for (let i = 0; i < n - 1; i++) d.push((pts[i + 1][1] - pts[i][1]) / h);
 
-    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
-    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
-    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
-    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
-
-    d += `C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  const m = new Array(n);
+  m[0] = d[0];
+  m[n - 1] = d[n - 2];
+  for (let i = 1; i < n - 1; i++) {
+    const a = d[i - 1], b = d[i];
+    if (a * b <= 0) { m[i] = 0; continue; }
+    const p = (a + b) / 2;
+    m[i] = (Math.sign(a) + Math.sign(b)) * Math.min(Math.abs(a), Math.abs(b), Math.abs(p) / 2);
   }
-  return d;
+
+  let out = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < n - 1; i++) {
+    const [x0, y0] = pts[i];
+    const [x1, y1] = pts[i + 1];
+    out += `C${(x0 + h / 3).toFixed(1)},${(y0 + (m[i] * h) / 3).toFixed(1)} `
+         + `${(x1 - h / 3).toFixed(1)},${(y1 - (m[i + 1] * h) / 3).toFixed(1)} `
+         + `${x1.toFixed(1)},${y1.toFixed(1)}`;
+  }
+  return out;
 }
 
-const RIDGE = { x: 18, y: 148, w: 232, step: 13, skew: 7, amp: 54 };
+/* ---------- the week by category ---------- */
+
+const WA = { l: 38, r: 10, t: 14, b: 26, w: 340, h: 196 };
+const DAY_SHORT = ["M", "T", "W", "T", "F", "S", "S"];
+
+/** A round ceiling for the y axis, with the step chosen so there are 3 or 4
+ *  gridlines whatever the scale: ₹300 and ₹30,000 weeks both get sane ticks. */
+function niceScale(max) {
+  const raw = Math.max(1, max) / 3;
+  const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * pow).find((v) => v >= raw);
+  const top = Math.ceil(Math.max(1, max) / step) * step;
+  const ticks = [];
+  for (let v = 0; v <= top + 1e-9; v += step) ticks.push(v);
+  return { top, ticks };
+}
+
+const compact = (v) => (v >= 1000 ? `${(v / 1000).toFixed(v % 1000 ? 1 : 0)}k` : String(Math.round(v)));
 
 /**
- * A ridgeline: one smooth curve per week, stacked back to front.
+ * Daily spending, Monday to Sunday, one translucent area per category.
  *
- * This is the honest form of the reference's 3D surface. A true perspective
- * mesh hides rows behind taller ones and makes every height ambiguous, so the
- * one thing a reader wants from it — comparing a value to another value —
- * stops working. A ridgeline keeps the same stacked, receding look, and every
- * curve sits on its own baseline where it can still be read.
+ * The areas overlap rather than stack, so every curve is read against the
+ * same axis and a point's height is that category's spend that day — nothing
+ * sits on top of anything else. The fills are what make four lines on one
+ * axis readable at a glance; the lines are what make them exact.
  *
- * Every week is drawn against one shared peak, so a tall ridge really is a
- * bigger week. Fills are solid page colour, which is what lets a nearer week
- * occlude the one behind it.
+ * Interaction is driven from outside: `onSelect(i, meta)` fires with the day
+ * index (or null) and everything the caller needs to draw a tooltip. Hover
+ * previews a day; a tap pins it, because there is no hover on a phone and a
+ * tooltip that vanishes when the finger lifts is a tooltip you cannot read.
  *
- * @param {number[][]} weeks  Oldest first; each is seven daily totals, Mon-Sun.
+ * @param {{name:string,color:string,values:number[]}[]} series  Top first.
+ * @param {number[]} totals  Seven daily totals across all categories.
  */
-export function ridgeline(weeks) {
-  const n = weeks.length;
-  const peak = Math.max(1, ...weeks.flat());
+export function weekAreas(series, totals, { onSelect = () => {} } = {}) {
+  const peak = Math.max(...series.flatMap((s) => s.values), 0);
+  const { top, ticks } = niceScale(peak);
+
+  const pw = WA.w - WA.l - WA.r;
+  const ph = WA.h - WA.t - WA.b;
+  const x = (i) => WA.l + (i / 6) * pw;
+  const y = (v) => WA.t + ph - (v / top) * ph;
 
   const svg = node("svg", {
-    viewBox: `0 0 ${RIDGE.x + (n - 1) * RIDGE.skew + RIDGE.w + 18} 170`,
-    class: "ridge",
+    viewBox: `0 0 ${WA.w} ${WA.h}`,
+    class: "wa",
     role: "img",
-    "aria-label": `Spending by day over the last ${n} weeks, most recent in front.`,
+    "aria-label": "Daily spending this week by category, Monday to Sunday",
   });
 
-  // Back to front: a nearer week has to paint over the one behind it.
-  for (let i = 0; i < n; i++) {
-    const depth = n - 1 - i;          // 0 for the newest week
-    const recency = n > 1 ? i / (n - 1) : 1;
-    const bx = RIDGE.x + depth * RIDGE.skew;
-    const by = RIDGE.y - depth * RIDGE.step;
-
-    const pts = weeks[i].map((v, k) => [
-      bx + (k / 6) * RIDGE.w,
-      by - (v / peak) * RIDGE.amp,
-    ]);
-
-    const line = smoothPath(pts);
-
-    svg.append(node("path", {
-      d: `${line}L${(bx + RIDGE.w).toFixed(1)},${by.toFixed(1)}L${bx.toFixed(1)},${by.toFixed(1)}Z`,
-      class: "ridge-fill",
+  // Gridlines and the axis, drawn first so everything else sits on top.
+  for (const v of ticks) {
+    svg.append(node("line", {
+      x1: WA.l, x2: WA.w - WA.r, y1: y(v).toFixed(1), y2: y(v).toFixed(1),
+      class: v === 0 ? "wa-axis" : "wa-grid",
     }));
-    svg.append(node("path", {
-      d: line,
-      class: "ridge-line",
-      // The newest week is the darkest; older ones recede rather than
-      // competing with it.
-      "stroke-opacity": (0.22 + 0.78 * recency).toFixed(2),
-    }));
+    const t = node("text", { x: WA.l - 6, y: (y(v) + 3).toFixed(1), class: "wa-tick" });
+    t.textContent = compact(v);
+    svg.append(t);
   }
 
-  // Day labels sit on the front baseline, so the x axis is read off the week
-  // that matters most rather than floating under the whole stack.
-  const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
-  DAYS.forEach((d, k) => {
-    const t = node("text", {
-      x: (RIDGE.x + (k / 6) * RIDGE.w).toFixed(1),
-      y: RIDGE.y + 14,
-      class: "ridge-day",
-    });
+  // Areas back to front: the biggest category goes down first so smaller
+  // ones are never buried under it.
+  const markers = [];
+  [...series].reverse().forEach((s) => {
+    const pts = s.values.map((v, i) => [x(i), y(v)]);
+    const line = smoothPath(pts);
+    svg.append(node("path", {
+      d: `${line}L${x(6).toFixed(1)},${y(0).toFixed(1)}L${x(0).toFixed(1)},${y(0).toFixed(1)}Z`,
+      class: "wa-area", fill: s.color,
+    }));
+    svg.append(node("path", { d: line, class: "wa-line", stroke: s.color }));
+  });
+
+  const guide = node("line", { x1: 0, x2: 0, y1: WA.t, y2: WA.t + ph, class: "wa-guide" });
+  svg.append(guide);
+
+  // One marker per series, moved to the selected day. Ringed in page colour
+  // so it reads on top of its own area.
+  for (const s of series) {
+    const m = node("circle", { r: 4, class: "wa-marker", fill: s.color });
+    markers.push(m);
+    svg.append(m);
+  }
+
+  DAY_SHORT.forEach((d, i) => {
+    const t = node("text", { x: x(i).toFixed(1), y: WA.h - 8, class: "wa-day" });
     t.textContent = d;
     svg.append(t);
   });
+
+  let pinned = null;
+
+  const show = (i) => {
+    if (i == null) {
+      guide.classList.remove("is-on");
+      markers.forEach((m) => m.classList.remove("is-on"));
+      svg.querySelectorAll(".wa-day.is-on").forEach((n) => n.classList.remove("is-on"));
+      onSelect(null, null);
+      return;
+    }
+    const gx = x(i).toFixed(1);
+    guide.setAttribute("x1", gx);
+    guide.setAttribute("x2", gx);
+    guide.classList.add("is-on");
+    series.forEach((s, k) => {
+      markers[k].setAttribute("cx", gx);
+      markers[k].setAttribute("cy", y(s.values[i]).toFixed(1));
+      markers[k].classList.toggle("is-on", s.values[i] > 0);
+    });
+    svg.querySelectorAll(".wa-day").forEach((n, k) => n.classList.toggle("is-on", k === i));
+    onSelect(i, {
+      xFrac: i / 6,
+      total: totals[i],
+      parts: series.map((s) => ({ name: s.name, color: s.color, value: s.values[i] })).filter((p) => p.value > 0),
+    });
+  };
+
+  // Hit targets: a full-height column per day, each wider than a fingertip.
+  const slot = pw / 6;
+  DAY_SHORT.forEach((_, i) => {
+    const hit = node("rect", {
+      x: (x(i) - slot / 2).toFixed(1), y: 0, width: slot.toFixed(1), height: WA.h,
+      class: "wa-hit", role: "button", tabindex: 0,
+      "aria-label": `${["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"][i]}, ${totals[i] ? "₹" + Math.round(totals[i]).toLocaleString("en-IN") : "nothing spent"}`,
+    });
+    hit.addEventListener("pointerenter", () => { if (pinned == null) show(i); });
+    hit.addEventListener("click", () => { pinned = pinned === i ? null : i; show(pinned); });
+    hit.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pinned = pinned === i ? null : i; show(pinned); }
+    });
+    hit.addEventListener("focus", () => { if (pinned == null) show(i); });
+    svg.append(hit);
+  });
+  svg.addEventListener("pointerleave", () => { if (pinned == null) show(null); });
 
   return svg;
 }

@@ -194,7 +194,18 @@ function weekByCategory(now = new Date()) {
   return {
     days,
     totals,
-    series: top.map((t) => ({ name: t.name, values: t.values, color: categoryColor(t.name) })),
+    // Shade follows rank, darkest for the biggest. The category colours were
+    // right in the list above, where a swatch sits beside its name; on the
+    // chart, three saturated hues fought the paper. One family of browns,
+    // stepped by size, reads as part of the page. The trade is that a
+    // category's shade can move between weeks as rankings change — the legend
+    // names every series so that never has to be remembered.
+    series: top.map((t, i) => ({
+      name: t.name,
+      values: t.values,
+      color: `var(--ink-${Math.min(i + 1, 5)})`,
+      fill: [0.25, 0.15, 0.10, 0.08, 0.06][Math.min(i, 4)],
+    })),
   };
 }
 

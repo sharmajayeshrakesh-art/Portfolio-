@@ -242,7 +242,7 @@ export function weekAreas(series, totals, { onSelect = () => {} } = {}) {
     const line = smoothPath(pts);
     svg.append(node("path", {
       d: `${line}L${x(6).toFixed(1)},${y(0).toFixed(1)}L${x(0).toFixed(1)},${y(0).toFixed(1)}Z`,
-      class: "wa-area", fill: s.color,
+      class: "wa-area", fill: s.color, "fill-opacity": s.fill ?? 0.16,
     }));
     svg.append(node("path", { d: line, class: "wa-line", stroke: s.color }));
   });

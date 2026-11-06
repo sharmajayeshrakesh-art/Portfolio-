@@ -14,18 +14,20 @@
      Chosen from a set of six shown side by side on the real Home screen. A
      light ground is also the right call for the actual use — this gets opened
      outdoors, in daylight, where a dark screen is the harder one to read. */
-  --bg: #e8e0ce;
-  --bg-high: #efe8d8;
+  /* Sampled from the chart reference: a warm cream with a peach cast,
+     where the earlier beige leaned grey-green. */
+  --bg: #ede2d1;
+  --bg-high: #f3eadb;
 
   /* On paper, depth runs the other way: a raised thing catches more light, so
      each step up is lighter than the page, not darker. */
-  --surface: #f2ebdb;
-  --surface-2: #f7f2e6;
-  --surface-3: #fbf7ee;
+  --surface: #f4ebdc;
+  --surface-2: #f8f1e4;
+  --surface-3: #fbf6ec;
 
   --text: #1c1a15;
-  --muted: #6d6555;
-  --faint: #948b78;
+  --muted: #6f6453;
+  --faint: #978a75;
 
   /* Two accents. Ink carries structure — the active tab, the primary button,
      the chart — and the stamp red is kept for the few things that genuinely
@@ -33,11 +35,11 @@
      coloured accent here would fight the paper. */
   --accent: #1c1a15;
   --accent-soft: #1c1a1514;
-  --accent-ink: #f4eedf;
+  --accent-ink: #f6eee0;
   --danger: #b4402c;
 
-  --hairline: #cdc2a9;
-  --hairline-soft: #ddd4bf;
+  --hairline: #d8c9b1;
+  --hairline-soft: #e4d8c4;
 
   /* Monochrome data ramp, darkest first: the chart's series are drawn from
      the paper's own family rather than the category hues. */
@@ -114,7 +116,7 @@ html, body {
   background:
     radial-gradient(90% 60% at 12% -8%, #b4402c0f, transparent 60%),
     radial-gradient(70% 50% at 108% 8%, #6d655514, transparent 62%),
-    radial-gradient(120% 70% at 50% 108%, #e8e0ce00, #ded5bf 72%);
+    radial-gradient(120% 70% at 50% 108%, #ede2d100, #e4d7c4 72%);
 }
 
 .ground::after {
@@ -1423,7 +1425,7 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
   bottom: 100%;
   height: 32px;
   pointer-events: none;
-  background: linear-gradient(180deg, #e8e0ce00, var(--bg) 92%);
+  background: linear-gradient(180deg, #ede2d100, var(--bg) 92%);
 }
 
 .tab {
@@ -1791,9 +1793,17 @@ button, input { font: inherit; color: inherit; font-variant-numeric: inherit; }
  * The paper grain alone does the job the grid was brought in for.
  */
 .ground {
+  /* The reference's light: brightest toward the top right, falling off to a
+     slightly deeper cream along the left edge and into the bottom corners.
+     Measured off the image, #f4e9d8 at its brightest to #e2d5c1 in the
+     corners — that falloff is most of why the page reads as lit paper rather
+     than a flat fill. */
   background-image:
-    radial-gradient(90% 55% at 12% -8%, #b4402c10, transparent 60%),
-    radial-gradient(70% 45% at 108% 6%, #6d655514, transparent 62%);
+    radial-gradient(85% 60% at 92% 4%, #f6ecdcf2, #f6ecdc00 70%),
+    radial-gradient(70% 55% at 55% 48%, #f1e6d566, #f1e6d500 75%),
+    linear-gradient(90deg, #e2d5c18c, #e2d5c100 22%),
+    radial-gradient(90% 40% at 0% 100%, #e1d3bfaa, #e1d3bf00 70%),
+    radial-gradient(90% 40% at 100% 100%, #e5d8c588, #e5d8c500 70%);
 }
 
 @media (max-width: 380px) {

@@ -40,6 +40,7 @@ const { renderHome } = initHome({
   openScan: () => pickScreenshot(),
   entryRow: (expense) => entryRow(expense),
   openCategory: (category) => openCategory(category),
+  weekWaves: () => weeklyShapeSection(),
 });
 let historyPeriod = "month";
 
@@ -174,8 +175,12 @@ function weeklyShape(count = 8, now = new Date()) {
 /** The ridgeline, or nothing until three weeks have spending in them — one
  *  or two make a lone line on empty paper, which reads as broken. */
 function weeklyShapeSection(now = new Date()) {
-  const weeks = weeklyShape(8, now);
-  if (weeks.filter((w) => w.some((v) => v > 0)).length < 3) return null;
+  // Up to eight weeks, but starting from the first week that has any
+  // spending: leading empty weeks would just be flat lines on the baseline.
+  let weeks = weeklyShape(8, now);
+  const first = weeks.findIndex((w) => w.some((v) => v > 0));
+  if (first === -1) return null;
+  weeks = weeks.slice(first);
 
   const monday = startOfWeek(now);
   const thisWeek = weeks[weeks.length - 1];

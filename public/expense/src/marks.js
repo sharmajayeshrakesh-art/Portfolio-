@@ -174,9 +174,31 @@ function smoothPath(pts) {
 
 /* ---------- weekly waves ---------- */
 
-const WV = { l: 14, r: 14, top: 22, base: 170, w: 340, h: 204 };
-const WAVE_FAR = "#c8ccb0";   // oldest week: pale sage
-const WAVE_NEAR = "#3c4a2c";  // this week: deep olive
+/**
+ * Round, flowing curves for the waves: Catmull-Rom, the shape in the
+ * reference. The monotone cubic used before never overshoots, but it does
+ * that by flattening every crest and kinking every turn, which read as
+ * plateaus and corners rather than hills. Here the control points are only
+ * clamped to the baseline, so a wave can never dip below zero, and is free
+ * to round over everywhere else.
+ */
+function waveSmooth(pts, floorY) {
+  let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1y = Math.min(floorY, p1[1] + (p2[1] - p0[1]) / 6);
+    const c2y = Math.min(floorY, p2[1] - (p3[1] - p1[1]) / 6);
+    d += `C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)},${c1y.toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)},${c2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+
+
+// Wide and short, as in the reference. Days sit at 7%..93% of the width and
+// the waves carry on to both edges.
+const WV = { w: 360, h: 156, top: 30, base: 120, inset: 0.07 };
+const WAVE_FAR = "#c3c6a6";   // oldest week: pale sage
+const WAVE_NEAR = "#33402a";  // this week: deep olive
 
 /** Mixes two #rrggbb colours; t = 0 gives a, t = 1 gives b. */
 function mix(a, b, t) {
@@ -190,14 +212,13 @@ let waveId = 0;
 /**
  * Every week as a soft wave on one shared baseline, Monday to Sunday.
  *
- * Oldest at the back in pale sage, this week in front in deep olive. Each
- * fill fades from its colour at the crest to nothing at the baseline, so
- * where waves cross the colours build up and every week stays visible. A
- * light edge along each crest is what gives the stack its lit, layered look.
+ * Matched to a reference image: pale sage at the back to deep olive in front,
+ * rich fills that stay tinted all the way down, a soft glow along each crest,
+ * waves that run past Monday and Sunday to both edges, dashed gridlines, and
+ * a selected day spotlit with a guide line, a glowing dot, a bubble and a
+ * dark pill under the day.
  *
- * One shared peak: a taller wave is a bigger week. Tapping a day spotlights
- * it — guide line, a dot on this week's curve, the day in a pill — and
- * reports to `onSelect`, which draws the readout.
+ * One shared peak: a taller wave is a bigger week.
  *
  * @param {number[][]} weeks Oldest first; each is seven daily totals, Mon-Sun.
  */
@@ -206,23 +227,25 @@ export function ridgeline(weeks, { selected = null, onSelect = () => {} } = {}) 
   const peak = Math.max(1, ...weeks.flat());
   const uid = `wv${++waveId}`;
 
-  const pw = WV.w - WV.l - WV.r;
-  const x = (k) => WV.l + (k / 6) * pw;
+  const x = (k) => WV.w * (WV.inset + (k / 6) * (1 - 2 * WV.inset));
   const y = (v) => WV.base - (v / peak) * (WV.base - WV.top);
 
   const svg = node("svg", {
     viewBox: `0 0 ${WV.w} ${WV.h}`,
     class: "waves",
     role: "img",
-    "aria-label": `Spending by day over the last ${n} weeks, most recent in front.`,
+    "aria-label": `Spending by day over the last ${n} week${n === 1 ? "" : "s"}, most recent in front.`,
   });
   const defs = node("defs", {});
+  // The halo along each crest: a cream stroke, blurred.
+  const glow = node("filter", { id: `${uid}f`, x: "-10%", y: "-40%", width: "120%", height: "180%" });
+  glow.append(node("feGaussianBlur", { stdDeviation: 1.8 }));
+  defs.append(glow);
   svg.append(defs);
 
-  // Dashed gridlines at thirds of the height.
   for (const f of [1 / 3, 2 / 3, 1]) {
     const gy = (WV.base - f * (WV.base - WV.top)).toFixed(1);
-    svg.append(node("line", { x1: WV.l, x2: WV.w - WV.r, y1: gy, y2: gy, class: "wv-grid" }));
+    svg.append(node("line", { x1: 0, x2: WV.w, y1: gy, y2: gy, class: "wv-grid" }));
   }
 
   for (let i = 0; i < n; i++) {
@@ -230,35 +253,36 @@ export function ridgeline(weeks, { selected = null, onSelect = () => {} } = {}) 
     const shade = mix(WAVE_FAR, WAVE_NEAR, t);
     const gid = `${uid}g${i}`;
     const grad = node("linearGradient", { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 });
-    grad.append(node("stop", { offset: "0%", "stop-color": shade, "stop-opacity": (0.32 + 0.38 * t).toFixed(2) }));
-    grad.append(node("stop", { offset: "100%", "stop-color": shade, "stop-opacity": 0.04 }));
+    grad.append(node("stop", { offset: "0%", "stop-color": shade, "stop-opacity": (0.55 + 0.35 * t).toFixed(2) }));
+    grad.append(node("stop", { offset: "100%", "stop-color": shade, "stop-opacity": (0.18 + 0.30 * t).toFixed(2) }));
     defs.append(grad);
 
-    const line = smoothPath(weeks[i].map((v, k) => [x(k), y(v)]));
-    svg.append(node("path", {
-      d: `${line}L${x(6).toFixed(1)},${WV.base}L${x(0).toFixed(1)},${WV.base}Z`,
-      class: "wv-fill", fill: `url(#${gid})`,
-    }));
-    // A lit edge along the crest, then a fine dark line inside it.
-    svg.append(node("path", { d: line, class: "wv-glow" }));
-    svg.append(node("path", { d: line, class: "wv-line", stroke: mix(shade, "#1f2618", 0.35) }));
+    // Lead in from the left edge and out to the right, so the wave runs the
+    // full width instead of stopping at Monday and Sunday.
+    const w = weeks[i];
+    const pts = [[0, y(w[0] * 0.75)], ...w.map((v, k) => [x(k), y(v)]), [WV.w, y(w[6] * 1.08)]];
+    const line = waveSmooth(pts, WV.base);
+
+    svg.append(node("path", { d: `${line}L${WV.w},${WV.base}L0,${WV.base}Z`, class: "wv-fill", fill: `url(#${gid})` }));
+    svg.append(node("path", { d: line, class: "wv-halo", filter: `url(#${uid}f)`, "stroke-opacity": (0.08 + 0.5 * t * t).toFixed(2) }));
+    svg.append(node("path", { d: line, class: "wv-line", stroke: mix(shade, "#fffbe6", 0.25 + 0.45 * t) }));
   }
 
-  // Baseline with a tick per day.
-  svg.append(node("line", { x1: WV.l, x2: WV.w - WV.r, y1: WV.base, y2: WV.base, class: "wv-axis" }));
+  svg.append(node("line", { x1: 0, x2: WV.w, y1: WV.base, y2: WV.base, class: "wv-axis" }));
   for (let k = 0; k < 7; k++) {
-    svg.append(node("line", { x1: x(k).toFixed(1), x2: x(k).toFixed(1), y1: WV.base - 3, y2: WV.base + 3, class: "wv-tick" }));
+    svg.append(node("line", { x1: x(k).toFixed(1), x2: x(k).toFixed(1), y1: WV.base - 2.5, y2: WV.base + 2.5, class: "wv-tick" }));
   }
 
-  const guide = node("line", { y1: WV.top - 4, y2: WV.base, class: "wv-guide" });
-  const dot = node("circle", { r: 4.5, class: "wv-dot" });
-  svg.append(guide, dot);
+  const guide = node("line", { class: "wv-guide" });
+  const dotHalo = node("circle", { r: 7, class: "wv-dot-halo", filter: `url(#${uid}f)` });
+  const dot = node("circle", { r: 3.6, class: "wv-dot" });
+  svg.append(guide, dotHalo, dot);
 
   const pills = [];
   ["M", "T", "W", "T", "F", "S", "S"].forEach((d, k) => {
     const g = node("g", { class: "wv-day" });
-    g.append(node("rect", { x: (x(k) - 12).toFixed(1), y: WV.base + 10, width: 24, height: 18, rx: 9, class: "wv-pill" }));
-    const lbl = node("text", { x: x(k).toFixed(1), y: WV.base + 23, class: "wv-label" });
+    g.append(node("rect", { x: (x(k) - 11).toFixed(1), y: WV.base + 8, width: 22, height: 17, rx: 8.5, class: "wv-pill" }));
+    const lbl = node("text", { x: x(k).toFixed(1), y: WV.base + 20.5, class: "wv-label" });
     lbl.textContent = d;
     g.append(lbl);
     svg.append(g);
@@ -266,31 +290,23 @@ export function ridgeline(weeks, { selected = null, onSelect = () => {} } = {}) 
   });
 
   const front = weeks[n - 1];
-  let current = null;
   const show = (k) => {
-    current = k;
     svg.classList.toggle("has-spot", k != null);
     pills.forEach((p, j) => p.classList.toggle("is-on", j === k));
     if (k == null) { onSelect(null, null); return; }
     const gx = x(k).toFixed(1);
     const gy = y(front[k]);
+    // From the bubble, through the dot, to the baseline.
     guide.setAttribute("x1", gx); guide.setAttribute("x2", gx);
-    guide.setAttribute("y1", gy.toFixed(1));
-    dot.setAttribute("cx", gx); dot.setAttribute("cy", gy.toFixed(1));
-    onSelect(k, {
-      xFrac: x(k) / WV.w,
-      yFrac: gy / WV.h,
-      value: front[k],
-      lastWeek: n > 1 ? weeks[n - 2][k] : 0,
-    });
+    guide.setAttribute("y1", (gy - 22).toFixed(1)); guide.setAttribute("y2", WV.base);
+    for (const c of [dot, dotHalo]) { c.setAttribute("cx", gx); c.setAttribute("cy", gy.toFixed(1)); }
+    onSelect(k, { xFrac: x(k) / WV.w, yFrac: (gy - 22) / WV.h, value: front[k] });
   };
 
-  // One hit column per day, edge to edge, no overlap.
-  const slot = pw / 6;
+  const slot = WV.w / 7;
   ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].forEach((name, k) => {
     const hit = node("rect", {
-      x: Math.max(0, x(k) - slot / 2).toFixed(1), y: 0,
-      width: (k === 0 || k === 6 ? slot / 2 + WV.l : slot).toFixed(1), height: WV.h,
+      x: (k * slot).toFixed(1), y: 0, width: slot.toFixed(1), height: WV.h,
       class: "wv-hit", role: "button", tabindex: 0, "aria-label": `Show ${name}`,
     });
     hit.addEventListener("click", () => show(k));
@@ -298,8 +314,6 @@ export function ridgeline(weeks, { selected = null, onSelect = () => {} } = {}) 
     svg.append(hit);
   });
 
-  // The spotlight is on at rest, like the reference — a chart that waits for
-  // a tap before saying anything is a chart most people never read.
   queueMicrotask(() => show(selected));
   return svg;
 }

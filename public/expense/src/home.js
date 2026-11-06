@@ -27,7 +27,6 @@ import { sessionDef } from "./plan.js";
 import { summary } from "./gym.js";
 import { $, el, add, clear, amount, rupees, friendlyDate } from "./ui.js";
 import { categoryColor } from "./categories.js";
-import { dotColumn } from "./marks.js";
 
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
 const DOW_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -39,12 +38,14 @@ let openScan = () => {};
 // netted off, say — landed on the other screens and silently not on this one.
 let entryRow = () => null;
 let openCategory = () => {};
+let weekWaves = () => null;
 
 export function initHome(ctx) {
   go = ctx.go;
   openScan = ctx.openScan;
   entryRow = ctx.entryRow;
   openCategory = ctx.openCategory;
+  weekWaves = ctx.weekWaves;
   return { renderHome };
 }
 
@@ -94,7 +95,7 @@ export function renderHome() {
     coldStart ? welcome() : [
       hero(monthSpend, days),
       backupNudge(),
-      weekChart(days),
+      weekWaves(),
       trainingRow(gym, sessions),
       todayEntries(),
       topCategories(from, to, monthSpend),
@@ -160,64 +161,6 @@ function hero(monthSpend, days) {
   );
 }
 
-/**
- * Seven days: spending as columns, training as a row of dots beneath.
- *
- * Two marks over one shared day axis, not two y-scales — the dots are a binary
- * state, not a second measure, so this is not the dual-axis trap.
- */
-function weekChart(days) {
-  const peak = Math.max(...days.map((d) => d.spend), 0);
-  const trained = days.filter((d) => d.session).length;
-
-  const caption = el("p", { class: "chart-caption" });
-  const resetCaption = () => {
-    caption.textContent = trained
-      ? `Trained ${trained} of the last 7 days`
-      : "No sessions in the last 7 days";
-    caption.classList.remove("is-active");
-  };
-
-  const describe = (d) => {
-    const parts = [d.isToday ? "Today" : DOW_FULL[d.dow]];
-    parts.push(d.spend ? rupees(d.spend) : "no spending");
-    parts.push(d.session ? (sessionDef(d.session.slot)?.name || "trained") : "no session");
-    caption.textContent = parts.join(" · ");
-    caption.classList.add("is-active");
-  };
-
-  const columns = days.map((d, i) => {
-    return el("button", {
-      class: `col${d.isToday ? " is-today" : ""}`,
-      type: "button",
-      "aria-label": `${d.isToday ? "Today" : DOW_FULL[d.dow]}, ${d.spend ? rupees(d.spend) : "nothing spent"}, ${d.session ? "trained" : "no session"}`,
-      onclick: () => describe(d),
-    },
-      // --col drives the entrance stagger, so the week grows left to right
-      // rather than all at once.
-      el("span", { class: "col-plot", style: `--col:${i}` },
-        // Still a column on one flat baseline. Comparing days to each other is
-        // the whole job of this chart, and bending it into a ring would make
-        // exactly that harder — only the material changed.
-        dotColumn(d.spend, peak),
-        d.isToday && d.spend
-          ? el("span", { class: "col-value", text: amount(Math.round(d.spend)) })
-          : null,
-      ),
-      el("span", { class: "col-day", text: DOW[d.dow] }),
-      el("span", { class: `dot${d.session ? " is-on" : ""}` }),
-    );
-  });
-
-  resetCaption();
-
-  return el("section", { class: "chart" },
-    el("p", { class: "list-head" }, "Last 7 days",
-      el("span", { class: "list-head-sum", text: "tap a day" })),
-    el("div", { class: "cols" }, columns),
-    caption,
-  );
-}
 
 function trainingRow(gym, sessions) {
   const todaySession = sessions.find((s) => s.date === todayISO());

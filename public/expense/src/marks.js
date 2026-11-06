@@ -131,3 +131,103 @@ export function dotColumn(value, peak) {
 
   return svg;
 }
+
+/* ---------- ridgeline ---------- */
+
+/**
+ * Catmull-Rom through the points, emitted as cubic beziers.
+ *
+ * The reference's curves are smooth, and straight segments between seven
+ * weekly points would look like a different chart entirely. End tangents are
+ * clamped to the end points so the curve does not overshoot past the data.
+ */
+function smoothPath(pts) {
+  if (pts.length < 2) return "";
+  let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] || p2;
+
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+
+    d += `C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+
+const RIDGE = { x: 18, y: 148, w: 232, step: 13, skew: 7, amp: 54 };
+
+/**
+ * A ridgeline: one smooth curve per week, stacked back to front.
+ *
+ * This is the honest form of the reference's 3D surface. A true perspective
+ * mesh hides rows behind taller ones and makes every height ambiguous, so the
+ * one thing a reader wants from it — comparing a value to another value —
+ * stops working. A ridgeline keeps the same stacked, receding look, and every
+ * curve sits on its own baseline where it can still be read.
+ *
+ * Every week is drawn against one shared peak, so a tall ridge really is a
+ * bigger week. Fills are solid page colour, which is what lets a nearer week
+ * occlude the one behind it.
+ *
+ * @param {number[][]} weeks  Oldest first; each is seven daily totals, Mon-Sun.
+ */
+export function ridgeline(weeks) {
+  const n = weeks.length;
+  const peak = Math.max(1, ...weeks.flat());
+
+  const svg = node("svg", {
+    viewBox: `0 0 ${RIDGE.x + (n - 1) * RIDGE.skew + RIDGE.w + 18} 170`,
+    class: "ridge",
+    role: "img",
+    "aria-label": `Spending by day over the last ${n} weeks, most recent in front.`,
+  });
+
+  // Back to front: a nearer week has to paint over the one behind it.
+  for (let i = 0; i < n; i++) {
+    const depth = n - 1 - i;          // 0 for the newest week
+    const recency = n > 1 ? i / (n - 1) : 1;
+    const bx = RIDGE.x + depth * RIDGE.skew;
+    const by = RIDGE.y - depth * RIDGE.step;
+
+    const pts = weeks[i].map((v, k) => [
+      bx + (k / 6) * RIDGE.w,
+      by - (v / peak) * RIDGE.amp,
+    ]);
+
+    const line = smoothPath(pts);
+
+    svg.append(node("path", {
+      d: `${line}L${(bx + RIDGE.w).toFixed(1)},${by.toFixed(1)}L${bx.toFixed(1)},${by.toFixed(1)}Z`,
+      class: "ridge-fill",
+    }));
+    svg.append(node("path", {
+      d: line,
+      class: "ridge-line",
+      // The newest week is the darkest; older ones recede rather than
+      // competing with it.
+      "stroke-opacity": (0.22 + 0.78 * recency).toFixed(2),
+    }));
+  }
+
+  // Day labels sit on the front baseline, so the x axis is read off the week
+  // that matters most rather than floating under the whole stack.
+  const DAYS = ["M", "T", "W", "T", "F", "S", "S"];
+  DAYS.forEach((d, k) => {
+    const t = node("text", {
+      x: (RIDGE.x + (k / 6) * RIDGE.w).toFixed(1),
+      y: RIDGE.y + 14,
+      class: "ridge-day",
+    });
+    t.textContent = d;
+    svg.append(t);
+  });
+
+  return svg;
+}

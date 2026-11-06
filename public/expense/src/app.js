@@ -18,6 +18,7 @@ import {
   $, $$, el, svg, clear, amount, rupees, friendlyDate, shortDate, fromISO,
   add, toast, openSheet, closeSheet, updateSheet, setSheetDismissible, sheetIsOpen, countUp,
 } from "./ui.js";
+import { ridgeline } from "./marks.js";
 
 /**
  * The money face. Gym is deliberately not in here.
@@ -153,6 +154,40 @@ function openCategory(category) {
   go("history");
 }
 
+/**
+ * Daily totals for the last `count` whole weeks, Monday to Sunday, oldest
+ * first — the shape the ridgeline draws. The current, partial week is
+ * included as the front ridge; its unreached days are simply zero.
+ */
+function weeklyShape(count = 8, now = new Date()) {
+  const monday = startOfWeek(now);
+  const weeks = [];
+  for (let w = count - 1; w >= 0; w--) {
+    const days = [];
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(monday);
+      day.setDate(monday.getDate() - w * 7 + d);
+      days.push(store.total(store.onDate(toISODate(day))));
+    }
+    weeks.push(days);
+  }
+  return weeks;
+}
+
+/** The ridgeline section, or nothing: one or two weeks of data make a line
+ *  chart with a lot of empty paper around it, not a ridgeline. */
+function weeklyShapeSection() {
+  const weeks = weeklyShape();
+  const populated = weeks.filter((w) => w.some((v) => v > 0)).length;
+  if (populated < 3) return null;
+
+  return el("section", { class: "list ridge-wrap" },
+    el("p", { class: "list-head" }, "By week",
+      el("span", { class: "list-head-sum", text: "Mon → Sun · newest in front" })),
+    ridgeline(weeks),
+  );
+}
+
 function renderHistory() {
   const screen = clear($("#screen-history"));
   const [from, to] = rangeFor(historyPeriod);
@@ -235,6 +270,8 @@ function renderHistory() {
               )),
           )
         : null,
+
+    filtering ? null : weeklyShapeSection(),
 
     entries.length
       ? el("section", { class: "list" },

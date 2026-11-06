@@ -1977,3 +1977,38 @@ body.in-gym { padding-bottom: calc(26px + env(safe-area-inset-bottom)); }
   .screen.is-entering .dotcol-dot.is-on { animation: none; }
   .meter-dot { transition: none; }
 }
+
+/* ---------- ridgeline ---------- */
+
+.ridge-wrap { padding: 0 var(--gutter); }
+.ridge { display: block; width: 100%; height: auto; margin-top: 6px; }
+
+/* Solid page colour, so a nearer week paints over the one behind it. That
+   occlusion is what makes it read as depth rather than as seven tangled lines. */
+.ridge-fill { fill: var(--bg); }
+
+.ridge-day {
+  fill: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-anchor: middle;
+}
+
+.ridge-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.screen.is-entering .ridge-line {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: ridgein 700ms var(--ease-glide) forwards;
+}
+@keyframes ridgein { to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .screen.is-entering .ridge-line { animation: none; stroke-dashoffset: 0; }
+}

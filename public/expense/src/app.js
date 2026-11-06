@@ -173,13 +173,42 @@ function weeklyShape(count = 8, now = new Date()) {
 
 /** The ridgeline, or nothing until three weeks have spending in them — one
  *  or two make a lone line on empty paper, which reads as broken. */
-function weeklyShapeSection() {
-  const weeks = weeklyShape();
+function weeklyShapeSection(now = new Date()) {
+  const weeks = weeklyShape(8, now);
   if (weeks.filter((w) => w.some((v) => v > 0)).length < 3) return null;
-  return el("section", { class: "list ridge-wrap" },
-    el("p", { class: "list-head" }, "By week",
-      el("span", { class: "list-head-sum", text: "Mon \u2192 Sun \u00b7 newest in front" })),
-    ridgeline(weeks),
+
+  const monday = startOfWeek(now);
+  const thisWeek = weeks[weeks.length - 1];
+  const todayIdx = (now.getDay() + 6) % 7;
+  // Open on this week's biggest day so far, or today if nothing is spent yet.
+  let start = todayIdx;
+  for (let k = 0; k <= todayIdx; k++) if (thisWeek[k] > thisWeek[start]) start = k;
+
+  const tip = el("div", { class: "wv-tip", hidden: true, "aria-live": "polite" });
+
+  const chart = ridgeline(weeks, {
+    selected: start,
+    onSelect: (k, meta) => {
+      if (k == null) { tip.hidden = true; return; }
+      const day = new Date(monday);
+      day.setDate(monday.getDate() + k);
+      clear(tip);
+      add(tip,
+        el("p", { class: "wv-tip-val", text: rupees(meta.value) }),
+        el("p", { class: "wv-tip-date", text: day.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }) }),
+      );
+      // Centred over the day, sitting just above the dot; clamped so the
+      // bubble never runs off either edge.
+      tip.style.left = `${Math.min(84, Math.max(16, meta.xFrac * 100))}%`;
+      tip.style.top = `${meta.yFrac * 100}%`;
+      tip.hidden = false;
+    },
+  });
+
+  return el("section", { class: "wv-wrap" },
+    el("p", { class: "wv-head" }, "By week",
+      el("span", { class: "wv-head-sub", text: "Mon \u2192 Sun \u00b7 newest in front" })),
+    el("div", { class: "wv-stage" }, chart, tip),
   );
 }
 

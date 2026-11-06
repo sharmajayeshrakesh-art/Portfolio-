@@ -2050,17 +2050,62 @@ body.in-gym { padding-bottom: calc(26px + env(safe-area-inset-bottom)); }
   .wa-guide, .wa-marker { transition: none; }
 }
 
-/* ---------- ridgeline ---------- */
+/* ---------- weekly waves ---------- */
 
-.ridge-wrap { padding: 0 var(--gutter); }
-.ridge { display: block; width: 100%; height: auto; margin-top: 6px; }
-/* Colour and opacity are set per ridge; overlap is the point, so no fill is
-   ever opaque. */
-.ridge-line { fill: none; stroke-linejoin: round; stroke-linecap: round; }
-.ridge-day { fill: var(--muted); font-size: 9px; letter-spacing: 0.1em; text-anchor: middle; }
+.wv-wrap { padding: 18px var(--gutter) 6px; }
 
-.screen.is-entering .ridge-line { stroke-dasharray: 600; stroke-dashoffset: 600; animation: ridgein 700ms var(--ease-glide) forwards; }
-.screen.is-entering .ridge-fill { animation: rise 600ms var(--ease-glide) both; }
+/* The section label in a capsule, as in the reference. */
+.wv-head {
+  display: inline-flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  margin: 0; padding: 9px 16px;
+  border: 1px solid var(--hairline); border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text);
+}
+.wv-head::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--text); margin-right: -4px; }
+.wv-head-sub { color: var(--muted); letter-spacing: 0.14em; }
+
+.wv-stage { position: relative; margin-top: 10px; }
+.waves { display: block; width: 100%; height: auto; overflow: visible; }
+
+.wv-grid { stroke: var(--text); stroke-opacity: 0.12; stroke-dasharray: 3 4; }
+.wv-axis { stroke: var(--text); stroke-opacity: 0.35; }
+.wv-tick { stroke: var(--text); stroke-opacity: 0.35; }
+
+.wv-glow { fill: none; stroke: #fffbea; stroke-opacity: 0.75; stroke-width: 2.6; stroke-linejoin: round; }
+.wv-line { fill: none; stroke-width: 0.9; stroke-linejoin: round; }
+
+.wv-guide { stroke: #fffbea; stroke-width: 1.2; opacity: 0; }
+.wv-dot { fill: #fffdf4; stroke: var(--text); stroke-opacity: 0.25; stroke-width: 1; opacity: 0;
+  filter: drop-shadow(0 0 4px #fff8dc); }
+.waves.has-spot .wv-guide, .waves.has-spot .wv-dot { opacity: 1; }
+
+.wv-pill { fill: transparent; transition: fill 160ms ease; }
+.wv-label { fill: var(--muted); font-size: 10px; text-anchor: middle; transition: fill 160ms ease; }
+.wv-day.is-on .wv-pill { fill: var(--text); }
+.wv-day.is-on .wv-label { fill: var(--bg); font-weight: 600; }
+
+.wv-hit { fill: transparent; cursor: pointer; outline: none; }
+.wv-hit:focus-visible { fill: var(--text); fill-opacity: 0.04; }
+
+.wv-tip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 12px));
+  padding: 7px 14px 6px;
+  text-align: center;
+  background: color-mix(in srgb, var(--surface-3) 92%, transparent);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
+  white-space: nowrap;
+  transition: left 220ms var(--ease-glide), top 220ms var(--ease-glide);
+}
+.wv-tip-val { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.wv-tip-date { margin: 1px 0 0; font-size: 11px; color: var(--muted); }
+
+.screen.is-entering .wv-fill { animation: rise 600ms var(--ease-glide) both; }
 @media (prefers-reduced-motion: reduce) {
-  .screen.is-entering .ridge-line, .screen.is-entering .ridge-fill { animation: none; stroke-dashoffset: 0; }
+  .screen.is-entering .wv-fill { animation: none; }
+  .wv-tip, .wv-pill, .wv-label { transition: none; }
 }

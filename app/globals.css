@@ -1,3 +1,24 @@
+/* Family names for the fonts linked in app/layout.tsx. next/font used to set
+   these on <body> at build time; now they are plain tokens and the site-level
+   aliases below add their fallback stacks. */
+:root {
+  --font-space-grotesk: "Space Grotesk";
+  --font-geist: "Geist";
+  --font-geist-mono: "Geist Mono";
+  --font-cormorant-garamond: "Cormorant Garamond";
+  --font-mukta: "Mukta";
+  --font-fraunces: "Fraunces";
+  --font-parisienne: "Parisienne";
+  --font-nunito: "Nunito Sans";
+  --font-playfair: "Playfair Display";
+  --font-anton: "Anton";
+  --font-rajdhani: "Rajdhani";
+  --font-inter: "Inter";
+  --font-jetbrains: "JetBrains Mono";
+  --font-bricolage: "Bricolage Grotesque";
+  --font-karla: "Karla";
+}
+
 @import "tailwindcss";
 
 /* ============================================================

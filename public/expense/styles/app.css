@@ -2049,3 +2049,18 @@ body.in-gym { padding-bottom: calc(26px + env(safe-area-inset-bottom)); }
   .screen.is-entering .wa-line, .screen.is-entering .wa-area { animation: none; stroke-dashoffset: 0; }
   .wa-guide, .wa-marker { transition: none; }
 }
+
+/* ---------- ridgeline ---------- */
+
+.ridge-wrap { padding: 0 var(--gutter); }
+.ridge { display: block; width: 100%; height: auto; margin-top: 6px; }
+/* Colour and opacity are set per ridge; overlap is the point, so no fill is
+   ever opaque. */
+.ridge-line { fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.ridge-day { fill: var(--muted); font-size: 9px; letter-spacing: 0.1em; text-anchor: middle; }
+
+.screen.is-entering .ridge-line { stroke-dasharray: 600; stroke-dashoffset: 600; animation: ridgein 700ms var(--ease-glide) forwards; }
+.screen.is-entering .ridge-fill { animation: rise 600ms var(--ease-glide) both; }
+@media (prefers-reduced-motion: reduce) {
+  .screen.is-entering .ridge-line, .screen.is-entering .ridge-fill { animation: none; stroke-dashoffset: 0; }
+}

@@ -311,3 +311,75 @@ export function weekAreas(series, totals, { onSelect = () => {} } = {}) {
 
   return svg;
 }
+
+/* ---------- ridgeline ---------- */
+
+const RIDGE = { x: 18, y: 150, w: 232, step: 13, skew: 7, amp: 58 };
+
+/** Mixes two #rrggbb colours; t = 0 gives a, t = 1 gives b. */
+function mix(a, b, t) {
+  const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
+  const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
+  return "#" + pa.map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, "0")).join("");
+}
+
+const RIDGE_FAR = "#c9c0b6";  // oldest week: soft clay
+const RIDGE_NEAR = "#2d2926"; // this week: charcoal
+
+/**
+ * One smooth curve per week, Monday to Sunday, stacked back to front.
+ *
+ * Every week takes its own shade from one brown family — clay at the back,
+ * charcoal in front — so age reads as depth. Fills are translucent rather than
+ * solid page colour, so where ridges cross the colours build up and you see
+ * both, instead of the nearer week cutting the one behind it off.
+ *
+ * All weeks share one peak: a taller ridge really is a bigger week.
+ *
+ * @param {number[][]} weeks Oldest first; each is seven daily totals, Mon-Sun.
+ */
+export function ridgeline(weeks) {
+  const n = weeks.length;
+  const peak = Math.max(1, ...weeks.flat());
+
+  const svg = node("svg", {
+    viewBox: `0 0 ${RIDGE.x + (n - 1) * RIDGE.skew + RIDGE.w + 14} 172`,
+    class: "ridge",
+    role: "img",
+    "aria-label": `Spending by day over the last ${n} weeks, most recent in front.`,
+  });
+
+  for (let i = 0; i < n; i++) {
+    const depth = n - 1 - i;              // 0 for this week
+    const t = n > 1 ? i / (n - 1) : 1;     // 0 oldest .. 1 newest
+    const shade = mix(RIDGE_FAR, RIDGE_NEAR, t);
+    const bx = RIDGE.x + depth * RIDGE.skew;
+    const by = RIDGE.y - depth * RIDGE.step;
+
+    const pts = weeks[i].map((v, k) => [bx + (k / 6) * RIDGE.w, by - (v / peak) * RIDGE.amp]);
+    const line = smoothPath(pts);
+
+    svg.append(node("path", {
+      d: `${line}L${(bx + RIDGE.w).toFixed(1)},${by.toFixed(1)}L${bx.toFixed(1)},${by.toFixed(1)}Z`,
+      class: "ridge-fill",
+      fill: shade,
+      // Nearer weeks a touch denser, so the front still reads first where
+      // everything overlaps.
+      "fill-opacity": (0.10 + 0.14 * t).toFixed(2),
+    }));
+    svg.append(node("path", {
+      d: line,
+      class: "ridge-line",
+      stroke: shade,
+      "stroke-width": (1.2 + 0.8 * t).toFixed(2),
+    }));
+  }
+
+  ["M", "T", "W", "T", "F", "S", "S"].forEach((d, k) => {
+    const lbl = node("text", { x: (RIDGE.x + (k / 6) * RIDGE.w).toFixed(1), y: RIDGE.y + 15, class: "ridge-day" });
+    lbl.textContent = d;
+    svg.append(lbl);
+  });
+
+  return svg;
+}

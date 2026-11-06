@@ -18,7 +18,7 @@ import {
   $, $$, el, svg, clear, amount, rupees, friendlyDate, shortDate, fromISO,
   add, toast, openSheet, closeSheet, updateSheet, setSheetDismissible, sheetIsOpen, countUp,
 } from "./ui.js";
-import { weekAreas } from "./marks.js";
+import { ridgeline } from "./marks.js";
 
 /**
  * The money face. Gym is deliberately not in here.
@@ -154,95 +154,32 @@ function openCategory(category) {
   go("history");
 }
 
-/**
- * This week's spending, Monday to Sunday, split by category.
- *
- * The four biggest categories get a line each; anything smaller folds into
- * "Other" so the chart never grows a fifth or sixth colour — past four, lines
- * on one axis stop being tellable apart and the legend stops helping.
- */
-function weekByCategory(now = new Date()) {
+/** Daily totals for the last `count` weeks, Mon-Sun, oldest first. The
+ *  current week is the front ridge; its days still to come are zero. */
+function weeklyShape(count = 8, now = new Date()) {
   const monday = startOfWeek(now);
-  const byCat = new Map();
-  const totals = Array(7).fill(0);
-  const days = [];
-
-  for (let d = 0; d < 7; d++) {
-    const day = new Date(monday);
-    day.setDate(monday.getDate() + d);
-    days.push(toISODate(day));
-    for (const e of store.onDate(days[d])) {
-      const v = store.effectiveAmount(e);
-      if (!byCat.has(e.category)) byCat.set(e.category, Array(7).fill(0));
-      byCat.get(e.category)[d] = money(byCat.get(e.category)[d] + v);
-      totals[d] = money(totals[d] + v);
+  const weeks = [];
+  for (let w = count - 1; w >= 0; w--) {
+    const days = [];
+    for (let d = 0; d < 7; d++) {
+      const day = new Date(monday);
+      day.setDate(monday.getDate() - w * 7 + d);
+      days.push(store.total(store.onDate(toISODate(day))));
     }
+    weeks.push(days);
   }
-
-  const ranked = [...byCat.entries()]
-    .map(([name, values]) => ({ name, values, sum: values.reduce((x, y) => x + y, 0) }))
-    .sort((x, y) => y.sum - x.sum);
-
-  const top = ranked.slice(0, 4);
-  const rest = ranked.slice(4);
-  if (rest.length) {
-    const other = Array(7).fill(0);
-    for (const r of rest) r.values.forEach((v, i) => { other[i] = money(other[i] + v); });
-    top.push({ name: "Other", values: other, sum: other.reduce((x, y) => x + y, 0) });
-  }
-
-  return {
-    days,
-    totals,
-    // Shade follows rank, darkest for the biggest. The category colours were
-    // right in the list above, where a swatch sits beside its name; on the
-    // chart, three saturated hues fought the paper. One family of browns,
-    // stepped by size, reads as part of the page. The trade is that a
-    // category's shade can move between weeks as rankings change — the legend
-    // names every series so that never has to be remembered.
-    series: top.map((t, i) => ({
-      name: t.name,
-      values: t.values,
-      color: `var(--ink-${Math.min(i + 1, 5)})`,
-      fill: [0.25, 0.15, 0.10, 0.08, 0.06][Math.min(i, 4)],
-    })),
-  };
+  return weeks;
 }
 
-const DAY_LONG = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-
-/** The chart, its legend and its tooltip — or nothing, when the week is empty. */
-function weekChartSection() {
-  const { totals, series } = weekByCategory();
-  if (!totals.some((v) => v > 0)) return null;
-
-  const tip = el("div", { class: "wa-tip", hidden: true, "aria-live": "polite" });
-
-  const chart = weekAreas(series, totals, {
-    onSelect: (i, meta) => {
-      if (i == null) { tip.hidden = true; return; }
-      clear(tip);
-      add(tip,
-        el("p", { class: "wa-tip-day" }, DAY_LONG[i],
-          el("span", { class: "wa-tip-total", text: rupees(meta.total) })),
-        meta.parts.length
-          ? meta.parts.map((part) => el("p", { class: "wa-tip-row", style: `--c:${part.color}` },
-              el("span", { class: "wa-tip-name", text: part.name }),
-              el("span", { class: "wa-tip-val", text: rupees(part.value) })))
-          : el("p", { class: "wa-tip-row wa-tip-none", text: "Nothing spent" }),
-      );
-      // Sits over the chart on whichever side has room, never off the edge.
-      tip.classList.toggle("is-right", meta.xFrac < 0.5);
-      tip.hidden = false;
-    },
-  });
-
-  return el("section", { class: "list wa-wrap" },
-    el("p", { class: "list-head" }, "This week",
-      el("span", { class: "list-head-sum", text: "Mon \u2192 Sun \u00b7 tap a day" })),
-    el("div", { class: "wa-legend" },
-      series.map((sr) => el("span", { class: "wa-key", style: `--c:${sr.color}` }, sr.name))),
-    el("div", { class: "wa-stage" }, chart, tip),
+/** The ridgeline, or nothing until three weeks have spending in them — one
+ *  or two make a lone line on empty paper, which reads as broken. */
+function weeklyShapeSection() {
+  const weeks = weeklyShape();
+  if (weeks.filter((w) => w.some((v) => v > 0)).length < 3) return null;
+  return el("section", { class: "list ridge-wrap" },
+    el("p", { class: "list-head" }, "By week",
+      el("span", { class: "list-head-sum", text: "Mon \u2192 Sun \u00b7 newest in front" })),
+    ridgeline(weeks),
   );
 }
 
@@ -329,7 +266,7 @@ function renderHistory() {
           )
         : null,
 
-    filtering ? null : weekChartSection(),
+    filtering ? null : weeklyShapeSection(),
 
     entries.length
       ? el("section", { class: "list" },
